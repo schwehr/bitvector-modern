@@ -64,7 +64,6 @@ class BitVector:
         intVal: int | None = None,
         bitlist: Any = None,
         bitstring: str | None = None,
-        hexstring: str | None = None,
         rawbytes: bytes | None = None,
     ) -> None:
         """Initializes a BitVector instance from one of several possible input sources.
@@ -79,7 +78,6 @@ class BitVector:
             intVal: An integer value to convert into a bit vector.
             bitlist: A sequence or list of integers (0s and 1s) representing bits.
             bitstring: A string of binary characters ('0's and '1's).
-            hexstring: A string of hexadecimal characters to convert to bits.
             rawbytes: A bytes object to unpack into a bit vector.
 
         Raises:
@@ -91,7 +89,6 @@ class BitVector:
             if (
                 bitlist is not None
                 or bitstring is not None
-                or hexstring is not None
                 or rawbytes is not None
             ):
                 raise ValueError(
@@ -154,7 +151,6 @@ class BitVector:
                 intVal is not None
                 or bitlist is not None
                 or bitstring is not None
-                or hexstring is not None
                 or rawbytes is not None
             ):
                 raise ValueError(
@@ -170,7 +166,6 @@ class BitVector:
                 size is not None
                 or intVal is not None
                 or bitlist is not None
-                or hexstring is not None
                 or rawbytes is not None
             ):
                 raise ValueError(
@@ -184,7 +179,6 @@ class BitVector:
                 size is not None
                 or intVal is not None
                 or bitstring is not None
-                or hexstring is not None
                 or rawbytes is not None
             ):
                 raise ValueError(
@@ -192,27 +186,12 @@ class BitVector:
                     "to any other constructor args"
                 )
             self._size = len(bitlist)
-        elif hexstring is not None:
-            if (
-                size is not None
-                or intVal is not None
-                or bitlist is not None
-                or bitstring is not None
-                or rawbytes is not None
-            ):
-                raise ValueError(
-                    "When bits are specified through hexstring, you "
-                    "cannot give values to any other constructor args"
-                )
-            bitlist = [int(b) for h in hexstring.lower() for b in _hexdict[h]]
-            self._size = len(bitlist)
         elif rawbytes is not None:
             if (
                 size is not None
                 or intVal is not None
                 or bitlist is not None
                 or bitstring is not None
-                or hexstring is not None
             ):
                 raise ValueError(
                     "When bits are specified through rawbytes, you "
@@ -229,6 +208,19 @@ class BitVector:
             self[idx] = bit
 
     @classmethod
+    def from_hex(cls, hexstring: str) -> "BitVector":
+        """Creates a BitVector instance from a hexadecimal string.
+
+        Args:
+            hexstring: A string of hexadecimal characters to convert to bits.
+
+        Returns:
+            A new BitVector initialized with the bit representation of the hex string.
+        """
+        bitlist = [int(b) for h in hexstring.lower() for b in _hexdict[h]]
+        return cls(bitlist=bitlist)
+
+    @classmethod
     def from_string(cls, textstring: str) -> "BitVector":
         """Creates a BitVector instance from an ASCII or text string.
 
@@ -239,7 +231,7 @@ class BitVector:
             A new BitVector initialized with the bit representation of the string.
         """
         hex_str = "".join(f"{ord(c):02x}" for c in textstring)
-        return cls(hexstring=hex_str)
+        return cls.from_hex(hex_str)
 
     def __getitem__(self, pos: int | slice) -> Any:
         """Retrieves the bit or slice of bits from the designated position.
@@ -1361,7 +1353,6 @@ class BitVector:
         intVal: int | None = None,
         bitlist: Any = None,
         bitstring: str | None = None,
-        hexstring: str | None = None,
         rawbytes: bytes | None = None,
     ) -> None:
         """Reinitializes the bit vector in-place with new data.
@@ -1375,7 +1366,6 @@ class BitVector:
             intVal: An integer value to convert into a bit vector.
             bitlist: A sequence or list of integers (0s and 1s) representing bits.
             bitstring: A string of binary characters ('0's and '1's).
-            hexstring: A string of hexadecimal characters to convert to bits.
             rawbytes: A bytes object to unpack into a bit vector.
 
         Raises:
@@ -1388,7 +1378,6 @@ class BitVector:
             intVal=intVal,
             bitlist=bitlist,
             bitstring=bitstring,
-            hexstring=hexstring,
             rawbytes=rawbytes,
         )
 
