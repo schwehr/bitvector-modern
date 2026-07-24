@@ -334,7 +334,7 @@ def test_reset_coverage() -> None:
         ("", 0),
     ],
 )
-def test_count_bits(bitstring: str, expected_count: int) -> None:
+def test_bit_count(bitstring: str, expected_count: int) -> None:
     """Tests standard bit counting across normal and empty vectors.
 
     Args:
@@ -346,7 +346,7 @@ def test_count_bits(bitstring: str, expected_count: int) -> None:
         if bitstring
         else BitVector.BitVector(size=0)
     )
-    assert bv.count_bits() == expected_count
+    assert bv.bit_count() == expected_count
 
 
 @pytest.mark.parametrize(
