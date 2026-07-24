@@ -243,32 +243,48 @@ def test_shift_right_extended_vector() -> None:
 
 
 @pytest.mark.parametrize(
-    ("direction", "pad_count", "expected_str", "expected_size"),
+    ("direction", "pad_count", "input_str", "expected_str"),
     [
-        ("left", 2, "00101", 5),
-        ("left", 0, "101", 3),
-        ("right", 2, "10100", 5),
-        ("right", 0, "101", 3),
+        ("left", 2, "101", "00101"),
+        ("left", 0, "101", "101"),
+        ("left", -1, "101", "101"),
+        ("left", 60, "1" * 10, "0" * 60 + "1" * 10),
+        ("left", 64, "1" * 64, "0" * 64 + "1" * 64),
+        ("left", 100, "1" * 50, "0" * 100 + "1" * 50),
+        ("left", 10, "", "0" * 10),
+        ("right", 2, "101", "10100"),
+        ("right", 0, "101", "101"),
+        ("right", -1, "101", "101"),
+        ("right", 60, "1" * 10, "1" * 10 + "0" * 60),
+        ("right", 64, "1" * 64, "1" * 64 + "0" * 64),
+        ("right", 100, "1" * 50, "1" * 50 + "0" * 100),
+        ("right", 10, "", "0" * 10),
     ],
 )
 def test_padding(
-    direction: str, pad_count: int, expected_str: str, expected_size: int
+    direction: str, pad_count: int, input_str: str, expected_str: str
 ) -> None:
-    """Tests pad_from_left and pad_from_right across positive and zero pads.
+    """Tests pad_from_left and pad_from_right across positive, negative, and zero pads across word boundaries.
 
     Args:
         direction: Padding direction ('left' or 'right').
         pad_count: Number of zero bits to prepend or append.
+        input_str: Input bitstring to construct vector.
         expected_str: Expected output vector bitstring.
-        expected_size: Expected integer bit vector size after padding.
     """
-    bv = BitVector.BitVector(bitstring="101")
+    bv = (
+        BitVector.BitVector(bitstring=input_str)
+        if input_str
+        else BitVector.BitVector(size=0)
+    )
     if direction == "left":
+        resized = bv._resize_pad_from_left(pad_count)
+        assert str(resized) == expected_str
         bv.pad_from_left(pad_count)
     else:
         bv.pad_from_right(pad_count)
     assert str(bv) == expected_str
-    assert bv._size == expected_size
+    assert bv._size == len(expected_str)
 
 
 def test_reset_raises_error() -> None:

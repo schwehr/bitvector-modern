@@ -1232,8 +1232,9 @@ class BitVector:
         Returns:
             A new BitVector instance containing the left-padded bits.
         """
-        new_str = "0" * n + str(self)
-        return self.__class__(bitstring=new_str)
+        new_bv = copy.deepcopy(self)
+        new_bv.pad_from_left(n)
+        return new_bv
 
     def pad_from_left(self, n: int) -> None:
         """Pads the bit vector with n zeros from the left in-place.
@@ -1241,13 +1242,42 @@ class BitVector:
         Args:
             n: The integer number of zero bits to prepend to the vector.
         """
-        new_str = "0" * n + str(self)
-        bitlist = list(map(int, list(new_str)))
-        self._size = len(bitlist)
-        eight_byte_ints_needed = (len(bitlist) + 63) // 64
-        self.vector = array.array(ARRAY_TYPE, [0] * eight_byte_ints_needed)
-        for idx, bit in enumerate(bitlist):
-            self[idx] = bit
+        if n <= 0:
+            return
+
+        s1 = self._size
+        if s1 == 0:
+            self._size = n
+            words_needed = (n + 63) // 64
+            self.vector = array.array(ARRAY_TYPE, [0] * words_needed)
+            return
+
+        total_size = s1 + n
+        words_needed = (total_size + 63) // 64
+        word_shift = n // 64
+        bit_shift = n % 64
+
+        num_old_words = (s1 + 63) // 64
+        new_vec = array.array(ARRAY_TYPE, [0] * words_needed)
+
+        if bit_shift == 0:
+            for i in range(num_old_words):
+                new_vec[i + word_shift] = self.vector[i]
+        else:
+            shift_right = 64 - bit_shift
+            for i in range(num_old_words):
+                w = self.vector[i]
+                new_vec[i + word_shift] |= (w << bit_shift) & 0xFFFFFFFFFFFFFFFF
+                high_part = w >> shift_right
+                if high_part and (i + word_shift + 1 < words_needed):
+                    new_vec[i + word_shift + 1] |= high_part
+
+        last_word_bits = total_size % 64
+        if last_word_bits != 0:
+            new_vec[words_needed - 1] &= (1 << last_word_bits) - 1
+
+        self.vector = new_vec
+        self._size = total_size
 
     def pad_from_right(self, n: int) -> None:
         """Pads the bit vector with n zeros from the right in-place.
@@ -1255,13 +1285,15 @@ class BitVector:
         Args:
             n: The integer number of zero bits to append to the vector.
         """
-        new_str = str(self) + "0" * n
-        bitlist = list(map(int, list(new_str)))
-        self._size = len(bitlist)
-        eight_byte_ints_needed = (len(bitlist) + 63) // 64
-        self.vector = array.array(ARRAY_TYPE, [0] * eight_byte_ints_needed)
-        for idx, bit in enumerate(bitlist):
-            self[idx] = bit
+        if n <= 0:
+            return
+
+        total_size = self._size + n
+        words_needed = (total_size + 63) // 64
+        if words_needed > len(self.vector):
+            self.vector.extend([0] * (words_needed - len(self.vector)))
+
+        self._size = total_size
 
     def __contains__(self, otherBitVec: BitVector) -> bool:
         """Checks if a sub-vector is contained within this bit vector.
