@@ -59,10 +59,9 @@ def test_invalid_keyword_error() -> None:
         ),
         ({"size": -5}, r"wrong arg\(s\) for constructor"),
         ({"bitstring": "1010", "rawbytes": b"xy"}, "When a bitstring is specified"),
-        ({"bitlist": [1, 0], "hexstring": "a"}, "When bits are specified"),
         (
-            {"hexstring": "0f", "rawbytes": b"xy"},
-            "When bits are specified through hexstring",
+            {"bitlist": [1, 0], "rawbytes": b"xy"},
+            "When bits are specified, you cannot give values",
         ),
         (
             {"rawbytes": b"xy", "size": -5},
@@ -98,8 +97,6 @@ def test_constructor_conflicting_args_raises_error(
         ({"bitstring": ""}, "", 0),
         ({"bitlist": [1, 1, 0, 1]}, "1101", 4),
         ({"bitlist": []}, "", 0),
-        ({"hexstring": "0FaE"}, "0000111110101110", 16),
-        ({"hexstring": ""}, "", 0),
         ({"rawbytes": b"\x00\xff"}, "0000000011111111", 16),
         ({"rawbytes": b""}, "", 0),
     ],
@@ -126,6 +123,17 @@ def test_from_string() -> None:
 
     bv2 = BitVector.BitVector.from_string("A\x05")
     assert bv2._size == 16
+
+
+def test_from_hex() -> None:
+    """Tests initializing BitVector from a hex string via the from_hex method."""
+    bv = BitVector.BitVector.from_hex("0FaE")
+    assert str(bv) == "0000111110101110"
+    assert bv._size == 16
+
+    bv2 = BitVector.BitVector.from_hex("")
+    assert str(bv2) == ""
+    assert bv2._size == 0
 
 
 def test_intVal_zero_hex_helper() -> None:

@@ -46,7 +46,6 @@ def test_get_bitvector_in_ascii_invalid_length_raises_error(bitstring: str) -> N
 @pytest.mark.parametrize(
     ("kwargs", "expected"),
     [
-        ({"hexstring": "68656c6c6f"}, "68656c6c6f"),
         ({"bitstring": "1111"}, "f"),
         ({"bitstring": "10100000"}, "a0"),
         ({"size": 0}, ""),
@@ -61,6 +60,12 @@ def test_get_bitvector_in_hex(kwargs: dict[str, Any], expected: str) -> None:
     """
     bv = BitVector.BitVector(**kwargs)
     assert bv.get_bitvector_in_hex() == expected
+
+
+def test_get_bitvector_in_hex_from_hex() -> None:
+    """Tests hexadecimal string conversion when initialized via from_hex."""
+    bv = BitVector.BitVector.from_hex("68656c6c6f")
+    assert bv.get_bitvector_in_hex() == "68656c6c6f"
 
 
 @pytest.mark.parametrize("bitstring", ["1", "101", "100001"])
@@ -79,7 +84,6 @@ def test_get_bitvector_in_hex_invalid_length_raises_error(bitstring: str) -> Non
     ("kwargs", "expected"),
     [
         ({"bitstring": "01010111"}, "01010111"),
-        ({"hexstring": "f"}, "1111"),
         ({"size": 0}, ""),
     ],
 )
@@ -92,3 +96,9 @@ def test_str_representation(kwargs: dict[str, Any], expected: str) -> None:
     """
     bv = BitVector.BitVector(**kwargs)
     assert str(bv) == expected
+
+
+def test_str_representation_from_hex() -> None:
+    """Tests the string (__str__) representation when initialized via from_hex."""
+    bv = BitVector.BitVector.from_hex("f")
+    assert str(bv) == "1111"

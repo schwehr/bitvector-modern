@@ -97,15 +97,15 @@ print("Text recovered from the previous bitvector:")
 print(mytext)  # hello
 # jello
 # Construct a bit vector from a hex string:
-print("\nConstructing a bit vector from the hexstring '68656c6c6f':")
-bv4 = BitVector(hexstring="68656c6c6f")
+print("\nConstructing a bit vector from the hex string '68656c6c6f':")
+bv4 = BitVector.from_hex("68656c6c6f")
 print(bv4)  # 0110100001100101011011000110110001101111
 myhexstring = bv4.get_bitvector_in_hex()
 print("Hex string recovered from the previous bitvector: ")
 print(myhexstring)  # 68656c6c6f
 
-print("\nConstructing a bit vector from the uppercase hexstring '68656C6C6F':")
-bv4 = BitVector(hexstring="68656C6C6F")
+print("\nConstructing a bit vector from the uppercase hex string '68656C6C6F':")
+bv4 = BitVector.from_hex("68656C6C6F")
 print(bv4)  # 0110100001100101011011000110110001101111
 myhexstring = bv4.get_bitvector_in_hex()
 print("Hex string recovered from the previous bitvector: ")
