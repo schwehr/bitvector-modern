@@ -1060,6 +1060,24 @@ class BitVector:
             return ""
         return "".join(map(str, self))
 
+    def __format__(self, format_spec: str) -> str:
+        """Formats the bit vector for string interpolation.
+
+        Attempts to format using the string representation first. If that raises
+        a ValueError (e.g., when an integer format specifier like 'x' or 'b'
+        is used), it falls back to formatting the integer representation.
+
+        Args:
+            format_spec: The format specification string.
+
+        Returns:
+            The formatted string.
+        """
+        try:
+            return format(str(self), format_spec)
+        except ValueError:
+            return format(int(self), format_spec)
+
     def __eq__(self, other: object) -> bool:
         """Checks equality between this bit vector and another object.
 
