@@ -504,18 +504,18 @@ print("bv1= " + str(bv1))  # 1111111111111111111111111
 print(bv1[3:9].reset(0))  # 000000
 print(bv1[:].reset(0))  # 0000000000000000000000000
 
-print("\nTesting count_bit():")
+print("\nTesting bit_count():")
 bv = BitVector(intVal=45, size=16)
-y = bv.count_bits()
+y = bv.bit_count()
 print(y)  # 4
 bv = BitVector(bitstring="100111")
-print(bv.count_bits())  # 4
+print(bv.bit_count())  # 4
 bv = BitVector(bitstring="00111000")
-print(bv.count_bits())  # 3
+print(bv.bit_count())  # 3
 bv = BitVector(bitstring="001")
-print(bv.count_bits())  # 1
+print(bv.bit_count())  # 1
 bv = BitVector(bitstring="00000000000000")
-print(bv.count_bits())  # 0
+print(bv.bit_count())  # 0
 
 print("\nTest set_value idea:")
 bv = BitVector(intVal=7, size=16)

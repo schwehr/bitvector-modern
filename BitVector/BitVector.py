@@ -1346,13 +1346,16 @@ class BitVector:
                 self.vector[-1] = (1 << rem) - 1
         return self
 
-    def count_bits(self) -> int:
+    def bit_count(self) -> int:
         """Counts the total number of set bits (1s) in the bit vector.
+
+        Consistent with Python's built-in int.bit_count().
 
         Returns:
             The integer count of bits set to 1.
         """
         return sum(self)
+
 
     def set_value(
         self,
@@ -1518,7 +1521,7 @@ class BitVector:
         if self[position] != 1:
             raise ValueError("the arg bit not set")
         bv = self[0 : position + 1]
-        return bv.count_bits()
+        return bv.bit_count()
 
     def is_power_of_2(self) -> bool:
         """Checks whether the integer value of the vector is a power of two.

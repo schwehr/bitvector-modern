@@ -85,7 +85,7 @@ The core functionality of `bitvector-modern` is implemented in
 - **Conversions & Output**: Integer conversion (`int()`), string output
   (`get_bitvector_in_ascii()`, `get_bitvector_in_hex()`, `__str__`), and stream
   writing (`write_to_file`, `write_bits_to_stream_object`).
-- **Analysis & Metrics**: Bit counting (`count_bits`, `count_bits_sparse`),
+- **Analysis & Metrics**: Bit counting (`bit_count`, `count_bits_sparse`),
   distance/similarity (`hamming_distance`, `jaccard_similarity`,
   `jaccard_distance`), `runs()`, `next_set_bit()`, `rank_of_bit_set_at_index()`,
   and power-of-two checks (`is_power_of_2`).
