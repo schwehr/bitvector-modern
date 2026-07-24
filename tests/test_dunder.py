@@ -408,6 +408,30 @@ def test_str(bitstring: str, expected: str) -> None:
     assert str(bv) == expected
 
 
+def test_format() -> None:
+    """Tests __format__ string and integer interpolation."""
+    bv = BitVector.BitVector(intVal=15, size=8)
+
+    # Test formatting with no specifier (defaults to str)
+    assert f"{bv}" == "00001111"
+
+    # Test formatting as string (padding, alignment)
+    assert f"{bv:<10}" == "00001111  "
+    assert f"{bv:s}" == "00001111"
+
+    # Test formatting as integer (hex, binary, decimal, etc.)
+    assert f"{bv:x}" == "f"
+    assert f"{bv:X}" == "F"
+    assert f"{bv:08b}" == "00001111"
+    assert f"{bv:d}" == "15"
+
+    # Test formatting empty vector
+    bv_empty = BitVector.BitVector(size=0)
+    assert f"{bv_empty}" == ""
+    assert f"{bv_empty:10}" == "          "
+    assert f"{bv_empty:d}" == "0"
+
+
 @pytest.mark.parametrize(
     ("bitstring", "expected"),
     [
