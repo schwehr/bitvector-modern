@@ -97,6 +97,7 @@ def test_str_representation(kwargs: dict[str, Any], expected: str) -> None:
     bv = BitVector.BitVector(**kwargs)
     assert str(bv) == expected
 
+
 def test_str_representation_from_hex() -> None:
     """Tests the string (__str__) representation when initialized via from_hex."""
     bv = BitVector.BitVector.from_hex("f")

@@ -86,11 +86,7 @@ class BitVector:
         """
         self._size = 0
         if intVal is not None:
-            if (
-                bitlist is not None
-                or bitstring is not None
-                or rawbytes is not None
-            ):
+            if bitlist is not None or bitstring is not None or rawbytes is not None:
                 raise ValueError(
                     "When intVal is specified, you can only give a "
                     "value to the 'size' constructor arg"
