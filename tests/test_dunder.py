@@ -97,6 +97,50 @@ def test_iadd() -> None:
 
 
 @pytest.mark.parametrize(
+    ("s1", "s2"),
+    [
+        ("1", "0"),
+        ("10101", "01101"),
+        ("1" * 64, "0" * 64),
+        ("1" * 64, "0" * 30),
+        ("1" * 50, "0" * 30),
+        ("1" * 60, "0" * 10),
+        ("1" * 60, "0" * 100),
+        ("1" * 100, "0" * 100),
+        ("", "1010"),
+        ("1010", ""),
+        ("", ""),
+    ],
+)
+def test_iadd_alignment_cases(s1: str, s2: str) -> None:
+    """Tests __iadd__ across various word-alignment boundaries and sizes."""
+    bv1 = BitVector.BitVector(bitstring=s1) if s1 else BitVector.BitVector(size=0)
+    bv2 = BitVector.BitVector(bitstring=s2) if s2 else BitVector.BitVector(size=0)
+    bv1 += bv2
+    assert str(bv1) == s1 + s2
+    assert len(bv1) == len(s1) + len(s2)
+
+
+@pytest.mark.parametrize(
+    "s",
+    [
+        "1",
+        "101",
+        "1" * 5,
+        "1" * 60,
+        "10" * 32,
+        "1" * 100,
+    ],
+)
+def test_iadd_self_concatenation(s: str) -> None:
+    """Tests in-place self-concatenation (bv += bv)."""
+    bv = BitVector.BitVector(bitstring=s)
+    bv += bv
+    assert str(bv) == s + s
+    assert len(bv) == len(s) * 2
+
+
+@pytest.mark.parametrize(
     ("bitstring", "expected"),
     [
         ("10100111", "01011000"),

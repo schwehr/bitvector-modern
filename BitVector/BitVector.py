@@ -449,24 +449,45 @@ class BitVector:
         """
         if not isinstance(other, type(self)):
             raise TypeError(f"Can only join two BitVector objects, not {type(other)}")
-        # Calculate number of two-byte ints we will need to add and extend the vector.
-        eight_byte_ints_to_add = (self._size + other._size + 63) // 64 - len(
-            self.vector
-        )
-        self.vector.extend([0] * eight_byte_ints_to_add)
-        # Add the bits
-        curr_bit = self._size % 64
-        curr_eight_byte_int = self._size // 64
-        for bit in other:
-            mask = ~(1 << curr_bit) & 0xFFFFFFFFFFFFFFFF
-            self.vector[curr_eight_byte_int] = (
-                self.vector[curr_eight_byte_int] & mask
-            ) | (bit << curr_bit)
-            curr_bit += 1
-            curr_eight_byte_int += curr_bit // 64
-            curr_bit %= 64
 
-        self._size += other._size
+        if not other._size:
+            return self
+
+        total_size = self._size + other._size
+        start_word = self._size // 64
+        offset = self._size % 64
+
+        words_needed = (total_size + 63) // 64
+        if words_needed > len(self.vector):
+            self.vector.extend([0] * (words_needed - len(self.vector)))
+
+        # Clean trailing unused bits in the current last word of self
+        if offset > 0:
+            self.vector[start_word] &= (1 << offset) - 1
+
+        num_other_words = (other._size + 63) // 64
+
+        if offset == 0:
+            for i in range(num_other_words):
+                self.vector[start_word + i] = other.vector[i]
+        else:
+            # Zero out remaining words in self to allow safe bitwise OR
+            for idx in range(start_word + 1, words_needed):
+                self.vector[idx] = 0
+
+            shift_right = 64 - offset
+            for i in range(num_other_words):
+                w = other.vector[i]
+                self.vector[start_word + i] |= (w << offset) & 0xFFFFFFFFFFFFFFFF
+                high_part = w >> shift_right
+                if high_part and (start_word + i + 1 < words_needed):
+                    self.vector[start_word + i + 1] |= high_part
+
+        last_word_bits = total_size % 64
+        if last_word_bits != 0:
+            self.vector[words_needed - 1] &= (1 << last_word_bits) - 1
+
+        self._size = total_size
         return self
 
     def __len__(self) -> int:
