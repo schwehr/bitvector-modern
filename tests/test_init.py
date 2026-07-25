@@ -162,6 +162,9 @@ def test_from_int() -> None:
     ):
         BitVector.BitVector.from_int(255, size=2)
 
+    with pytest.raises(ValueError, match="val must be non-negative"):
+        BitVector.BitVector.from_int(-5)
+
 
 def test_from_bytes() -> None:
     """Tests initializing BitVector via the from_bytes class method."""

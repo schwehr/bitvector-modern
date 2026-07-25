@@ -55,6 +55,11 @@ def test_bench_init_int(benchmark):
     benchmark(BitVector.BitVector.from_int, 0x123456789ABCDEF0, size=64)
 
 
+def test_bench_init_int_large(benchmark):
+    val = (1 << 1000) - 123456789
+    benchmark(BitVector.BitVector.from_int, val, size=1000)
+
+
 def test_bench_init_bitstring(benchmark):
     bitstr = "1010" * 250
     benchmark(BitVector.BitVector.from_bitstring, bitstr)
