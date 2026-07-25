@@ -1353,7 +1353,7 @@ class BitVector:
                 self.vector[-1] = (1 << rem) - 1
         return self
 
-    def count_bits(self) -> int:
+    def bit_count(self) -> int:
         """Counts the total number of set bits (1s) in the bit vector.
 
         Utilizes Python's native int.bit_count() mapping down to CPU POPCNT
@@ -1396,7 +1396,7 @@ class BitVector:
             bitlist=bitlist,
         )
 
-    def count_bits_sparse(self) -> int:
+    def bit_count_sparse(self) -> int:
         """Counts set bits in sparse bit vectors using native bit counting.
 
         Optimized for large, sparse bit vectors by skipping zero-valued words
@@ -1435,7 +1435,7 @@ class BitVector:
             )
         intersect = self & other
         union = self | other
-        return intersect.count_bits_sparse() / float(union.count_bits_sparse())
+        return intersect.bit_count_sparse() / float(union.bit_count_sparse())
 
     def jaccard_distance(self, other: BitVector) -> float:
         """Calculates the Jaccard distance coefficient between two vectors.
@@ -1468,7 +1468,7 @@ class BitVector:
         if self._size != other._size:
             raise ValueError("vectors of unequal length")
         diff = self ^ other
-        return diff.count_bits_sparse()
+        return diff.bit_count_sparse()
 
     def next_set_bit(self, from_index: int = 0) -> int:
         """Finds the index of the next set bit starting from from_index.
@@ -1521,7 +1521,7 @@ class BitVector:
         if self[position] != 1:
             raise ValueError("the arg bit not set")
         bv = self[0 : position + 1]
-        return bv.count_bits()
+        return bv.bit_count()
 
     def is_power_of_2(self) -> bool:
         """Checks whether the integer value of the vector is a power of two.
@@ -1544,7 +1544,7 @@ class BitVector:
         Returns:
             True if exactly one bit is set to 1, else False.
         """
-        return self.count_bits_sparse() == 1
+        return self.bit_count_sparse() == 1
 
     def reverse(self) -> Self:
         """Reverses the order of bits in the vector (left-to-right becomes right-to-left).

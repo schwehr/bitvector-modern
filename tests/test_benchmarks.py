@@ -147,8 +147,8 @@ def test_bench_getitem(benchmark, sample_bv1):
     benchmark(operator.getitem, sample_bv1, 500)
 
 
-def test_bench_count_bits(benchmark, sample_bv1):
-    benchmark(sample_bv1.count_bits)
+def test_bench_bit_count(benchmark, sample_bv1):
+    benchmark(sample_bv1.bit_count)
 
 
 def test_bench_int(benchmark, sample_bv1):
@@ -174,8 +174,8 @@ def test_bench_jaccard_similarity(benchmark, sample_bv1, sample_bv2):
     benchmark(sample_bv1.jaccard_similarity, sample_bv2)
 
 
-def test_bench_count_bits_sparse(benchmark, sample_bv1):
-    benchmark(sample_bv1.count_bits_sparse)
+def test_bench_bit_count_sparse(benchmark, sample_bv1):
+    benchmark(sample_bv1.bit_count_sparse)
 
 
 def test_bench_is_power_of_2(benchmark, sample_bv1):
