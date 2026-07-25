@@ -1,9 +1,10 @@
 # Porting Guide
 
 The codebase has undergone a modernization and refactoring effort. As part of
-this, many legacy method aliases and naming conventions from Avi Kak's original
-3.5.0 version have been removed in favor of Python's standard `snake_case`
-conventions and special dunder methods.
+this, many legacy method aliases and naming conventions from
+[Avi Kak's original 3.5.0 version](https://engineering.purdue.edu/kak/dist/BitVector-3.5.0.html)
+have been removed in favor of Python's standard `snake_case` conventions and
+special dunder methods.
 
 If you are migrating code that was written for the original `BitVector` 3.5.0 to
 this modern fork, you will need to update your method calls.
