@@ -1358,7 +1358,14 @@ class BitVector:
         Returns:
             The integer count of bits set to 1.
         """
-        return sum(self)
+        if not self._size:
+            return 0
+        count = sum(w.bit_count() for w in self.vector)
+        word_size = self.vector.itemsize * 8
+        remainder = self._size % word_size
+        if remainder:
+            count -= (self.vector[-1] >> remainder).bit_count()
+        return count
 
     def set_value(
         self,
@@ -1403,17 +1410,7 @@ class BitVector:
         Returns:
             The integer count of bits set to 1.
         """
-        num = 0
-        for intval in self.vector:
-            if intval == 0:
-                continue
-            c = 0
-            iv = intval
-            while iv > 0:
-                iv = iv & (iv - 1)
-                c = c + 1
-            num = num + c
-        return num
+        return self.count_bits()
 
     def jaccard_similarity(self, other: BitVector) -> float:
         """Calculates the Jaccard similarity coefficient between two vectors.
