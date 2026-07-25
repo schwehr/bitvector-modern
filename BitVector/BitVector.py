@@ -119,10 +119,12 @@ class BitVector:
             ValueError: If val is negative or if size is less than the minimum
                 required bits for val.
         """
+        if not isinstance(val, int):
+            val = int(val)
         if val < 0:
             raise ValueError("val must be non-negative")
 
-        min_bits = 1 if val == 0 else val.bit_length()
+        min_bits = val.bit_length()
         if size is not None:
             if size < min_bits:
                 raise ValueError(
@@ -132,7 +134,7 @@ class BitVector:
                 )
             target_size = size
         else:
-            target_size = min_bits
+            target_size = 1 if val == 0 else min_bits
 
         bv = cls(size=0)
         bv._size = target_size
