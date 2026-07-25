@@ -9,7 +9,7 @@ from BitVector import BitVector, BitVectorProtocol
 
 
 def test_protocol() -> None:
-    bv = BitVector(intVal=42, size=8)
+    bv = BitVector.from_int(42, size=8)
     bv_proto = cast(BitVectorProtocol, bv)
     assert int(bv_proto) == 42
     assert len(bv_proto) == 8

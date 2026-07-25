@@ -54,7 +54,7 @@ def test_permutations(
     else:
         raise ValueError(f"Unsupported operator: {op}")
 
-    assert result == BitVector.BitVector(bitstring=expected)
+    assert result == BitVector.BitVector.from_bitstring(expected)
 
 
 @pytest.mark.parametrize("op", ["permute", "unpermute"])

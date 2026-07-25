@@ -61,97 +61,41 @@ class BitVector:
         self,
         *,
         size: int | None = None,
-        intVal: int | None = None,
         bitlist: Any = None,
-        bitstring: str | None = None,
-        rawbytes: bytes | None = None,
     ) -> None:
-        """Initializes a BitVector instance from one of several possible input sources.
+        """Initializes a BitVector instance.
 
-        You must specify exactly one keyword argument to determine the data
-        source and size of the bit vector (except 'size' which may accompany 'intVal').
-        Providing multiple data source arguments will raise a ValueError.
+        You must specify either a 'size' for a zero-initialized vector or a 'bitlist'
+        containing a sequence of bits (0s and 1s). Specifying both or neither will
+        raise a ValueError.
 
         Args:
-            size: The desired number of bits for a zero-initialized vector (or
-                used in conjunction with intVal).
-            intVal: An integer value to convert into a bit vector.
+            size: The desired number of bits for a zero-initialized vector.
             bitlist: A sequence or list of integers (0s and 1s) representing bits.
-            bitstring: A string of binary characters ('0's and '1's).
-            rawbytes: A bytes object to unpack into a bit vector.
 
         Raises:
             ValueError: If no argument is provided, if mutually exclusive
                 arguments are specified together, or if input values are invalid.
         """
         self._size = 0
-        if intVal is not None:
-            if bitlist is not None or bitstring is not None or rawbytes is not None:
+        if size is not None and size >= 0:
+            if bitlist is not None:
                 raise ValueError(
-                    "When intVal is specified, you can only give a "
-                    "value to the 'size' constructor arg"
-                )
-            bv = self.from_int(intVal, size=size)
-            self._size = bv._size
-            self.vector = bv.vector
-        elif size is not None and size >= 0:
-            if (
-                intVal is not None
-                or bitlist is not None
-                or bitstring is not None
-                or rawbytes is not None
-            ):
-                raise ValueError(
-                    "When size is specified (without an intVal), you cannot "
-                    "give values to any other constructor args"
+                    "When size is specified, you cannot give values to any other constructor args"
                 )
             self._size = size
             eight_byte_ints_needed = (size + 63) // 64
             self.vector = array.array(ARRAY_TYPE, [0] * eight_byte_ints_needed)
-        elif bitstring is not None:
-            if (
-                size is not None
-                or intVal is not None
-                or bitlist is not None
-                or rawbytes is not None
-            ):
-                raise ValueError(
-                    "When a bitstring is specified, you cannot give "
-                    "values to any other constructor args"
-                )
-            bv = self.from_bitstring(bitstring)
-            self._size = bv._size
-            self.vector = bv.vector
         elif bitlist is not None:
-            if (
-                size is not None
-                or intVal is not None
-                or bitstring is not None
-                or rawbytes is not None
-            ):
+            if size is not None:
                 raise ValueError(
-                    "When bits are specified, you cannot give values "
-                    "to any other constructor args"
+                    "When bits are specified, you cannot give values to any other constructor args"
                 )
             self._size = len(bitlist)
             eight_byte_ints_needed = (len(bitlist) + 63) // 64
             self.vector = array.array(ARRAY_TYPE, [0] * eight_byte_ints_needed)
             for idx, bit in enumerate(bitlist):
                 self[idx] = bit
-        elif rawbytes is not None:
-            if (
-                size is not None
-                or intVal is not None
-                or bitlist is not None
-                or bitstring is not None
-            ):
-                raise ValueError(
-                    "When bits are specified through rawbytes, you "
-                    "cannot give values to any other constructor args"
-                )
-            bv = self.from_bytes(rawbytes)
-            self._size = bv._size
-            self.vector = bv.vector
         else:
             raise ValueError("wrong arg(s) for constructor")
 
@@ -351,9 +295,9 @@ class BitVector:
                 slicebits.append(self[x])
             return BitVector(bitlist=slicebits)
         if self._size == 0:
-            return BitVector(bitstring="")
+            return BitVector.from_bitstring("")
         if i == j:
-            return BitVector(bitstring="")
+            return BitVector.from_bitstring("")
         for x in range(i, j):
             slicebits.append(self[x])
         return BitVector(bitlist=slicebits)
@@ -472,7 +416,7 @@ class BitVector:
             new_bv.vector.frombytes(self.vector.tobytes())
         else:
             out_str = str(self) + str(other)
-            return self.__class__(bitstring=out_str)
+            return self.__class__.from_bitstring(out_str)
         new_bv._size = self._size
         new_bv += other
         return new_bv
@@ -1428,10 +1372,7 @@ class BitVector:
         self,
         *,
         size: int | None = None,
-        intVal: int | None = None,
         bitlist: Any = None,
-        bitstring: str | None = None,
-        rawbytes: bytes | None = None,
     ) -> None:
         """Reinitializes the bit vector in-place with new data.
 
@@ -1439,12 +1380,8 @@ class BitVector:
         the current vector's size and contents.
 
         Args:
-            size: The desired number of bits for a zero-initialized vector (or
-                used in conjunction with intVal).
-            intVal: An integer value to convert into a bit vector.
+            size: The desired number of bits for a zero-initialized vector.
             bitlist: A sequence or list of integers (0s and 1s) representing bits.
-            bitstring: A string of binary characters ('0's and '1's).
-            rawbytes: A bytes object to unpack into a bit vector.
 
         Raises:
             ValueError: If no argument is provided, if mutually exclusive
@@ -1453,10 +1390,7 @@ class BitVector:
         BitVector.__init__(
             self,
             size=size,
-            intVal=intVal,
             bitlist=bitlist,
-            bitstring=bitstring,
-            rawbytes=rawbytes,
         )
 
     def count_bits_sparse(self) -> int:
@@ -1585,7 +1519,7 @@ class BitVector:
         """
         if int(self) == 0:
             return False
-        bv = self & BitVector(intVal=int(self) - 1)
+        bv = self & BitVector.from_int(int(self) - 1)
         if int(bv) == 0:
             return True
         return False
@@ -1627,7 +1561,7 @@ class BitVector:
             a, b = b, a
         while b != 0:
             a, b = b, a % b
-        return self.__class__(intVal=a)
+        return self.__class__.from_int(a)
 
     def multiplicative_inverse(self, modulus: BitVector) -> Self | None:
         """Calculates the modular multiplicative inverse using integer arithmetic.
@@ -1655,7 +1589,7 @@ class BitVector:
             return None
 
         MI = (x_old + MOD) % MOD
-        return self.__class__(intVal=MI)
+        return self.__class__.from_int(MI)
 
     def gf_multiply(self, b: BitVector) -> Self:
         """Multiplies two polynomials in Galois Field GF(2).
@@ -1695,7 +1629,7 @@ class BitVector:
         num = self
         if len(mod) > n + 1:
             raise ValueError("Modulus bit pattern too long")
-        quotient = self.__class__(intVal=0, size=len(num))
+        quotient = self.__class__.from_int(0, size=len(num))
         remainder = copy.deepcopy(num)
         i = 0
         while 1:
@@ -1753,8 +1687,8 @@ class BitVector:
         NUM = copy.deepcopy(num)
         MOD = copy.deepcopy(mod)
         x = self.__class__(size=len(mod))
-        x_old = self.__class__(intVal=1, size=len(mod))
-        y = self.__class__(intVal=1, size=len(mod))
+        x_old = self.__class__.from_int(1, size=len(mod))
+        y = self.__class__.from_int(1, size=len(mod))
         y_old = self.__class__(size=len(mod))
         while int(mod):
             quotient, remainder = num.gf_divide_by_modulus(mod, n)
@@ -1851,7 +1785,7 @@ class BitVector:
         candidate |= 1
         candidate |= 1 << width - 1
         candidate |= 2 << width - 3
-        return self.__class__(intVal=candidate)
+        return self.__class__.from_int(candidate)
 
     def min_canonical(self) -> Self:
         """Finds the minimum canonical circular rotation of the bit vector.
@@ -1863,4 +1797,4 @@ class BitVector:
             A new BitVector instance representing the minimum canonical rotation.
         """
         intvals_for_circular_shifts = [int(self << i) for i in range(len(self))]
-        return self.__class__(intVal=min(intvals_for_circular_shifts), size=len(self))
+        return self.__class__.from_int(min(intvals_for_circular_shifts), size=len(self))
