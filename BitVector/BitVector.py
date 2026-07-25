@@ -103,8 +103,12 @@ class BitVector:
     def from_int(cls, val: int, size: int | None = None) -> Self:
         """Creates a BitVector instance from an integer value.
 
+        Directly constructs the internal storage array using word-level bitwise
+        masking and bit shifts, bypassing intermediate string formatting and
+        dictionary lookups.
+
         Args:
-            val: An integer value to convert into a bit vector.
+            val: A non-negative integer value to convert into a bit vector.
             size: Optional target size for the bit vector. If provided, must be at
                 least as large as the minimal bit vector required to represent val.
 
@@ -112,58 +116,54 @@ class BitVector:
             A new BitVector instance initialized with the bit representation of val.
 
         Raises:
-            ValueError: If size is less than the minimum required bits for val.
+            ValueError: If val is negative or if size is less than the minimum
+                required bits for val.
         """
-        if val == 0:
-            bitlist = [0]
-            if size is None:
-                pass
-            elif size == 0:
+        if not isinstance(val, int):
+            val = int(val)
+        if val < 0:
+            raise ValueError("val must be non-negative")
+
+        min_bits = val.bit_length()
+        if size is not None:
+            if size < min_bits:
                 raise ValueError(
                     "The value specified for size must be at least "
                     "as large as for the smallest bit vector possible "
                     "for intVal"
                 )
-            else:
-                if size < len(bitlist):
-                    raise ValueError(
-                        "The value specified for size must be at least "
-                        "as large as for the smallest bit vector "
-                        "possible for intVal"
-                    )
-                n = size - len(bitlist)
-                bitlist = [0] * n + bitlist
+            target_size = size
         else:
-            hex_val = hex(val).lower().rstrip("l")
-            hex_val = hex_val[2:]
-            if len(hex_val) == 1:
-                hex_val = "0" + hex_val
-            bitlist = [int(b) for h in hex_val for b in _hexdict[h]]
-            i = 0
-            while i < len(bitlist):
-                if bitlist[i] == 1:
-                    break
-                i += 1
-            del bitlist[0:i]
-            if size is None:
-                pass
-            elif size == 0:
-                if size < len(bitlist):
-                    raise ValueError(
-                        "The value specified for size must be at least "
-                        "as large as for the smallest bit vector possible "
-                        "for intVal"
-                    )
-            else:
-                if size < len(bitlist):
-                    raise ValueError(
-                        "The value specified for size must be at least "
-                        "as large as for the smallest bit vector possible "
-                        "for intVal"
-                    )
-                n = size - len(bitlist)
-                bitlist = [0] * n + bitlist
-        return cls(bitlist=bitlist)
+            target_size = 1 if val == 0 else min_bits
+
+        bv = cls(size=0)
+        bv._size = target_size
+        if target_size == 0:
+            bv.vector = array.array(ARRAY_TYPE)
+            return bv
+
+        words_needed = (target_size + 63) // 64
+        vec = array.array(ARRAY_TYPE, [0] * words_needed)
+
+        shift = (words_needed * 64) - target_size
+        aligned_val = val << shift
+
+        for i in range(words_needed):
+            chunk_shift = (words_needed - 1 - i) * 64
+            chunk = (aligned_val >> chunk_shift) & 0xFFFFFFFFFFFFFFFF
+            vec[i] = (
+                (_BIT_REV_8[chunk & 0xFF] << 56)
+                | (_BIT_REV_8[(chunk >> 8) & 0xFF] << 48)
+                | (_BIT_REV_8[(chunk >> 16) & 0xFF] << 40)
+                | (_BIT_REV_8[(chunk >> 24) & 0xFF] << 32)
+                | (_BIT_REV_8[(chunk >> 32) & 0xFF] << 24)
+                | (_BIT_REV_8[(chunk >> 40) & 0xFF] << 16)
+                | (_BIT_REV_8[(chunk >> 48) & 0xFF] << 8)
+                | _BIT_REV_8[(chunk >> 56) & 0xFF]
+            )
+
+        bv.vector = vec
+        return bv
 
     @classmethod
     def from_bytes(cls, rawbytes: bytes) -> Self:
