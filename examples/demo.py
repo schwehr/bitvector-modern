@@ -504,18 +504,18 @@ print("bv1= " + str(bv1))  # 1111111111111111111111111
 print(bv1[3:9].reset(0))  # 000000
 print(bv1[:].reset(0))  # 0000000000000000000000000
 
-print("\nTesting count_bit():")
+print("\nTesting bit_count():")
 bv = BitVector.from_int(45, size=16)
-y = bv.count_bits()
+y = bv.bit_count()
 print(y)  # 4
 bv = BitVector.from_bitstring("100111")
-print(bv.count_bits())  # 4
+print(bv.bit_count())  # 4
 bv = BitVector.from_bitstring("00111000")
-print(bv.count_bits())  # 3
+print(bv.bit_count())  # 3
 bv = BitVector.from_bitstring("001")
-print(bv.count_bits())  # 1
+print(bv.bit_count())  # 1
 bv = BitVector.from_bitstring("00000000000000")
-print(bv.count_bits())  # 0
+print(bv.bit_count())  # 0
 
 print("\nTest set_value idea:")
 bv = BitVector.from_int(7, size=16)
@@ -523,14 +523,14 @@ print(bv)  # 0000000000000111
 bv.set_value(bitlist=[1, 0, 1, 1, 0, 1])
 print(bv)  # 101101
 
-print("\nTesting count_bits_sparse():")
+print("\nTesting bit_count_sparse():")
 bv = BitVector(size=2000000)
 bv[345234] = 1
 bv[233] = 1
 bv[243] = 1
 bv[18] = 1
 bv[785] = 1
-print("The number of bits set: " + str(bv.count_bits_sparse()))  # 5
+print("The number of bits set: " + str(bv.bit_count_sparse()))  # 5
 
 print("\nTesting Jaccard similarity and distance and Hamming distance:")
 bv1 = BitVector.from_bitstring("11111111")

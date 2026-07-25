@@ -335,7 +335,7 @@ def test_reset_coverage() -> None:
         ("1" * 65, 65),
     ],
 )
-def test_count_bits(bitstring: str, expected_count: int) -> None:
+def test_bit_count(bitstring: str, expected_count: int) -> None:
     """Tests standard bit counting across normal and empty vectors.
 
     Args:
@@ -347,7 +347,7 @@ def test_count_bits(bitstring: str, expected_count: int) -> None:
         if bitstring
         else BitVector.BitVector(size=0)
     )
-    assert bv.count_bits() == expected_count
+    assert bv.bit_count() == expected_count
 
 
 @pytest.mark.parametrize(
@@ -360,7 +360,7 @@ def test_count_bits(bitstring: str, expected_count: int) -> None:
         ("0" * 100 + "1" * 5, 5),
     ],
 )
-def test_count_bits_sparse(bitstring: str, expected_count: int) -> None:
+def test_bit_count_sparse(bitstring: str, expected_count: int) -> None:
     """Tests sparse bit counting across empty and zero-padded vectors.
 
     Args:
@@ -372,12 +372,12 @@ def test_count_bits_sparse(bitstring: str, expected_count: int) -> None:
         if bitstring
         else BitVector.BitVector(size=0)
     )
-    assert bv.count_bits_sparse() == expected_count
+    assert bv.bit_count_sparse() == expected_count
 
 
 @pytest.mark.parametrize("size", [1, 5, 10, 63, 64, 65, 100, 127, 128])
-def test_count_bits_unmasked_inversion(size: int) -> None:
-    """Tests count_bits and count_bits_sparse after bitwise inversion (NOT).
+def test_bit_count_unmasked_inversion(size: int) -> None:
+    """Tests bit_count and bit_count_sparse after bitwise inversion (NOT).
 
     Verifies that dynamic padding masking properly ignores unused bits set
     in the final word by bitwise inversion on non-64-aligned sizes.
@@ -387,8 +387,8 @@ def test_count_bits_unmasked_inversion(size: int) -> None:
     """
     bv = BitVector.BitVector(size=size)
     inv_bv = ~bv
-    assert inv_bv.count_bits() == size
-    assert inv_bv.count_bits_sparse() == size
+    assert inv_bv.bit_count() == size
+    assert inv_bv.bit_count_sparse() == size
 
 
 def test_set_value() -> None:
