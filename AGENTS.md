@@ -58,8 +58,7 @@ The core functionality of `bitvector-modern` is implemented in
 
 ### Constructors & Data Input (`__init__`)
 
-- Supports flexible keyword arguments: `size`, `intVal`, `bitstring`, `bitlist`,
-  `textstring`, `rawbytes`, `filename`, and `fp`.
+- Supports keyword arguments: `size` and `bitlist`.
 - **Factory Methods**: Can be initialized from an integer (`from_int`), raw
   bytes (`from_bytes`), a binary string (`from_bitstring`), a sequence of bits
   (`from_bitlist`), a string (`from_string`), or a hex string (`from_hex`).

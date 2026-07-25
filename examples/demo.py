@@ -36,20 +36,20 @@ bv = BitVector(bitlist=[1, 1, 0, 1])
 print(bv)  # 1101
 
 # Construct a bit vector from an integer
-bv = BitVector(intVal=5678)
+bv = BitVector.from_int(5678)
 print("\nBit vector constructed from integer 5678:")
 print(bv)  # 1011000101110
 print("\nBit vector constructed from integer 0:")
-bv = BitVector(intVal=0)
+bv = BitVector.from_int(0)
 print(bv)  # 0
 print("\nBit vector constructed from integer 2:")
-bv = BitVector(intVal=2)
+bv = BitVector.from_int(2)
 print(bv)  # 10
 print("\nBit vector constructed from integer 3:")
-bv = BitVector(intVal=3)
+bv = BitVector.from_int(3)
 print(bv)  # 11
 print("\nBit vector constructed from integer 123456:")
-bv = BitVector(intVal=123456)
+bv = BitVector.from_int(123456)
 print(bv)  # 11110001001000000
 print("\nInt value of the previous bit vector as computed by int():")
 print(int(bv))  # 123456
@@ -58,7 +58,7 @@ print(int(bv))  # 123456
 
 # Construct a bit vector from a very large integer:
 x = 12345678901234567890123456789012345678901234567890123456789012345678901234567890
-bv = BitVector(intVal=x)
+bv = BitVector.from_int(x)
 print("\nHere is a bit vector constructed from a very large integer:")
 print(bv)
 print(f"The integer value of the above bit vector is:{int(bv)}")
@@ -70,11 +70,11 @@ print("\nBit vector constructed directly from a file like object:")
 print(bv)  # 111100001111
 
 # Construct a bit vector directly from a bit string:
-bv = BitVector(bitstring="00110011")
+bv = BitVector.from_bitstring("00110011")
 print("\nBit Vector constructed directly from a bit string:")
 print(bv)  # 00110011
 
-bv = BitVector(bitstring="")
+bv = BitVector.from_bitstring("")
 print("\nBit Vector constructed directly from an empty bit string:")
 print(bv)  # nothing
 print("\nInteger value of the previous bit vector:")
@@ -117,18 +117,18 @@ print(
 )
 mypubkey = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA5amriY96HQS8Y/nKc8zu3zOylvpOn3vzMmWwrtyDy+aBvns4UC1RXoaD9rDKqNNMCBAQwWDsYwCAFsrBzbxRQONHePX8lRWgM87MseWGlu6WPzWGiJMclTAO9CTknplG9wlNzLQBj3dP1M895iLF6jvJ7GR+V3CRU6UUbMmRvgPcsfv6ec9RRPm/B8ftUuQICL0jt4tKdPG45PBJUylHs71FuE9FJNp01hrj1EMFObNTcsy9zuis0YPyzArTYSOUsGglleExAQYi7iLh17pAa+y6fZrGLsptgqryuftN9Q4NqPuTiFjlqRowCDU7sSxKDgU7bzhshyVx3+pzXO4D2Q== kak@pixie"
 keydata = base64.b64decode(bytes(mypubkey.split(None)[1], "utf-8"))
-bv = BitVector(rawbytes=keydata)
+bv = BitVector.from_bytes(keydata)
 print(bv)
 
 # Test array-like indexing for a bit vector:
-bv = BitVector(bitstring="110001")
+bv = BitVector.from_bitstring("110001")
 print("\nPrints out bits individually from bitstring 110001:")
 print(bv[0], bv[1], bv[2], bv[3], bv[4], bv[5])  # 1 1 0 0 0 1
 print("\nSame as above but using negative array indexing:")
 print(bv[-1], bv[-2], bv[-3], bv[-4], bv[-5], bv[-6])  # 1 0 0 0 1 1
 
 # Test setting bit values with positive and negative accessors:
-bv = BitVector(bitstring="1111")
+bv = BitVector.from_bitstring("1111")
 print("\nBitstring for 1111:")
 print(bv)  # 1111
 
@@ -145,13 +145,13 @@ bv[-4] = 1
 print(bv)  # 1011
 
 print("\nCheck equality and inequality ops:")
-bv1 = BitVector(bitstring="00110011")
+bv1 = BitVector.from_bitstring("00110011")
 bv2 = BitVector(bitlist=[0, 0, 1, 1, 0, 0, 1, 1])
 print(bv1 == bv2)  # True
 print(bv1 != bv2)  # False
 print(bv1 < bv2)  # False
 print(bv1 <= bv2)  # True
-bv3 = BitVector(intVal=5678)
+bv3 = BitVector.from_int(5678)
 print(int(bv3))  # 5678
 print(bv3)  # 1011000101110
 print(bv1 == bv3)  # False
@@ -183,13 +183,13 @@ bv7 = bv5 | bv6
 print(bv7)  # 1111111111111111111
 
 print("\nTry logical operations on bit vectors of different sizes:")
-print(BitVector(intVal=6) ^ BitVector(intVal=13))  # 1011
-print(BitVector(intVal=6) & BitVector(intVal=13))  # 0100
-print(BitVector(intVal=6) | BitVector(intVal=13))  # 1111
+print(BitVector.from_int(6) ^ BitVector.from_int(13))  # 1011
+print(BitVector.from_int(6) & BitVector.from_int(13))  # 0100
+print(BitVector.from_int(6) | BitVector.from_int(13))  # 1111
 
-print(BitVector(intVal=1) ^ BitVector(intVal=13))  # 1100
-print(BitVector(intVal=1) & BitVector(intVal=13))  # 0001
-print(BitVector(intVal=1) | BitVector(intVal=13))  # 1101
+print(BitVector.from_int(1) ^ BitVector.from_int(13))  # 1100
+print(BitVector.from_int(1) & BitVector.from_int(13))  # 0001
+print(BitVector.from_int(1) | BitVector.from_int(13))  # 1101
 
 print("\nExperiments with setbit() and len():")
 bv7[7] = 0
@@ -229,7 +229,7 @@ print(
     "\nExperiment with writing an internally generated bit vector out to a disk file:"
 )
 # bv1 = BitVector( bitstring = '00001010' )
-bv1 = BitVector(bitstring="11100111")
+bv1 = BitVector.from_bitstring("11100111")
 with open("test.txt", "wb") as FILEOUT:
     bv1.write_to_file(FILEOUT)
 
@@ -421,7 +421,7 @@ for bit in bv4:
     print(bit)  # 0 0 1 0 0 1 0 0 0 0 0 0 1 1 0 1 0
 
 print("\nDemonstrate padding a bit vector from left:")
-bv = BitVector(bitstring="101010")
+bv = BitVector.from_bitstring("101010")
 bv.pad_from_left(4)
 print(bv)  # 0000101010
 
@@ -431,8 +431,8 @@ print(bv)  # 00001010100000
 
 print("\nTest the syntax 'if bit_vector_1 in bit_vector_2' syntax:")
 try:
-    bv1 = BitVector(bitstring="0011001100")
-    bv2 = BitVector(bitstring="110011")
+    bv1 = BitVector.from_bitstring("0011001100")
+    bv2 = BitVector.from_bitstring("110011")
     if bv2 in bv1:
         print(f"{bv2} is in {bv1}")
     else:
@@ -443,17 +443,17 @@ except ValueError as arg:
 print(
     "\nTest the size modifier when a bit vector is initialized with the intVal method:"
 )
-bv = BitVector(intVal=45, size=16)
+bv = BitVector.from_int(45, size=16)
 print(bv)  # 0000000000101101
-bv = BitVector(intVal=0, size=8)
+bv = BitVector.from_int(0, size=8)
 print(bv)  # 00000000
-bv = BitVector(intVal=1, size=8)
+bv = BitVector.from_int(1, size=8)
 print(bv)  # 00000001
 
 print("\nTesting slice assignment:")
 bv1 = BitVector(size=25)
 print("bv1= " + str(bv1))  # 0000000000000000000000000
-bv2 = BitVector(bitstring="1010001")
+bv2 = BitVector.from_bitstring("1010001")
 print("bv2= " + str(bv2))  # 1010001
 bv1[6:9] = bv2[0:3]
 print("bv1= " + str(bv1))  # 0000001010000000000000000
@@ -469,7 +469,7 @@ print("bv3= " + str(bv3))  # 0101001010000000000001010
 print("\nTesting slice assignment with negative limits in RHS slice:")
 bv1 = BitVector(size=25)
 print("bv1= " + str(bv1))  # 0000000000000000000000000
-bv2 = BitVector(bitstring="1010111")
+bv2 = BitVector.from_bitstring("1010111")
 print("bv2= " + str(bv2))  # 1010001
 bv1[2:5] = bv2[-7:-4]
 print("bv1= " + str(bv1))  # 0010100000000000000000000
@@ -481,7 +481,7 @@ print("bv1= " + str(bv1))  # 0011101010000000000000000
 print("\nTesting slice assignment with negative limits in the LHS slice:")
 bv1 = BitVector(size=25)
 print("bv1= " + str(bv1))  # 0000000000000000000000000
-bv2 = BitVector(bitstring="1111001")
+bv2 = BitVector.from_bitstring("1111001")
 print("bv2= " + str(bv2))  # 1111001
 bv1[-5:-2] = bv2[0:3]
 print("bv1= " + str(bv1))  # 0000000000000000000011100
@@ -505,22 +505,22 @@ print(bv1[3:9].reset(0))  # 000000
 print(bv1[:].reset(0))  # 0000000000000000000000000
 
 print("\nTesting count_bit():")
-bv = BitVector(intVal=45, size=16)
+bv = BitVector.from_int(45, size=16)
 y = bv.count_bits()
 print(y)  # 4
-bv = BitVector(bitstring="100111")
+bv = BitVector.from_bitstring("100111")
 print(bv.count_bits())  # 4
-bv = BitVector(bitstring="00111000")
+bv = BitVector.from_bitstring("00111000")
 print(bv.count_bits())  # 3
-bv = BitVector(bitstring="001")
+bv = BitVector.from_bitstring("001")
 print(bv.count_bits())  # 1
-bv = BitVector(bitstring="00000000000000")
+bv = BitVector.from_bitstring("00000000000000")
 print(bv.count_bits())  # 0
 
 print("\nTest set_value idea:")
-bv = BitVector(intVal=7, size=16)
+bv = BitVector.from_int(7, size=16)
 print(bv)  # 0000000000000111
-bv.set_value(intVal=45)
+bv.set_value(bitlist=[1, 0, 1, 1, 0, 1])
 print(bv)  # 101101
 
 print("\nTesting count_bits_sparse():")
@@ -533,54 +533,54 @@ bv[785] = 1
 print("The number of bits set: " + str(bv.count_bits_sparse()))  # 5
 
 print("\nTesting Jaccard similarity and distance and Hamming distance:")
-bv1 = BitVector(bitstring="11111111")
-bv2 = BitVector(bitstring="00101011")
+bv1 = BitVector.from_bitstring("11111111")
+bv2 = BitVector.from_bitstring("00101011")
 print("Jaccard similarity: " + str(bv1.jaccard_similarity(bv2)))  # 0.5
 print("Jaccard distance: " + str(bv1.jaccard_distance(bv2)))  # 0.5
 print("Hamming distance: " + str(bv1.hamming_distance(bv2)))  # 4
 
 print("\nTesting next_set_bit():")
-bv = BitVector(bitstring="00000000000001")
+bv = BitVector.from_bitstring("00000000000001")
 print(bv.next_set_bit(5))  # 13
-bv = BitVector(bitstring="000000000000001")
+bv = BitVector.from_bitstring("000000000000001")
 print(bv.next_set_bit(5))  # 14
-bv = BitVector(bitstring="0000000000000001")
+bv = BitVector.from_bitstring("0000000000000001")
 print(bv.next_set_bit(5))  # 15
-bv = BitVector(bitstring="00000000000000001")
+bv = BitVector.from_bitstring("00000000000000001")
 print(bv.next_set_bit(5))  # 16
-bv = BitVector(bitstring="00000000000000000")
+bv = BitVector.from_bitstring("00000000000000000")
 print(bv.next_set_bit(5))  # -1
 
 print("\nTesting rank_of_bit_set_at_index():")
-bv = BitVector(bitstring="01010101011100")
+bv = BitVector.from_bitstring("01010101011100")
 print(bv.rank_of_bit_set_at_index(10))  # 6
 
 print("\nTesting is_power_of_2():")
-bv = BitVector(bitstring="10000000001110")
+bv = BitVector.from_bitstring("10000000001110")
 print("int value: " + str(int(bv)))  # 826
 print(bv.is_power_of_2())  # False
 print("\nTesting is_power_of_2_sparse():")
 print(bv.is_power_of_2_sparse())  # False
 
 print("\nTesting reverse():")
-bv = BitVector(bitstring="0001100000000000001")
+bv = BitVector.from_bitstring("0001100000000000001")
 print("original bv: " + str(bv))  # 0001100000000000001
 print("reversed bv: " + str(bv.reverse()))  # 1000000000000011000
 
 print("\nTesting Greatest Common Divisor (gcd):")
-bv1 = BitVector(bitstring="01100110")
+bv1 = BitVector.from_bitstring("01100110")
 print("first arg bv: " + str(bv1) + " of int value: " + str(int(bv1)))  # 102
-bv2 = BitVector(bitstring="011010")
+bv2 = BitVector.from_bitstring("011010")
 print("second arg bv: " + str(bv2) + " of int value: " + str(int(bv2)))  # 26
 bv = bv1.gcd(bv2)
 print("gcd bitvec is: " + str(bv) + " of int value: " + str(int(bv)))  # 2
 
 print("\nTesting multiplicative_inverse:")
-bv_modulus = BitVector(intVal=32)
+bv_modulus = BitVector.from_int(32)
 print(
     "modulus is bitvec: " + str(bv_modulus) + " of int value: " + str(int(bv_modulus))
 )
-bv = BitVector(intVal=17)
+bv = BitVector.from_int(17)
 print("bv: " + str(bv) + " of int value: " + str(int(bv)))
 mi_result = bv.multiplicative_inverse(bv_modulus)
 if mi_result is not None:
@@ -591,18 +591,18 @@ else:
 
 print("\nTest multiplication in GF(2):")
 # a = BitVector( bitstring='0110001' )
-a = BitVector(bitstring="00000010")
+a = BitVector.from_bitstring("00000010")
 
 # b = BitVector( bitstring='0110' )
-b = BitVector(bitstring="000001111")
+b = BitVector.from_bitstring("000001111")
 
 c = a.gf_multiply(b)
 print("Product of a=" + str(a) + " b=" + str(b) + " is " + str(c))
 
 print("\nTest division in GF(2^n):")
-mod = BitVector(bitstring="100011011")  # AES modulus
+mod = BitVector.from_bitstring("100011011")  # AES modulus
 n = 8
-a = BitVector(bitstring="11100010110001")
+a = BitVector.from_bitstring("11100010110001")
 quotient, remainder = a.gf_divide_by_modulus(mod, n)
 print(
     "Dividing a="
@@ -616,10 +616,10 @@ print(
 )
 
 print("\nTest modular multiplication in GF(2^n):")
-modulus = BitVector(bitstring="100011011")  # AES modulus
+modulus = BitVector.from_bitstring("100011011")  # AES modulus
 n = 8
-a = BitVector(bitstring="0110001")
-b = BitVector(bitstring="0110")
+a = BitVector.from_bitstring("0110001")
+b = BitVector.from_bitstring("0110")
 c = a.gf_multiply_modular(b, modulus, n)
 print("Modular product of a=" + str(a) + " b=" + str(b) + " in GF(2^8) is " + str(c))
 
@@ -628,9 +628,9 @@ print(
     + "modulus polynomial = x^3 + x + 1:"
 )
 print("Find multiplicative inverse of a single bit array")
-modulus = BitVector(bitstring="100011011")  # AES modulus
+modulus = BitVector.from_bitstring("100011011")  # AES modulus
 n = 8
-a = BitVector(bitstring="00110011")
+a = BitVector.from_bitstring("00110011")
 mi = a.gf_MI(modulus, n)
 print("Multiplicative inverse of " + str(a) + " in GF(2^8) is " + str(mi))
 
@@ -640,9 +640,9 @@ print(
     + "\nand the third the product of a binary word with its"
     + "\nmultiplicative inverse:\n"
 )
-mod = BitVector(bitstring="1011")
+mod = BitVector.from_bitstring("1011")
 n = 3
-bitarrays = [BitVector(intVal=x, size=n) for x in range(1, 2**3)]
+bitarrays = [BitVector.from_int(x, size=n) for x in range(1, 2**3)]
 mi_list = [x.gf_MI(mod, n) for x in bitarrays]
 mi_str_list = [str(x.gf_MI(mod, n)) for x in bitarrays]
 print("bit arrays in GF(2^3): " + str([str(x) for x in bitarrays]))
@@ -663,7 +663,7 @@ print("bit_array * multi_inv: " + str(products))
 #    print("\n(This may take a few seconds)\n")
 #    mod = BitVector( bitstring = '100011011' )
 #    n = 8
-#    bitarrays = [BitVector(intVal=x, size=n) for x in range(1,2**8)]
+#    bitarrays = [BitVector.from_int(x, size=n) for x in range(1,2**8)]
 #    mi_list = [x.gf_MI(mod,n) for x in bitarrays]
 #    mi_str_list = [str(x.gf_MI(mod,n)) for x in bitarrays]
 #    print("\nMultiplicative Inverses:\n\n" + str(mi_str_list))
@@ -760,12 +760,12 @@ primes = [
     7841,
 ]
 for p in primes:
-    bv = BitVector(intVal=p)
+    bv = BitVector.from_int(p)
     check = bv.test_for_primality()
     print("The primality test for " + str(p) + ": " + str(check))
 
 print("\nGenerate 32-bit wide candidate for primality testing:")
-bv = BitVector(intVal=0)
+bv = BitVector.from_int(0)
 bv = bv.gen_random_bits(32)
 print(bv)
 check = bv.test_for_primality()
@@ -773,6 +773,6 @@ print("The primality test for " + str(int(bv)) + ": " + str(check))
 
 print("\nTest generating min-canonical form of a BitVector instance:")
 for i in range(255, 10000, 1555):
-    bv = BitVector(intVal=i, size=14)
+    bv = BitVector.from_int(i, size=14)
     print(f"\nbv:            {bv}")
     print(f"min canonical: {bv.min_canonical()}")

@@ -19,7 +19,7 @@ BINARY_OP_MAP: dict[BinaryOp, Callable[[Any, Any], Any]] = {
 @pytest.fixture
 def bv1() -> BitVector.BitVector:
     """Returns an 8-bit vector constructed from a bitstring ('00110011')."""
-    return BitVector.BitVector(bitstring="00110011")
+    return BitVector.BitVector.from_bitstring("00110011")
 
 
 @pytest.fixture
@@ -31,7 +31,7 @@ def bv2() -> BitVector.BitVector:
 @pytest.fixture
 def bv3() -> BitVector.BitVector:
     """Returns a 23-bit vector constructed from a bitstring."""
-    return BitVector.BitVector(bitstring="00000000111111110000000")
+    return BitVector.BitVector.from_bitstring("00000000111111110000000")
 
 
 @pytest.fixture
@@ -77,7 +77,7 @@ def test_binary_logic_operators(
     right: BitVector.BitVector = request.getfixturevalue(right_name)
     op_func = BINARY_OP_MAP[op]
     result = op_func(left, right)
-    assert result == BitVector.BitVector(bitstring=expected)
+    assert result == BitVector.BitVector.from_bitstring(expected)
 
 
 @pytest.mark.parametrize(
@@ -100,4 +100,4 @@ def test_unary_not_operator(
     """
     bv: BitVector.BitVector = request.getfixturevalue(bv_name)
     result = ~bv
-    assert result == BitVector.BitVector(bitstring=expected)
+    assert result == BitVector.BitVector.from_bitstring(expected)

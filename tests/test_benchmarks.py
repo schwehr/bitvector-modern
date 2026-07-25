@@ -16,32 +16,32 @@ import BitVector
 
 @pytest.fixture
 def sample_bv1():
-    return BitVector.BitVector(bitstring="01" * 500)
+    return BitVector.BitVector.from_bitstring("01" * 500)
 
 
 @pytest.fixture
 def sample_bv2():
-    return BitVector.BitVector(bitstring="001" * 333 + "0")
+    return BitVector.BitVector.from_bitstring("001" * 333 + "0")
 
 
 @pytest.fixture
 def sample_bv_small():
-    return BitVector.BitVector(bitstring="01010111" * 8)
+    return BitVector.BitVector.from_bitstring("01010111" * 8)
 
 
 @pytest.fixture
 def gf_a():
-    return BitVector.BitVector(bitstring="0110001")
+    return BitVector.BitVector.from_bitstring("0110001")
 
 
 @pytest.fixture
 def gf_b():
-    return BitVector.BitVector(bitstring="0110")
+    return BitVector.BitVector.from_bitstring("0110")
 
 
 @pytest.fixture
 def gf_mod():
-    return BitVector.BitVector(bitstring="100011011")  # AES modulus
+    return BitVector.BitVector.from_bitstring("100011011")  # AES modulus
 
 
 # --- Constructor Benchmarks ---
@@ -52,17 +52,17 @@ def test_bench_init_zeros(benchmark):
 
 
 def test_bench_init_int(benchmark):
-    benchmark(BitVector.BitVector, intVal=0x123456789ABCDEF0, size=64)
+    benchmark(BitVector.BitVector.from_int, 0x123456789ABCDEF0, size=64)
 
 
 def test_bench_init_bitstring(benchmark):
     bitstr = "1010" * 250
-    benchmark(BitVector.BitVector, bitstring=bitstr)
+    benchmark(BitVector.BitVector.from_bitstring, bitstr)
 
 
 def test_bench_init_rawbytes(benchmark):
     data = b"\xaa\x55" * 50
-    benchmark(BitVector.BitVector, rawbytes=data)
+    benchmark(BitVector.BitVector.from_bytes, data)
 
 
 # --- Bitwise Operation Benchmarks ---
@@ -427,7 +427,7 @@ def test_bench_set_value(benchmark, sample_bv1):
         return (copy.deepcopy(sample_bv1),), {}
 
     def target(bv):
-        bv.set_value(intVal=0x1234567890ABCDEF, size=64)
+        bv.set_value(bitlist=[1, 0, 1, 0, 1, 1, 0, 0] * 8)
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
@@ -445,7 +445,7 @@ def test_bench_gf_multiply(benchmark, gf_a, gf_b):
 
 
 def test_bench_gf_divide_by_modulus(benchmark, gf_mod):
-    a = BitVector.BitVector(bitstring="11100010110001")
+    a = BitVector.BitVector.from_bitstring("11100010110001")
     benchmark(a.gf_divide_by_modulus, gf_mod, 8)
 
 
@@ -454,24 +454,24 @@ def test_bench_gf_multiply_modular(benchmark, gf_a, gf_b, gf_mod):
 
 
 def test_bench_gf_mi(benchmark, gf_mod):
-    a = BitVector.BitVector(bitstring="00110011")
+    a = BitVector.BitVector.from_bitstring("00110011")
     benchmark(a.gf_MI, gf_mod, 8)
 
 
 def test_bench_multiplicative_inverse(benchmark):
-    bv_mod = BitVector.BitVector(intVal=32)
-    bv_has_mi = BitVector.BitVector(intVal=17)
+    bv_mod = BitVector.BitVector.from_int(32)
+    bv_has_mi = BitVector.BitVector.from_int(17)
     benchmark(bv_has_mi.multiplicative_inverse, bv_mod)
 
 
 def test_bench_gcd(benchmark):
-    bv1 = BitVector.BitVector(bitstring="01100110")
-    bv2 = BitVector.BitVector(bitstring="011010")
+    bv1 = BitVector.BitVector.from_bitstring("01100110")
+    bv2 = BitVector.BitVector.from_bitstring("011010")
     benchmark(bv1.gcd, bv2)
 
 
 def test_bench_test_for_primality(benchmark):
-    prob_19 = BitVector.BitVector(intVal=19, size=16)
+    prob_19 = BitVector.BitVector.from_int(19, size=16)
     benchmark(prob_19.test_for_primality)
 
 

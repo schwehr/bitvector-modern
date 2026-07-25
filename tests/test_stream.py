@@ -9,7 +9,7 @@ import BitVector
 
 def test_write_bits_to_stream_object() -> None:
     """Tests writing ASCII bit characters to a text stream object."""
-    bv = BitVector.BitVector(bitstring="101100101")
+    bv = BitVector.BitVector.from_bitstring("101100101")
     fp = io.StringIO()
     bv.write_bits_to_stream_object(fp)
     assert fp.getvalue() == "101100101"
@@ -17,7 +17,7 @@ def test_write_bits_to_stream_object() -> None:
 
 def test_write_to_file_raises_error() -> None:
     """Verifies writing a vector not a multiple of 8 bits raises ValueError."""
-    bv = BitVector.BitVector(bitstring="10101")
+    bv = BitVector.BitVector.from_bitstring("10101")
     with pytest.raises(
         ValueError, match="Only a bit vector whose length is a multiple of 8"
     ):
@@ -26,7 +26,7 @@ def test_write_to_file_raises_error() -> None:
 
 def test_write_to_file() -> None:
     """Tests writing packed bytes to a binary stream and appending."""
-    bv = BitVector.BitVector(bitstring="0100000101000010")  # 'AB'
+    bv = BitVector.BitVector.from_bitstring("0100000101000010")  # 'AB'
     out_stream = io.BytesIO()
     bv.write_to_file(out_stream)
     assert out_stream.getvalue() == b"AB"

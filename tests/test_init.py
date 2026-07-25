@@ -36,37 +36,11 @@ def test_invalid_keyword_error() -> None:
 @pytest.mark.parametrize(
     ("kwargs", "err_match"),
     [
-        ({"intVal": 5, "bitstring": "101"}, "When intVal is specified"),
-        (
-            {"intVal": 0, "size": 0},
-            "The value specified for size must be at least",
-        ),
-        (
-            {"intVal": 0, "size": -1},
-            "The value specified for size must be at least",
-        ),
-        (
-            {"intVal": 5, "size": 0},
-            "The value specified for size must be at least",
-        ),
-        (
-            {"intVal": 255, "size": 2},
-            "The value specified for size must be at least",
-        ),
         (
             {"size": 10, "bitlist": [1, 0]},
-            r"When size is specified \(without an intVal\)",
+            r"When size is specified",
         ),
         ({"size": -5}, r"wrong arg\(s\) for constructor"),
-        ({"bitstring": "1010", "rawbytes": b"xy"}, "When a bitstring is specified"),
-        (
-            {"bitlist": [1, 0], "rawbytes": b"xy"},
-            "When bits are specified, you cannot give values",
-        ),
-        (
-            {"rawbytes": b"xy", "size": -5},
-            "When bits are specified through rawbytes",
-        ),
         ({}, r"wrong arg\(s\) for constructor"),
     ],
 )
@@ -84,21 +58,33 @@ def test_constructor_conflicting_args_raises_error(
 
 
 @pytest.mark.parametrize(
+    ("kwargs", "err_match"),
+    [
+        ({"intVal": 5}, "unexpected keyword argument"),
+        ({"bitstring": "1010"}, "unexpected keyword argument"),
+        ({"rawbytes": b"xy"}, "unexpected keyword argument"),
+    ],
+)
+def test_constructor_legacy_kwargs_raise_type_error(
+    kwargs: dict[str, Any], err_match: str
+) -> None:
+    """Verifies that removed legacy constructor arguments raise TypeError.
+
+    Args:
+        kwargs: Legacy keyword arguments.
+        err_match: The expected regex error message pattern.
+    """
+    with pytest.raises(TypeError, match=err_match):
+        BitVector.BitVector(**kwargs)
+
+
+@pytest.mark.parametrize(
     ("kwargs", "expected_str", "expected_size"),
     [
-        ({"intVal": 0}, "0", 1),
-        ({"intVal": 0, "size": 5}, "00000", 5),
-        ({"intVal": 5}, "101", 3),
-        ({"intVal": 32}, "100000", 6),
-        ({"intVal": 5, "size": 10}, "0000000101", 10),
         ({"size": 10}, "0000000000", 10),
         ({"size": 0}, "", 0),
-        ({"bitstring": "00110011"}, "00110011", 8),
-        ({"bitstring": ""}, "", 0),
         ({"bitlist": [1, 1, 0, 1]}, "1101", 4),
         ({"bitlist": []}, "", 0),
-        ({"rawbytes": b"\x00\xff"}, "0000000011111111", 16),
-        ({"rawbytes": b""}, "", 0),
     ],
 )
 def test_constructor_valid_kwargs(
@@ -138,15 +124,15 @@ def test_from_hex() -> None:
 
 def test_intVal_zero_hex_helper() -> None:
     """Tests intVal zero evaluation using the ZeroHex helper class."""
-    bv = BitVector.BitVector(
-        intVal=ZeroHex(),  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
+    bv = BitVector.BitVector.from_int(
+        val=ZeroHex(),  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
         size=0,
     )
     assert bv._size == 0
     assert str(bv) == ""
 
-    bv2 = BitVector.BitVector(
-        intVal=ZeroHex(),  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
+    bv2 = BitVector.BitVector.from_int(
+        val=ZeroHex(),  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
         size=5,
     )
     assert bv2._size == 5

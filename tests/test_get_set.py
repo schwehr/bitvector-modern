@@ -53,7 +53,7 @@ def test_setitem_raises_error(index: int, val: int, err_match: str) -> None:
         val: The bit value to assign (should be 0 or 1).
         err_match: The expected error message substring.
     """
-    bv = BitVector.BitVector(bitstring="00000")
+    bv = BitVector.BitVector.from_bitstring("00000")
     with pytest.raises(ValueError, match=err_match):
         bv[index] = val
 
@@ -78,7 +78,7 @@ def test_setitem_valid(
         val: The bit value (0 or 1) to assign.
         expected: The expected vector bitstring after modification.
     """
-    bv = BitVector.BitVector(bitstring=initial)
+    bv = BitVector.BitVector.from_bitstring(initial)
     bv[cast(Any, index)] = val
     assert str(bv) == expected
 
@@ -90,7 +90,7 @@ def test_getitem_int_raises_error(index: int) -> None:
     Args:
         index: The out-of-bounds index to query.
     """
-    bv = BitVector.BitVector(bitstring="10110")
+    bv = BitVector.BitVector.from_bitstring("10110")
     with pytest.raises(ValueError, match="index range error"):
         bv[index]  # pylint: disable=pointless-statement
 
@@ -111,7 +111,7 @@ def test_getitem_int(index: int, expected: int) -> None:
         index: The bit index to query.
         expected: The expected integer bit value (0 or 1).
     """
-    bv = BitVector.BitVector(bitstring="10110")
+    bv = BitVector.BitVector.from_bitstring("10110")
     assert bv[index] == expected
 
 
@@ -139,7 +139,7 @@ def test_getitem_slice(initial: str, sl: slice, expected: str) -> None:
         expected: Expected bitstring representation of the extracted slice.
     """
     bv = (
-        BitVector.BitVector(bitstring=initial)
+        BitVector.BitVector.from_bitstring(initial)
         if initial
         else BitVector.BitVector(size=0)
     )
@@ -164,14 +164,14 @@ def test_getitem_slice_raises_error(sl: slice) -> None:
     Args:
         sl: The invalid slice object to test on a 5-bit vector.
     """
-    bv = BitVector.BitVector(bitstring="10110")
+    bv = BitVector.BitVector.from_bitstring("10110")
     with pytest.raises(ValueError, match="illegal slice index values"):
         _ = bv[sl]
 
 
 def test_bitvector_iterator() -> None:
     """Tests sequential iteration over bits in a BitVector."""
-    bv = BitVector.BitVector(bitstring="101")
+    bv = BitVector.BitVector.from_bitstring("101")
     it = iter(bv)
     assert isinstance(it, Iterator)
     assert iter(it) is it

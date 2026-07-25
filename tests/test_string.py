@@ -1,27 +1,25 @@
 """Tests for string output representations (ASCII, hex, and str) of BitVector."""
 
-from typing import Any
-
 import pytest
 
 import BitVector
 
 
 @pytest.mark.parametrize(
-    ("kwargs", "expected"),
+    ("bitstring", "expected"),
     [
-        ({"bitstring": "01000001"}, "A"),
-        ({"size": 0}, ""),
+        ("01000001", "A"),
+        ("", ""),
     ],
 )
-def test_get_bitvector_in_ascii(kwargs: dict[str, Any], expected: str) -> None:
+def test_get_bitvector_in_ascii(bitstring: str, expected: str) -> None:
     """Tests ASCII string conversion across valid BitVector instances.
 
     Args:
-        kwargs: Keyword arguments used to initialize the BitVector instance.
+        bitstring: Input binary string.
         expected: The expected ASCII representation string.
     """
-    bv = BitVector.BitVector(**kwargs)
+    bv = BitVector.BitVector.from_bitstring(bitstring)
     assert bv.get_bitvector_in_ascii() == expected
 
 
@@ -38,27 +36,27 @@ def test_get_bitvector_in_ascii_invalid_length_raises_error(bitstring: str) -> N
     Args:
         bitstring: A bitstring whose length is not a multiple of 8.
     """
-    bv = BitVector.BitVector(bitstring=bitstring)
+    bv = BitVector.BitVector.from_bitstring(bitstring)
     with pytest.raises(ValueError, match="must be an integral multiple of 8 bits"):
         bv.get_bitvector_in_ascii()
 
 
 @pytest.mark.parametrize(
-    ("kwargs", "expected"),
+    ("bitstring", "expected"),
     [
-        ({"bitstring": "1111"}, "f"),
-        ({"bitstring": "10100000"}, "a0"),
-        ({"size": 0}, ""),
+        ("1111", "f"),
+        ("10100000", "a0"),
+        ("", ""),
     ],
 )
-def test_get_bitvector_in_hex(kwargs: dict[str, Any], expected: str) -> None:
+def test_get_bitvector_in_hex(bitstring: str, expected: str) -> None:
     """Tests hexadecimal string conversion across valid BitVector instances.
 
     Args:
-        kwargs: Keyword arguments used to initialize the BitVector instance.
+        bitstring: Input binary string.
         expected: The expected hexadecimal representation string.
     """
-    bv = BitVector.BitVector(**kwargs)
+    bv = BitVector.BitVector.from_bitstring(bitstring)
     assert bv.get_bitvector_in_hex() == expected
 
 
@@ -75,26 +73,26 @@ def test_get_bitvector_in_hex_invalid_length_raises_error(bitstring: str) -> Non
     Args:
         bitstring: A bitstring whose length is not a multiple of 4.
     """
-    bv = BitVector.BitVector(bitstring=bitstring)
+    bv = BitVector.BitVector.from_bitstring(bitstring)
     with pytest.raises(ValueError, match="must be an integral multiple of 4 bits"):
         bv.get_bitvector_in_hex()
 
 
 @pytest.mark.parametrize(
-    ("kwargs", "expected"),
+    ("bitstring", "expected"),
     [
-        ({"bitstring": "01010111"}, "01010111"),
-        ({"size": 0}, ""),
+        ("01010111", "01010111"),
+        ("", ""),
     ],
 )
-def test_str_representation(kwargs: dict[str, Any], expected: str) -> None:
+def test_str_representation(bitstring: str, expected: str) -> None:
     """Tests the string (__str__) representation of BitVector instances.
 
     Args:
-        kwargs: Keyword arguments used to initialize the BitVector instance.
+        bitstring: Input binary string.
         expected: The expected binary string representation.
     """
-    bv = BitVector.BitVector(**kwargs)
+    bv = BitVector.BitVector.from_bitstring(bitstring)
     assert str(bv) == expected
 
 
