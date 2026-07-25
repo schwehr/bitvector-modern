@@ -84,6 +84,36 @@ def test_bench_invert(benchmark, sample_bv1):
     benchmark(operator.invert, sample_bv1)
 
 
+def test_bench_iand(benchmark, sample_bv1, sample_bv2):
+    def setup():
+        return (copy.deepcopy(sample_bv1), sample_bv2), {}
+
+    def target(a, b):
+        a &= b
+
+    benchmark.pedantic(target, setup=setup, rounds=100)
+
+
+def test_bench_ior(benchmark, sample_bv1, sample_bv2):
+    def setup():
+        return (copy.deepcopy(sample_bv1), sample_bv2), {}
+
+    def target(a, b):
+        a |= b
+
+    benchmark.pedantic(target, setup=setup, rounds=100)
+
+
+def test_bench_ixor(benchmark, sample_bv1, sample_bv2):
+    def setup():
+        return (copy.deepcopy(sample_bv1), sample_bv2), {}
+
+    def target(a, b):
+        a ^= b
+
+    benchmark.pedantic(target, setup=setup, rounds=100)
+
+
 # --- Arithmetic and Concatenation Benchmarks ---
 
 

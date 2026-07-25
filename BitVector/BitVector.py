@@ -383,6 +383,99 @@ class BitVector:
         res.vector = array.array(ARRAY_TYPE, lpb)
         return res
 
+    def __ixor__(self, other: BitVector) -> Self:
+        """Performs an in-place bitwise XOR with another bit vector.
+
+        If the two bit vectors are of unequal length, the shorter vector is
+        automatically padded with zero bits from the left before performing
+        the XOR operation.
+
+        Args:
+            other: The BitVector instance to XOR with this vector.
+
+        Returns:
+            This BitVector instance (self) after in-place modification.
+
+        Raises:
+            TypeError: If the operand is not a BitVector instance.
+        """
+        if not isinstance(other, BitVector):
+            raise TypeError(
+                f"Can only perform bitwise XOR with a BitVector, not {type(other)}"
+            )
+        if self._size < other._size:
+            self.pad_from_left(other._size - self._size)
+            bv2 = other
+        elif self._size > other._size:
+            bv2 = other._resize_pad_from_left(self._size - other._size)
+        else:
+            bv2 = other
+        lpb = map(operator.__xor__, self.vector, bv2.vector)
+        self.vector = array.array(ARRAY_TYPE, lpb)
+        return self
+
+    def __iand__(self, other: BitVector) -> Self:
+        """Performs an in-place bitwise AND with another bit vector.
+
+        If the two bit vectors are of unequal length, the shorter vector is
+        automatically padded with zero bits from the left before performing
+        the AND operation.
+
+        Args:
+            other: The BitVector instance to AND with this vector.
+
+        Returns:
+            This BitVector instance (self) after in-place modification.
+
+        Raises:
+            TypeError: If the operand is not a BitVector instance.
+        """
+        if not isinstance(other, BitVector):
+            raise TypeError(
+                f"Can only perform bitwise AND with a BitVector, not {type(other)}"
+            )
+        if self._size < other._size:
+            self.pad_from_left(other._size - self._size)
+            bv2 = other
+        elif self._size > other._size:
+            bv2 = other._resize_pad_from_left(self._size - other._size)
+        else:
+            bv2 = other
+        lpb = map(operator.__and__, self.vector, bv2.vector)
+        self.vector = array.array(ARRAY_TYPE, lpb)
+        return self
+
+    def __ior__(self, other: BitVector) -> Self:
+        """Performs an in-place bitwise inclusive OR with another bit vector.
+
+        If the two bit vectors are of unequal length, the shorter vector is
+        automatically padded with zero bits from the left before performing
+        the OR operation.
+
+        Args:
+            other: The BitVector instance to OR with this vector.
+
+        Returns:
+            This BitVector instance (self) after in-place modification.
+
+        Raises:
+            TypeError: If the operand is not a BitVector instance.
+        """
+        if not isinstance(other, BitVector):
+            raise TypeError(
+                f"Can only perform bitwise OR with a BitVector, not {type(other)}"
+            )
+        if self._size < other._size:
+            self.pad_from_left(other._size - self._size)
+            bv2 = other
+        elif self._size > other._size:
+            bv2 = other._resize_pad_from_left(self._size - other._size)
+        else:
+            bv2 = other
+        lpb = map(operator.__or__, self.vector, bv2.vector)
+        self.vector = array.array(ARRAY_TYPE, lpb)
+        return self
+
     def __invert__(self) -> Self:
         """Inverts all bits in the bit vector (bitwise NOT).
 
