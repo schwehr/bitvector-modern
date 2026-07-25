@@ -3,5 +3,4 @@ mailto:.*
 
 # Ignore local file links or placeholder URIs
 file://.*
-http://go/.*
 https://www.osgeo.org/.*
