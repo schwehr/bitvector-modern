@@ -425,6 +425,25 @@ def test_format() -> None:
     assert f"{bv:08b}" == "00001111"
     assert f"{bv:d}" == "15"
 
+    # Test alternative prefix formats
+    assert f"{bv:#b}" == "0b1111"
+    assert f"{bv:#o}" == "0o17"
+    assert f"{bv:#x}" == "0xf"
+    assert f"{bv:#X}" == "0XF"
+
+    # Test formatting with grouping
+    bv2 = BitVector.BitVector(intVal=255, size=8)
+    assert f"{bv2:,}" == "255"
+    assert f"{bv2:_}" == "255"
+
+    # Test float formats (defaults to int formatting)
+    assert f"{bv:f}" == "15.000000"
+
+    # Test non-even multiples of 4 or 8
+    bv3 = BitVector.BitVector(intVal=15, size=7)
+    assert f"{bv3}" == "0001111"
+    assert f"{bv3:x}" == "f"
+
     # Test formatting empty vector
     bv_empty = BitVector.BitVector(size=0)
     assert f"{bv_empty}" == ""
