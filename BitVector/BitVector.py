@@ -1356,6 +1356,9 @@ class BitVector:
     def count_bits(self) -> int:
         """Counts the total number of set bits (1s) in the bit vector.
 
+        Utilizes Python's native int.bit_count() mapping down to CPU POPCNT
+        instructions, dynamically masking the final word to ignore padding bits.
+
         Returns:
             The integer count of bits set to 1.
         """
@@ -1394,14 +1397,23 @@ class BitVector:
         )
 
     def count_bits_sparse(self) -> int:
-        """Counts set bits using Brian Kernighan's algorithm for sparse vectors.
+        """Counts set bits in sparse bit vectors using native bit counting.
 
-        Optimized for large bit vectors where very few bits are set to 1.
+        Optimized for large, sparse bit vectors by skipping zero-valued words
+        prior to invoking hardware POPCNT instructions via int.bit_count().
+        Dynamically masks the final word to ignore padding bits.
 
         Returns:
             The integer count of bits set to 1.
         """
-        return self.count_bits()
+        if not self._size:
+            return 0
+        count = sum(w.bit_count() for w in self.vector if w)
+        word_size = self.vector.itemsize * 8
+        remainder = self._size % word_size
+        if remainder:
+            count -= (self.vector[-1] >> remainder).bit_count()
+        return count
 
     def jaccard_similarity(self, other: BitVector) -> float:
         """Calculates the Jaccard similarity coefficient between two vectors.
