@@ -36,3 +36,5 @@ code to use the corresponding modern methods:
 | `write_bits_to_fileobject()`      | `write_bits_to_stream_object()`         |
 | `length()`                        | `__len__()` or `len(bv)`                |
 | `deep_copy()`                     | `__deepcopy__()` or `copy.deepcopy(bv)` |
+| `count_bits()`                    | `bit_count()`                           |
+| `count_bits_sparse()`             | `bit_count_sparse()`                    |
