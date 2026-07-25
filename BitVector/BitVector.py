@@ -1111,7 +1111,11 @@ class BitVector:
         Yields:
             The integer bit value (0 or 1) at each position from left to right.
         """
-        yield from (self[i] for i in range(self._size))
+        size = self._size
+        for word_idx, word in enumerate(self.vector):
+            bits_in_word = min(64, size - word_idx * 64)
+            for bit_idx in range(bits_in_word):
+                yield (word >> bit_idx) & 1
 
     def __reversed__(self) -> Iterator[int]:
         """Yields individual bits sequentially from right to left.
