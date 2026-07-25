@@ -32,7 +32,6 @@ code to use the corresponding modern methods:
 | `get_hex_string_from_bitvector()` | `get_bitvector_in_hex()`                |
 | `get_text_from_bitvector()`       | `get_bitvector_in_ascii()`              |
 | `gf_divide()`                     | `gf_divide_by_modulus()`                |
-| `gen_rand_bits_for_prime()`       | `gen_random_bits()`                     |
 | `setValue()`                      | `set_value()`                           |
 | `write_bits_to_fileobject()`      | `write_bits_to_stream_object()`         |
 | `length()`                        | `__len__()` or `len(bv)`                |
