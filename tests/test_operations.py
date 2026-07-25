@@ -332,6 +332,7 @@ def test_reset_coverage() -> None:
     [
         ("100111", 4),
         ("", 0),
+        ("1" * 65, 65),
     ],
 )
 def test_count_bits(bitstring: str, expected_count: int) -> None:
@@ -356,6 +357,7 @@ def test_count_bits(bitstring: str, expected_count: int) -> None:
         ("100111" + "0" * 20, 4),
         ("0" * 128, 0),
         ("1" * 64 + "0" * 64, 64),
+        ("0" * 100 + "1" * 5, 5),
     ],
 )
 def test_count_bits_sparse(bitstring: str, expected_count: int) -> None:
@@ -371,6 +373,22 @@ def test_count_bits_sparse(bitstring: str, expected_count: int) -> None:
         else BitVector.BitVector(size=0)
     )
     assert bv.count_bits_sparse() == expected_count
+
+
+@pytest.mark.parametrize("size", [1, 5, 10, 63, 64, 65, 100, 127, 128])
+def test_count_bits_unmasked_inversion(size: int) -> None:
+    """Tests count_bits and count_bits_sparse after bitwise inversion (NOT).
+
+    Verifies that dynamic padding masking properly ignores unused bits set
+    in the final word by bitwise inversion on non-64-aligned sizes.
+
+    Args:
+        size: Vector length in bits.
+    """
+    bv = BitVector.BitVector(size=size)
+    inv_bv = ~bv
+    assert inv_bv.count_bits() == size
+    assert inv_bv.count_bits_sparse() == size
 
 
 def test_set_value() -> None:
