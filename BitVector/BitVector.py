@@ -69,8 +69,8 @@ class BitVector:
         """Initializes a BitVector instance from one of several possible input sources.
 
         You must specify exactly one keyword argument to determine the data
-        source and size of the bit vector. Providing multiple data source
-        arguments will raise a ValueError.
+        source and size of the bit vector (except 'size' which may accompany 'intVal').
+        Providing multiple data source arguments will raise a ValueError.
 
         Args:
             size: The desired number of bits for a zero-initialized vector (or
@@ -91,57 +91,9 @@ class BitVector:
                     "When intVal is specified, you can only give a "
                     "value to the 'size' constructor arg"
                 )
-            if intVal == 0:
-                bitlist = [0]
-                if size is None:
-                    self._size = 1
-                elif size == 0:
-                    raise ValueError(
-                        "The value specified for size must be at least "
-                        "as large as for the smallest bit vector possible "
-                        "for intVal"
-                    )
-                else:
-                    if size < len(bitlist):
-                        raise ValueError(
-                            "The value specified for size must be at least "
-                            "as large as for the smallest bit vector "
-                            "possible for intVal"
-                        )
-                    n = size - len(bitlist)
-                    bitlist = [0] * n + bitlist
-                    self._size = len(bitlist)
-            else:
-                hexVal = hex(intVal).lower().rstrip("l")
-                hexVal = hexVal[2:]
-                if len(hexVal) == 1:
-                    hexVal = "0" + hexVal
-                bitlist = [int(b) for h in hexVal for b in _hexdict[h]]
-                i = 0
-                while i < len(bitlist):
-                    if bitlist[i] == 1:
-                        break
-                    i += 1
-                del bitlist[0:i]
-                if size is None:
-                    self._size = len(bitlist)
-                elif size == 0:
-                    if size < len(bitlist):
-                        raise ValueError(
-                            "The value specified for size must be at least "
-                            "as large as for the smallest bit vector possible "
-                            "for intVal"
-                        )
-                else:
-                    if size < len(bitlist):
-                        raise ValueError(
-                            "The value specified for size must be at least "
-                            "as large as for the smallest bit vector possible "
-                            "for intVal"
-                        )
-                    n = size - len(bitlist)
-                    bitlist = [0] * n + bitlist
-                    self._size = len(bitlist)
+            bv = self.from_int(intVal, size=size)
+            self._size = bv._size
+            self.vector = bv.vector
         elif size is not None and size >= 0:
             if (
                 intVal is not None
@@ -156,7 +108,6 @@ class BitVector:
             self._size = size
             eight_byte_ints_needed = (size + 63) // 64
             self.vector = array.array(ARRAY_TYPE, [0] * eight_byte_ints_needed)
-            return
         elif bitstring is not None:
             if (
                 size is not None
@@ -168,8 +119,9 @@ class BitVector:
                     "When a bitstring is specified, you cannot give "
                     "values to any other constructor args"
                 )
-            bitlist = list(map(int, list(bitstring)))
-            self._size = len(bitlist)
+            bv = self.from_bitstring(bitstring)
+            self._size = bv._size
+            self.vector = bv.vector
         elif bitlist is not None:
             if (
                 size is not None
@@ -182,6 +134,10 @@ class BitVector:
                     "to any other constructor args"
                 )
             self._size = len(bitlist)
+            eight_byte_ints_needed = (len(bitlist) + 63) // 64
+            self.vector = array.array(ARRAY_TYPE, [0] * eight_byte_ints_needed)
+            for idx, bit in enumerate(bitlist):
+                self[idx] = bit
         elif rawbytes is not None:
             if (
                 size is not None
@@ -193,18 +149,119 @@ class BitVector:
                     "When bits are specified through rawbytes, you "
                     "cannot give values to any other constructor args"
                 )
-            hex_str = binascii.hexlify(rawbytes).decode("ascii")
-            bitlist = [int(b) for h in hex_str for b in _hexdict[h]]
-            self._size = len(bitlist)
+            bv = self.from_bytes(rawbytes)
+            self._size = bv._size
+            self.vector = bv.vector
         else:
             raise ValueError("wrong arg(s) for constructor")
-        eight_byte_ints_needed = (len(bitlist) + 63) // 64
-        self.vector = array.array(ARRAY_TYPE, [0] * eight_byte_ints_needed)
-        for idx, bit in enumerate(bitlist):
-            self[idx] = bit
 
     @classmethod
-    def from_hex(cls, hexstring: str) -> "BitVector":
+    def from_int(cls, val: int, size: int | None = None) -> Self:
+        """Creates a BitVector instance from an integer value.
+
+        Args:
+            val: An integer value to convert into a bit vector.
+            size: Optional target size for the bit vector. If provided, must be at
+                least as large as the minimal bit vector required to represent val.
+
+        Returns:
+            A new BitVector instance initialized with the bit representation of val.
+
+        Raises:
+            ValueError: If size is less than the minimum required bits for val.
+        """
+        if val == 0:
+            bitlist = [0]
+            if size is None:
+                pass
+            elif size == 0:
+                raise ValueError(
+                    "The value specified for size must be at least "
+                    "as large as for the smallest bit vector possible "
+                    "for intVal"
+                )
+            else:
+                if size < len(bitlist):
+                    raise ValueError(
+                        "The value specified for size must be at least "
+                        "as large as for the smallest bit vector "
+                        "possible for intVal"
+                    )
+                n = size - len(bitlist)
+                bitlist = [0] * n + bitlist
+        else:
+            hex_val = hex(val).lower().rstrip("l")
+            hex_val = hex_val[2:]
+            if len(hex_val) == 1:
+                hex_val = "0" + hex_val
+            bitlist = [int(b) for h in hex_val for b in _hexdict[h]]
+            i = 0
+            while i < len(bitlist):
+                if bitlist[i] == 1:
+                    break
+                i += 1
+            del bitlist[0:i]
+            if size is None:
+                pass
+            elif size == 0:
+                if size < len(bitlist):
+                    raise ValueError(
+                        "The value specified for size must be at least "
+                        "as large as for the smallest bit vector possible "
+                        "for intVal"
+                    )
+            else:
+                if size < len(bitlist):
+                    raise ValueError(
+                        "The value specified for size must be at least "
+                        "as large as for the smallest bit vector possible "
+                        "for intVal"
+                    )
+                n = size - len(bitlist)
+                bitlist = [0] * n + bitlist
+        return cls(bitlist=bitlist)
+
+    @classmethod
+    def from_bytes(cls, rawbytes: bytes) -> Self:
+        """Creates a BitVector instance from raw bytes.
+
+        Args:
+            rawbytes: A bytes object to unpack into a bit vector.
+
+        Returns:
+            A new BitVector initialized with the bit representation of rawbytes.
+        """
+        hex_str = binascii.hexlify(rawbytes).decode("ascii")
+        bitlist = [int(b) for h in hex_str for b in _hexdict[h]]
+        return cls(bitlist=bitlist)
+
+    @classmethod
+    def from_bitstring(cls, bitstring: str) -> Self:
+        """Creates a BitVector instance from a binary string of '0's and '1's.
+
+        Args:
+            bitstring: A string of binary characters ('0's and '1's).
+
+        Returns:
+            A new BitVector initialized with the bit representation of bitstring.
+        """
+        bitlist = list(map(int, list(bitstring)))
+        return cls(bitlist=bitlist)
+
+    @classmethod
+    def from_bitlist(cls, bitlist: Sequence[int]) -> Self:
+        """Creates a BitVector instance from a sequence of bit integers (0s and 1s).
+
+        Args:
+            bitlist: A sequence or list of integers (0s and 1s) representing bits.
+
+        Returns:
+            A new BitVector initialized with the specified bits.
+        """
+        return cls(bitlist=bitlist)
+
+    @classmethod
+    def from_hex(cls, hexstring: str) -> Self:
         """Creates a BitVector instance from a hexadecimal string.
 
         Args:
@@ -214,10 +271,10 @@ class BitVector:
             A new BitVector initialized with the bit representation of the hex string.
         """
         bitlist = [int(b) for h in hexstring.lower() for b in _hexdict[h]]
-        return cls(bitlist=bitlist)
+        return cls.from_bitlist(bitlist)
 
     @classmethod
-    def from_string(cls, textstring: str) -> "BitVector":
+    def from_string(cls, textstring: str) -> Self:
         """Creates a BitVector instance from an ASCII or text string.
 
         Args:

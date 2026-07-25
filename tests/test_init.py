@@ -153,6 +153,63 @@ def test_intVal_zero_hex_helper() -> None:
     assert str(bv2) == "00000"
 
 
+def test_from_int() -> None:
+    """Tests initializing BitVector via the from_int class method."""
+    bv = BitVector.BitVector.from_int(5)
+    assert str(bv) == "101"
+    assert bv._size == 3
+
+    bv_padded = BitVector.BitVector.from_int(5, size=8)
+    assert str(bv_padded) == "00000101"
+    assert bv_padded._size == 8
+
+    bv_zero = BitVector.BitVector.from_int(0)
+    assert str(bv_zero) == "0"
+    assert bv_zero._size == 1
+
+    bv_zero_padded = BitVector.BitVector.from_int(0, size=4)
+    assert str(bv_zero_padded) == "0000"
+    assert bv_zero_padded._size == 4
+
+    with pytest.raises(
+        ValueError, match="The value specified for size must be at least"
+    ):
+        BitVector.BitVector.from_int(255, size=2)
+
+
+def test_from_bytes() -> None:
+    """Tests initializing BitVector via the from_bytes class method."""
+    bv = BitVector.BitVector.from_bytes(b"\x00\xff")
+    assert str(bv) == "0000000011111111"
+    assert bv._size == 16
+
+    bv_empty = BitVector.BitVector.from_bytes(b"")
+    assert str(bv_empty) == ""
+    assert bv_empty._size == 0
+
+
+def test_from_bitstring() -> None:
+    """Tests initializing BitVector via the from_bitstring class method."""
+    bv = BitVector.BitVector.from_bitstring("1101")
+    assert str(bv) == "1101"
+    assert bv._size == 4
+
+    bv_empty = BitVector.BitVector.from_bitstring("")
+    assert str(bv_empty) == ""
+    assert bv_empty._size == 0
+
+
+def test_from_bitlist() -> None:
+    """Tests initializing BitVector via the from_bitlist class method."""
+    bv = BitVector.BitVector.from_bitlist([1, 0, 1, 0])
+    assert str(bv) == "1010"
+    assert bv._size == 4
+
+    bv_empty = BitVector.BitVector.from_bitlist([])
+    assert str(bv_empty) == ""
+    assert bv_empty._size == 0
+
+
 def test_version() -> None:
     """Tests that the package version string conforms to semantic versioning."""
     semver_pattern = (
