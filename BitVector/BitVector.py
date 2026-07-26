@@ -34,6 +34,11 @@ _hexdict = {
     "f": "1111",
 }
 
+_bitmap = {
+    "0": 0,
+    "1": 1,
+}
+
 # The internal storage type for the `array` standard library module.
 # "Q" represents an unsigned long long integer (typically 64 bits),
 # which is used for compact bitwise storage.
@@ -189,7 +194,7 @@ class BitVector:
         Returns:
             A new BitVector initialized with the bit representation of bitstring.
         """
-        bitlist = [int(b) for b in bitstring]
+        bitlist = [_bitmap[b] for b in bitstring]
         return cls(bitlist=bitlist)
 
     @classmethod
