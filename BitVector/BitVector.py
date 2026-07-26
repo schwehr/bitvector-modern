@@ -596,11 +596,9 @@ class BitVector:
         Args:
             fp: An open text stream or file-like object supporting write().
         """
-        for bit_index in range(self._size):
-            if self[bit_index] == 0:
-                fp.write("0")
-            else:
-                fp.write("1")
+        if self._size == 0:
+            return
+        fp.write(bin(int(self))[2:].zfill(self._size))
 
     def divide_into_two(self) -> tuple[Self, Self]:
         """Splits an even-length bit vector into two equal halves.

@@ -33,3 +33,44 @@ def test_write_to_file() -> None:
 
     bv.write_to_file(out_stream)
     assert out_stream.getvalue() == b"ABAB"
+
+
+def test_write_bits_to_stream_object_empty() -> None:
+    """Tests writing an empty bit vector to a stream."""
+    bv = BitVector.BitVector(size=0)
+    fp = io.StringIO()
+    bv.write_bits_to_stream_object(fp)
+    assert fp.getvalue() == ""
+
+
+def test_write_bits_to_stream_object_not_multiple_of_8() -> None:
+    """Tests writing a vector where length is not a multiple of 8."""
+    bv = BitVector.BitVector.from_bitstring("101")
+    fp = io.StringIO()
+    bv.write_bits_to_stream_object(fp)
+    assert fp.getvalue() == "101"
+
+
+def test_write_bits_to_stream_object_all_zeros() -> None:
+    """Tests writing a vector of all 0s."""
+    bv = BitVector.BitVector(size=10)
+    fp = io.StringIO()
+    bv.write_bits_to_stream_object(fp)
+    assert fp.getvalue() == "0000000000"
+
+
+def test_write_bits_to_stream_object_all_ones() -> None:
+    """Tests writing a vector of all 1s."""
+    bv = ~BitVector.BitVector(size=10)
+    fp = io.StringIO()
+    bv.write_bits_to_stream_object(fp)
+    assert fp.getvalue() == "1111111111"
+
+
+def test_write_bits_to_stream_object_large() -> None:
+    """Tests writing a vector with more than 64 bits."""
+    s = "10101010" * 10  # 80 bits
+    bv = BitVector.BitVector.from_bitstring(s)
+    fp = io.StringIO()
+    bv.write_bits_to_stream_object(fp)
+    assert fp.getvalue() == s
