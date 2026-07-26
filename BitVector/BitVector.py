@@ -189,7 +189,7 @@ class BitVector:
         Returns:
             A new BitVector initialized with the bit representation of bitstring.
         """
-        bitlist = list(map(int, list(bitstring)))
+        bitlist = [int(b) for b in bitstring]
         return cls(bitlist=bitlist)
 
     @classmethod
