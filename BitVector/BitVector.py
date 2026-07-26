@@ -194,8 +194,9 @@ class BitVector:
         Returns:
             A new BitVector initialized with the bit representation of bitstring.
         """
-        bitlist = [_bitmap[b] for b in bitstring]
-        return cls(bitlist=bitlist)
+        if not bitstring:
+            return cls(size=0)
+        return cls.from_int(int(bitstring, 2), size=len(bitstring))
 
     @classmethod
     def from_bitlist(cls, bitlist: Sequence[int]) -> Self:
