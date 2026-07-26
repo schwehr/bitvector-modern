@@ -102,6 +102,13 @@ def test_constructor_valid_kwargs(
     assert bv._size == expected_size
 
 
+def test_constructor_iterable() -> None:
+    """Tests initializing BitVector from an iterable that is not a sequence."""
+    bv = BitVector.BitVector(bitlist=(x for x in [1, 0, 1]))
+    assert bv._size == 3
+    assert str(bv) == "101"
+
+
 def test_from_string() -> None:
     """Tests initializing BitVector from a string via the from_string method."""
     bv = BitVector.BitVector.from_string("A")
@@ -197,6 +204,10 @@ def test_from_bitlist() -> None:
     bv_empty = BitVector.BitVector.from_bitlist([])
     assert str(bv_empty) == ""
     assert bv_empty._size == 0
+
+    bv_iter = BitVector.BitVector.from_bitlist(x for x in [1, 1, 0])
+    assert str(bv_iter) == "110"
+    assert bv_iter._size == 3
 
 
 def test_version() -> None:
