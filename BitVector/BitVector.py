@@ -484,10 +484,8 @@ class BitVector:
             each 1 bit is replaced by 0.
         """
         res = self.__class__(size=self._size)
-        lpb = list(map(operator.__inv__, self.vector))
-        res.vector = array.array(ARRAY_TYPE)
-        for val in lpb:
-            res.vector.append(val & 0xFFFFFFFFFFFFFFFF)
+        mask = (1 << (self.vector.itemsize * 8)) - 1
+        res.vector = array.array(ARRAY_TYPE, [val ^ mask for val in self.vector])
         return res
 
     def __add__(self, other: BitVector) -> Self:
