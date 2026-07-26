@@ -485,7 +485,9 @@ class BitVector:
         """
         res = self.__class__(size=self._size)
         mask = (1 << (self.vector.itemsize * 8)) - 1
-        res.vector = array.array(ARRAY_TYPE, [val ^ mask for val in self.vector])
+        res.vector = array.array(
+            ARRAY_TYPE, map(operator.xor, self.vector, itertools.repeat(mask))
+        )
         return res
 
     def __add__(self, other: BitVector) -> Self:
