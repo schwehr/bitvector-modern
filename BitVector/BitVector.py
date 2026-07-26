@@ -61,7 +61,7 @@ class BitVector:
         self,
         *,
         size: int | None = None,
-        bitlist: Any = None,
+        bitlist: Sequence[int] | None = None,
     ) -> None:
         """Initializes a BitVector instance.
 
