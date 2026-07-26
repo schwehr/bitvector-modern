@@ -324,9 +324,11 @@ class BitVector:
         else:
             bv1 = self
             bv2 = other
-        res = self.__class__(size=bv1._size)
-        lpb = map(operator.__xor__, bv1.vector, bv2.vector)
-        res.vector = array.array(ARRAY_TYPE, lpb)
+        res = object.__new__(self.__class__)
+        res._size = bv1._size
+        res.vector = type(self.vector)(
+            ARRAY_TYPE, map(operator.xor, bv1.vector, bv2.vector)
+        )
         return res
 
     def __and__(self, other: BitVector) -> Self:
@@ -351,9 +353,11 @@ class BitVector:
         else:
             bv1 = self
             bv2 = other
-        res = self.__class__(size=bv1._size)
-        lpb = map(operator.__and__, bv1.vector, bv2.vector)
-        res.vector = array.array(ARRAY_TYPE, lpb)
+        res = object.__new__(self.__class__)
+        res._size = bv1._size
+        res.vector = type(self.vector)(
+            ARRAY_TYPE, map(operator.and_, bv1.vector, bv2.vector)
+        )
         return res
 
     def __or__(self, other: BitVector) -> Self:
@@ -378,9 +382,11 @@ class BitVector:
         else:
             bv1 = self
             bv2 = other
-        res = self.__class__(size=bv1._size)
-        lpb = map(operator.__or__, bv1.vector, bv2.vector)
-        res.vector = array.array(ARRAY_TYPE, lpb)
+        res = object.__new__(self.__class__)
+        res._size = bv1._size
+        res.vector = type(self.vector)(
+            ARRAY_TYPE, map(operator.or_, bv1.vector, bv2.vector)
+        )
         return res
 
     def __ixor__(self, other: BitVector) -> Self:
