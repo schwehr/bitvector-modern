@@ -13,7 +13,7 @@ import copy
 import itertools
 import operator
 import secrets
-from typing import Any, BinaryIO, Iterable, Iterator, Self, Sequence
+from typing import Any, BinaryIO, Iterator, Self, Sequence
 
 _hexdict = {
     "0": "0000",
@@ -61,7 +61,7 @@ class BitVector:
         self,
         *,
         size: int | None = None,
-        bitlist: Iterable[int] | None = None,
+        bitlist: Any = None,
     ) -> None:
         """Initializes a BitVector instance.
 
@@ -71,7 +71,7 @@ class BitVector:
 
         Args:
             size: The desired number of bits for a zero-initialized vector.
-            bitlist: An iterable of integers (0s and 1s) representing bits.
+            bitlist: A sequence or list of integers (0s and 1s) representing bits.
 
         Raises:
             ValueError: If no argument is provided, if mutually exclusive
@@ -91,11 +91,10 @@ class BitVector:
                 raise ValueError(
                     "When bits are specified, you cannot give values to any other constructor args"
                 )
-            bitlist_tuple = tuple(bitlist)
-            self._size = len(bitlist_tuple)
-            eight_byte_ints_needed = (self._size + 63) // 64
+            self._size = len(bitlist)
+            eight_byte_ints_needed = (len(bitlist) + 63) // 64
             self.vector = array.array(ARRAY_TYPE, [0] * eight_byte_ints_needed)
-            for idx, bit in enumerate(bitlist_tuple):
+            for idx, bit in enumerate(bitlist):
                 self[idx] = bit
         else:
             raise ValueError("wrong arg(s) for constructor")
@@ -194,11 +193,11 @@ class BitVector:
         return cls(bitlist=bitlist)
 
     @classmethod
-    def from_bitlist(cls, bitlist: Iterable[int]) -> Self:
-        """Creates a BitVector instance from an iterable of bit integers (0s and 1s).
+    def from_bitlist(cls, bitlist: Sequence[int]) -> Self:
+        """Creates a BitVector instance from a sequence of bit integers (0s and 1s).
 
         Args:
-            bitlist: An iterable of integers (0s and 1s) representing bits.
+            bitlist: A sequence or list of integers (0s and 1s) representing bits.
 
         Returns:
             A new BitVector initialized with the specified bits.
