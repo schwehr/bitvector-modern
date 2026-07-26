@@ -65,3 +65,12 @@ def test_write_bits_to_stream_object_all_ones() -> None:
     fp = io.StringIO()
     bv.write_bits_to_stream_object(fp)
     assert fp.getvalue() == "1111111111"
+
+
+def test_write_bits_to_stream_object_large() -> None:
+    """Tests writing a vector with more than 64 bits."""
+    s = "10101010" * 10  # 80 bits
+    bv = BitVector.BitVector.from_bitstring(s)
+    fp = io.StringIO()
+    bv.write_bits_to_stream_object(fp)
+    assert fp.getvalue() == s
