@@ -378,7 +378,8 @@ class BitVector:
         else:
             bv1 = self
             bv2 = other
-        res = self.__class__(size=bv1._size)
+        res = self.__class__.__new__(self.__class__)
+        res._size = bv1._size
         lpb = map(operator.__or__, bv1.vector, bv2.vector)
         res.vector = array.array(ARRAY_TYPE, lpb)
         return res
