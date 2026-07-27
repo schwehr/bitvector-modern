@@ -35,10 +35,6 @@ _hexdict = {
     "f": "1111",
 }
 
-_bitmap = {
-    "0": 0,
-    "1": 1,
-}
 
 # The internal storage type for the `array` standard library module.
 # "Q" represents an unsigned long long integer (typically 64 bits),
