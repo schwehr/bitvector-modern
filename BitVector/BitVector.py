@@ -1594,22 +1594,26 @@ class BitVector:
             raise ValueError("from_index must be nonnegative")
         if from_index >= self._size:
             raise IndexError("from_index out of range")
-        i = from_index
-        v = self.vector
-        vec_len = len(v)
-        o = i >> 6
-        s = i & 0x3F
-        while o < vec_len:
-            h = v[o]
-            if o == vec_len - 1:
+        vec = self.vector
+        vec_len = len(vec)
+        word_idx = from_index >> 6
+        bit_offset = from_index & 0x3F
+        while word_idx < vec_len:
+            word_val = vec[word_idx]
+            if word_idx == vec_len - 1:
                 rem = self._size & 0x3F
                 if rem:
-                    h &= (1 << rem) - 1
-            h >>= s
-            if h:
-                return (o << 6) + s + (h & -h).bit_length() - 1
-            s = 0
-            o += 1
+                    word_val &= (1 << rem) - 1
+            word_val >>= bit_offset
+            if word_val:
+                return (
+                    (word_idx << 6)
+                    + bit_offset
+                    + (word_val & -word_val).bit_length()
+                    - 1
+                )
+            bit_offset = 0
+            word_idx += 1
         return -1
 
     def rank_of_bit_set_at_index(self, position: int) -> int:
