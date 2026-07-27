@@ -13,6 +13,7 @@ import copy
 import itertools
 import operator
 import secrets
+import sys
 from typing import Any, BinaryIO, Iterator, Self, Sequence
 
 _hexdict = {
@@ -736,7 +737,17 @@ class BitVector:
                 "The bitvector for get_bitvector_in_ascii() "
                 "must be an integral multiple of 8 bits"
             )
-        return "".join(chr(int(self[i : i + 8])) for i in range(0, self._size, 8))
+        if self._size == 0:
+            return ""
+        num_bytes = self._size // 8
+        if sys.byteorder == "little":
+            raw = self.vector.tobytes()
+        else:
+            vec = copy.copy(self.vector)
+            vec.byteswap()
+            raw = vec.tobytes()
+        byte_data = raw[:num_bytes].translate(_BIT_REV_8)
+        return byte_data.decode("ascii")
 
     def get_bitvector_in_hex(self) -> str:
         """Converts the bit vector into a hexadecimal representation string.
@@ -755,9 +766,30 @@ class BitVector:
                 "The bitvector for get_bitvector_in_hex() "
                 "must be an integral multiple of 4 bits"
             )
-        return "".join(
-            hex(int(self[i : i + 4])).replace("0x", "") for i in range(0, self._size, 4)
-        )
+        if self._size == 0:
+            return ""
+        num_bytes = self._size // 8
+        if sys.byteorder == "little":
+            raw = self.vector.tobytes()
+        else:
+            vec = copy.copy(self.vector)
+            vec.byteswap()
+            raw = vec.tobytes()
+        byte_data = raw[:num_bytes].translate(_BIT_REV_8)
+        res = binascii.hexlify(byte_data).decode("ascii")
+        if self._size % 8 != 0:
+            pos = num_bytes * 8
+            word = self.vector[pos // 64]
+            shift = pos & 63
+            nibble_bits = (word >> shift) & 0x0F
+            val = (
+                (((nibble_bits) & 1) << 3)
+                | (((nibble_bits >> 1) & 1) << 2)
+                | (((nibble_bits >> 2) & 1) << 1)
+                | ((nibble_bits >> 3) & 1)
+            )
+            res += f"{val:x}"
+        return res
 
     def __lshift__(self, n: int) -> Self:
         """Performs a circular left rotation by n bit positions.
