@@ -166,3 +166,45 @@ def test_inplace_binary_logic_type_errors() -> None:
 
     with pytest.raises(TypeError):
         bv ^= 10  # type: ignore[arg-type]  # ty: ignore[unsupported-operator]
+
+
+def test_unused_bits_masked_after_invert() -> None:
+    """Verifies that ~ (bitwise NOT) clears unused trailing bits in the last word."""
+    bv = BitVector.BitVector(bitlist=[1, 0, 1])  # size = 3
+    inv = ~bv
+    assert inv._size == 3
+    assert inv.vector[0] == 2  # bits 0..2 are 0, 1, 0; bits 3..63 must be 0
+    assert int(inv) == 2
+
+
+def test_unused_bits_masked_unequal_length_logical_ops() -> None:
+    """Verifies that logical ops between unequal length vectors clear residual bits in final word."""
+    bv_a = ~BitVector.BitVector(bitlist=[1, 0, 1])  # size 3, inverted
+    bv_b = BitVector.BitVector(bitlist=[1, 1, 0, 1, 0])  # size 5
+
+    # Binary operations
+    for op_func in (operator.and_, operator.or_, operator.xor):
+        res = op_func(bv_a, bv_b)
+        rem = res._size % 64
+        if rem != 0:
+            assert (res.vector[-1] >> rem) == 0
+
+        res_rev = op_func(bv_b, bv_a)
+        rem_rev = res_rev._size % 64
+        if rem_rev != 0:
+            assert (res_rev.vector[-1] >> rem_rev) == 0
+
+    # In-place operations
+    for op_name in ("&=", "|=", "^="):
+        target = ~BitVector.BitVector(bitlist=[1, 0, 1])
+        operand = BitVector.BitVector(bitlist=[1, 1, 0, 1, 0])
+        if op_name == "&=":
+            target &= operand
+        elif op_name == "|=":
+            target |= operand
+        elif op_name == "^=":
+            target ^= operand
+
+        rem = target._size % 64
+        if rem != 0:
+            assert (target.vector[-1] >> rem) == 0

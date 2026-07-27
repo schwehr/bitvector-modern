@@ -173,6 +173,7 @@ class BitVector:
             )
 
         bv.vector = vec
+        bv._mask_unused_bits()
         return bv
 
     @classmethod
@@ -340,6 +341,7 @@ class BitVector:
         res.vector = type(self.vector)(
             ARRAY_TYPE, map(operator.xor, bv1.vector, bv2.vector)
         )
+        res._mask_unused_bits()
         return res
 
     def __and__(self, other: BitVector) -> Self:
@@ -369,6 +371,7 @@ class BitVector:
         res.vector = type(self.vector)(
             ARRAY_TYPE, map(operator.and_, bv1.vector, bv2.vector)
         )
+        res._mask_unused_bits()
         return res
 
     def __or__(self, other: BitVector) -> Self:
@@ -398,6 +401,7 @@ class BitVector:
         res.vector = type(self.vector)(
             ARRAY_TYPE, map(operator.or_, bv1.vector, bv2.vector)
         )
+        res._mask_unused_bits()
         return res
 
     def __ixor__(self, other: BitVector) -> Self:
@@ -429,6 +433,7 @@ class BitVector:
             bv2 = other
         lpb = map(operator.__xor__, self.vector, bv2.vector)
         self.vector = array.array(ARRAY_TYPE, lpb)
+        self._mask_unused_bits()
         return self
 
     def __iand__(self, other: BitVector) -> Self:
@@ -460,6 +465,7 @@ class BitVector:
             bv2 = other
         lpb = map(operator.__and__, self.vector, bv2.vector)
         self.vector = array.array(ARRAY_TYPE, lpb)
+        self._mask_unused_bits()
         return self
 
     def __ior__(self, other: BitVector) -> Self:
@@ -491,6 +497,7 @@ class BitVector:
             bv2 = other
         lpb = map(operator.__or__, self.vector, bv2.vector)
         self.vector = array.array(ARRAY_TYPE, lpb)
+        self._mask_unused_bits()
         return self
 
     def __invert__(self) -> Self:
@@ -505,6 +512,7 @@ class BitVector:
         res.vector = array.array(
             ARRAY_TYPE, map(operator.xor, self.vector, itertools.repeat(mask))
         )
+        res._mask_unused_bits()
         return res
 
     def __add__(self, other: BitVector) -> Self:
@@ -1341,6 +1349,14 @@ class BitVector:
             new_bv.vector = copy.deepcopy(self.vector, memo)
         new_bv._size = self._size
         return new_bv
+
+    def _mask_unused_bits(self) -> None:
+        """Masks out unused trailing bits in the last word of the vector."""
+        if not self.vector:
+            return
+        rem = self._size & 63
+        if rem != 0:
+            self.vector[-1] &= (1 << rem) - 1
 
     def _resize_pad_from_left(self, n: int) -> Self:
         """Resizes the bit vector by padding with n zeros from the left.
