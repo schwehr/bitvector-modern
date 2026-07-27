@@ -1591,24 +1591,22 @@ class BitVector:
         """
         if from_index < 0:
             raise ValueError("from_index must be nonnegative")
+        if from_index >= self._size:
+            return -1
         i = from_index
         v = self.vector
         vec_len = len(v)
         o = i >> 6
         s = i & 0x3F
-        i = o << 6
         while o < vec_len:
             h = v[o]
+            if o == vec_len - 1:
+                rem = self._size & 0x3F
+                if rem:
+                    h &= (1 << rem) - 1
+            h >>= s
             if h:
-                i += s
-                m = 1 << s
-                while m != (1 << 0x40):
-                    if h & m:
-                        return i
-                    m <<= 1
-                    i += 1
-            else:
-                i += 0x40
+                return (o << 6) + s + (h & -h).bit_length() - 1
             s = 0
             o += 1
         return -1
