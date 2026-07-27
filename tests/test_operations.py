@@ -485,9 +485,6 @@ def test_next_set_bit_raises_error() -> None:
         ("00000000000001", 5, 13),
         ("0" * 20, 0, -1),
         ("0100000000000000", 2, -1),
-        ("0000000000", 10, -1),
-        ("0000000000", 15, -1),
-        ("1111", 4, -1),
     ],
 )
 def test_next_set_bit(bitstring: str, start_idx: int, expected_idx: int) -> None:
@@ -503,15 +500,20 @@ def test_next_set_bit(bitstring: str, start_idx: int, expected_idx: int) -> None
 
 
 def test_next_set_bit_out_of_bounds() -> None:
-    """Verifies next_set_bit returns -1 when from_index >= size."""
+    """Verifies next_set_bit raises IndexError when from_index >= size."""
     bv_empty = BitVector.BitVector(size=0)
-    assert bv_empty.next_set_bit(0) == -1
-    assert bv_empty.next_set_bit(5) == -1
+    with pytest.raises(IndexError, match="from_index out of range"):
+        bv_empty.next_set_bit(0)
+    with pytest.raises(IndexError, match="from_index out of range"):
+        bv_empty.next_set_bit(5)
 
     bv_10 = BitVector.BitVector(size=10)
-    assert bv_10.next_set_bit(10) == -1
-    assert bv_10.next_set_bit(20) == -1
-    assert bv_10.next_set_bit(100) == -1
+    with pytest.raises(IndexError, match="from_index out of range"):
+        bv_10.next_set_bit(10)
+    with pytest.raises(IndexError, match="from_index out of range"):
+        bv_10.next_set_bit(20)
+    with pytest.raises(IndexError, match="from_index out of range"):
+        bv_10.next_set_bit(100)
 
 
 def test_next_set_bit_ignores_padding() -> None:
@@ -521,14 +523,16 @@ def test_next_set_bit_ignores_padding() -> None:
     bv.vector[0] = 0b11111111110000000000
     assert bv.next_set_bit(0) == -1
     assert bv.next_set_bit(5) == -1
-    assert bv.next_set_bit(10) == -1
+    with pytest.raises(IndexError, match="from_index out of range"):
+        bv.next_set_bit(10)
 
     bv_70 = BitVector.BitVector(size=70)
     # Set padding bit at index 75 (bit 11 in word 1)
     bv_70.vector[1] = 1 << 11
     assert bv_70.next_set_bit(0) == -1
     assert bv_70.next_set_bit(64) == -1
-    assert bv_70.next_set_bit(70) == -1
+    with pytest.raises(IndexError, match="from_index out of range"):
+        bv_70.next_set_bit(70)
 
 
 def test_rank_of_bit_set_at_index_raises_error() -> None:
