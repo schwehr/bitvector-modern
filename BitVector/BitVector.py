@@ -1588,11 +1588,12 @@ class BitVector:
 
         Raises:
             ValueError: If from_index is negative.
+            IndexError: If from_index is greater than or equal to the vector size.
         """
         if from_index < 0:
             raise ValueError("from_index must be nonnegative")
         if from_index >= self._size:
-            return -1
+            raise IndexError("from_index out of range")
         i = from_index
         v = self.vector
         vec_len = len(v)
