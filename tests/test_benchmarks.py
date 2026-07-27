@@ -70,6 +70,11 @@ def test_bench_init_rawbytes(benchmark):
     benchmark(BitVector.BitVector.from_bytes, data)
 
 
+def test_bench_init_bitlist(benchmark):
+    bitlist = [1, 0, 1, 0] * 250
+    benchmark(BitVector.BitVector, bitlist=bitlist)
+
+
 # --- Bitwise Operation Benchmarks ---
 
 
