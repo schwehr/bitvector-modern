@@ -96,11 +96,16 @@ class BitVector:
                 raise ValueError(
                     "When bits are specified, you cannot give values to any other constructor args"
                 )
-            self._size = len(bitlist)
-            eight_byte_ints_needed = (len(bitlist) + 63) // 64
-            self.vector = array.array(ARRAY_TYPE, [0] * eight_byte_ints_needed)
+            n_bits = len(bitlist)
+            self._size = n_bits
+            words_needed = (n_bits + 63) // 64
+            words = [0] * words_needed
             for idx, bit in enumerate(bitlist):
-                self[idx] = bit
+                if bit not in (0, 1):
+                    raise ValueError("incorrect value for a bit")
+                if bit:
+                    words[idx >> 6] |= 1 << (idx & 63)
+            self.vector = array.array(ARRAY_TYPE, words)
         else:
             raise ValueError("wrong arg(s) for constructor")
 
