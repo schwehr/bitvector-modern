@@ -196,7 +196,8 @@ All testing is orchestrated via `pytest`, `pytest-cov`, and `pytest-benchmark`.
   - Provide precise, tight type annotations for all function signatures and
     return types.
   - Avoid generic `Any` types; prefer specific types such as `Sequence[int]`,
-    `Buffer`, `Self`, `Literal`, or explicit `Union`/`Optional` types.
+    `Buffer`, `Self`, or `Literal`.
+  - Avoid explicit `Union`/`Optional` types. Use '|'.
 
 ## 7. Version Control & Commit Messages
 
