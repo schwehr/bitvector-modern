@@ -171,6 +171,22 @@ def test_bench_irshift(benchmark, sample_bv1):
     benchmark(_run)
 
 
+def test_bench_ilshift_multibit(benchmark, sample_bv1):
+    def _run():
+        bv = sample_bv1[:]
+        bv <<= 500
+
+    benchmark(_run)
+
+
+def test_bench_irshift_multibit(benchmark, sample_bv1):
+    def _run():
+        bv = sample_bv1[:]
+        bv >>= 500
+
+    benchmark(_run)
+
+
 def test_bench_permute(benchmark, sample_bv1):
     perm = list(reversed(range(1000)))
     benchmark(sample_bv1.permute, perm)

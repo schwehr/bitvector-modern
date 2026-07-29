@@ -824,10 +824,14 @@ class BitVector:
         """
         if self._size == 0:
             raise ValueError("Circular shift of an empty vector makes no sense")
-        if n < 0:
-            return self.__irshift__(abs(n))
-        for _ in range(n):
-            self.circular_rotate_left_by_one()
+        n %= self._size
+        if n == 0:
+            return self
+
+        orig_vec = copy.deepcopy(self)
+        v1 = self.shift_left(n).vector
+        v2 = orig_vec.shift_right(self._size - n).vector
+        self.vector = array.array(ARRAY_TYPE, (a | b for a, b in zip(v1, v2)))
         return self
 
     def __rshift__(self, n: int) -> Self:
@@ -867,10 +871,14 @@ class BitVector:
         """
         if self._size == 0:
             raise ValueError("Circular shift of an empty vector makes no sense")
-        if n < 0:
-            return self.__ilshift__(abs(n))
-        for _ in range(n):
-            self.circular_rotate_right_by_one()
+        n %= self._size
+        if n == 0:
+            return self
+
+        orig_vec = copy.deepcopy(self)
+        v1 = self.shift_right(n).vector
+        v2 = orig_vec.shift_left(self._size - n).vector
+        self.vector = array.array(ARRAY_TYPE, (a | b for a, b in zip(v1, v2)))
         return self
 
     def circular_rotate_left_by_one(self) -> None:

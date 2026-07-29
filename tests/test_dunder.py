@@ -273,6 +273,45 @@ def test_irshift() -> None:
     assert bv is ref
 
 
+@pytest.mark.parametrize("shift", [0, 1, 5, 63, 64, 65, 500, 1000, 2500, -1, -500])
+def test_multibit_circular_shifts_large_vector(shift: int) -> None:
+    """Verifies O(words) multi-bit circular shifts on large multi-word vectors.
+
+    Args:
+        shift: Number of bit positions to rotate.
+    """
+    s = "1" + "0" * 999
+    bv = BitVector.BitVector.from_bitstring(s)
+
+    # Left shift and inverse left shift
+    res_l = bv << shift
+    res_l_back = res_l << (-shift)
+    assert res_l_back == bv
+
+    # Right shift and inverse right shift
+    res_r = bv >> shift
+    res_r_back = res_r >> (-shift)
+    assert res_r_back == bv
+
+    # Left shift by shift is equivalent to right shift by (1000 - (shift % 1000))
+    equiv_r_shift = (1000 - (shift % 1000)) % 1000
+    assert (bv << shift) == (bv >> equiv_r_shift)
+
+
+def test_multibit_circular_shifts_inplace() -> None:
+    """Verifies in-place multi-bit circular shifts (__ilshift__, __irshift__)."""
+    bv_orig = BitVector.BitVector.from_bitstring("11010010101100" * 50)
+    bv = copy.deepcopy(bv_orig)
+
+    bv <<= 353
+    assert bv != bv_orig
+    bv >>= 353
+    assert bv == bv_orig
+
+    bv <<= -120
+    assert bv == (bv_orig >> 120)
+
+
 @pytest.mark.parametrize(
     ("initial", "sl", "err_size", "err_match", "valid_str", "expected"),
     [
