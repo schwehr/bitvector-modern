@@ -199,6 +199,15 @@ def test_bench_slice(benchmark, sample_bv1):
     benchmark(operator.getitem, sample_bv1, slice(100, 900))
 
 
+def test_bench_slice_aligned(benchmark, sample_bv1):
+    benchmark(operator.getitem, sample_bv1, slice(64, 896))
+
+
+def test_bench_slice_large(benchmark):
+    bv = BitVector.BitVector.from_bitstring("10" * 5000)  # 10,000 bits
+    benchmark(operator.getitem, bv, slice(1000, 9000))
+
+
 def test_bench_getitem(benchmark, sample_bv1):
     benchmark(operator.getitem, sample_bv1, 500)
 

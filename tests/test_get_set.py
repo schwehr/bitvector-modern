@@ -146,6 +146,32 @@ def test_getitem_slice(initial: str, sl: slice, expected: str) -> None:
     assert str(bv[sl]) == expected
 
 
+def test_getitem_word_aligned_and_unaligned_slicing() -> None:
+    """Tests word-aligned and unaligned slicing on multi-word BitVectors."""
+    # Construct a 200-bit vector with a repeating bit pattern
+    pattern = "11001010" * 25  # 200 bits
+    bv = BitVector.BitVector.from_bitstring(pattern)
+
+    # 1. Word-aligned slice starting at index 0 (64 bits = 1 word)
+    assert str(bv[0:64]) == pattern[0:64]
+
+    # 2. Word-aligned slice starting at index 64 (64 bits = word 1)
+    assert str(bv[64:128]) == pattern[64:128]
+
+    # 3. Unaligned slice crossing word 0 and word 1 (bits 50 to 100)
+    assert str(bv[50:100]) == pattern[50:100]
+
+    # 4. Multi-word slice crossing 3 words (bits 10 to 150)
+    assert str(bv[10:150]) == pattern[10:150]
+
+    # 5. Slice reaching the exact end of the vector
+    assert str(bv[130:200]) == pattern[130:200]
+
+    # 6. Single bit slice
+    assert str(bv[63:64]) == pattern[63:64]
+    assert str(bv[64:65]) == pattern[64:65]
+
+
 @pytest.mark.parametrize(
     "sl",
     [
