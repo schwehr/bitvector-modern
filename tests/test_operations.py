@@ -116,12 +116,6 @@ def test_unpermute() -> None:
 @pytest.mark.parametrize(
     ("method_name", "bitstring", "expected"),
     [
-        ("circular_rot_left", "1000", "0001"),
-        ("circular_rot_left", "10000000000000000001", "00000000000000000011"),
-        ("circular_rot_left", "1" + "0" * 128 + "1", "0" * 128 + "11"),
-        ("circular_rot_right", "0001", "1000"),
-        ("circular_rot_right", "10000000000000000001", "11000000000000000000"),
-        ("circular_rot_right", "1" + "0" * 128 + "1", "11" + "0" * 128),
         ("shift_left_by_one", "1011", "0110"),
         ("shift_left_by_one", "1" + "0" * 18 + "1", "0" * 18 + "10"),
         ("shift_left_by_one", "1" + "0" * 128 + "1", "0" * 128 + "10"),
@@ -130,10 +124,8 @@ def test_unpermute() -> None:
         ("shift_right_by_one", "1" + "0" * 128 + "1", "01" + "0" * 128),
     ],
 )
-def test_rotations_and_one_bit_shifts(
-    method_name: str, bitstring: str, expected: str
-) -> None:
-    """Tests circular rotations and 1-bit shifts on short and long vectors.
+def test_one_bit_shifts(method_name: str, bitstring: str, expected: str) -> None:
+    """Tests 1-bit logical shifts on short and long vectors.
 
     Args:
         method_name: Name of the BitVector rotation or shift method.

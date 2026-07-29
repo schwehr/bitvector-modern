@@ -102,8 +102,8 @@ def test_circular_rotation_reversibility(bits: str, shift: int) -> None:
     assert str(rotated) == bits
 
     in_place = copy.deepcopy(bv)
-    in_place.circular_rot_left()
-    in_place.circular_rot_right()
+    in_place <<= 1
+    in_place >>= 1
     assert str(in_place) == bits
 
 
@@ -172,26 +172,3 @@ def test_slicing_consistency(bits: str, start: int | None, stop: int | None) -> 
             return
         raise
     assert str(sliced_bv) == bits[sl]
-
-
-@given(st.text(alphabet="01", min_size=1, max_size=150))
-def test_circular_rotation_equivalency(bits: str) -> None:
-    """Tests that circular_rot_left and circular_rotate_left_by_one match.
-
-    Also verifies that circular_rot_right and circular_rotate_right_by_one produce
-    identical outputs across arbitrary vector sizes including multi-word (>64 bits).
-
-    Args:
-        bits: Bitstring representation of the test vector.
-    """
-    bv_left1 = BitVector.BitVector.from_bitstring(bits)
-    bv_left2 = BitVector.BitVector.from_bitstring(bits)
-    bv_left1.circular_rot_left()
-    bv_left2.circular_rotate_left_by_one()
-    assert str(bv_left1) == str(bv_left2)
-
-    bv_right1 = BitVector.BitVector.from_bitstring(bits)
-    bv_right2 = BitVector.BitVector.from_bitstring(bits)
-    bv_right1.circular_rot_right()
-    bv_right2.circular_rotate_right_by_one()
-    assert str(bv_right1) == str(bv_right2)

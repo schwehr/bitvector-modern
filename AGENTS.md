@@ -75,9 +75,8 @@ The core functionality of `bitvector-modern` is implemented in
 - **Concatenation & Splitting**: Vector addition (`+` / `__add__`, `+=` /
   `__iadd__`), `divide_into_two()`, and padding (`pad_from_left`,
   `pad_from_right`).
-- **Shifts & Rotations**: Logical shifts (`<<` / `shift_left`, `>>` /
-  `shift_right`) and circular rotations (`circular_rot_left`,
-  `circular_rot_right`, `circular_rotate_left_by_one`).
+- **Shifts & Rotations**: Logical shifts (`shift_left`, `shift_right`) and
+  circular rotations (`<<` / `__lshift__`, `>>` / `__rshift__`).
 - **Permutations**: Reordering bits via `permute()`, `unpermute()`, and
   `reverse()`.
 - **Comparisons & Equality**: Full rich comparison support (`==`, `!=`, `<`,
