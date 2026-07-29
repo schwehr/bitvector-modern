@@ -262,54 +262,112 @@ class BitVector:
             if pos < 0:
                 pos = self._size + pos
             return (self.vector[pos // 64] >> (pos & 63)) & 1
-        slicebits = []
+        return self._get_slice(pos)
+
+    def _resolve_slice_range(self, pos: slice) -> tuple[int, int]:
+        """Resolves slice indices to non-negative start and stop bounds.
+
+        Args:
+            pos: A slice object specifying start and stop boundaries.
+
+        Returns:
+            A tuple of (start, stop) bit position indices.
+
+        Raises:
+            ValueError: If slice indices are out of valid bounds.
+        """
         i, j = pos.start, pos.stop
+        n = self._size
         if i is None and j is None:
-            return copy.deepcopy(self)
+            return 0, n
         if i is None:
             if j >= 0:
-                if j > len(self):
+                if j > n:
                     raise ValueError("illegal slice index values")
-                for x in range(j):
-                    slicebits.append(self[x])
-                return BitVector(bitlist=slicebits)
-
-            if abs(j) > len(self):
+                return 0, j
+            if abs(j) > n:
                 raise ValueError("illegal slice index values")
-            for x in range(len(self) - abs(j)):
-                slicebits.append(self[x])
-            return BitVector(bitlist=slicebits)
+            return 0, n + j
         if j is None:
             if i >= 0:
-                if i > len(self):
+                if i > n:
                     raise ValueError("illegal slice index values")
-                for x in range(i, len(self)):
-                    slicebits.append(self[x])
-                return BitVector(bitlist=slicebits)
-
-            if abs(i) > len(self):
+                return i, n
+            if abs(i) > n:
                 raise ValueError("illegal slice index values")
-            for x in range(len(self) - abs(i), len(self)):
-                slicebits.append(self[x])
-            return BitVector(bitlist=slicebits)
+            return n + i, n
+
         if 0 <= j < i:
             raise ValueError("illegal slice index values")
-        if i < 0 <= j < len(self) + i:
+        if i < 0 <= j < n + i:
             raise ValueError("illegal slice index values")
         if j < 0 <= i:
-            if len(self) + j < i:
+            if n + j < i:
                 raise ValueError("illegal slice index values")
+            return i, n + j
 
-            for x in range(i, len(self) + j):
-                slicebits.append(self[x])
-            return BitVector(bitlist=slicebits)
-        if self._size == 0:
-            return BitVector.from_bitstring("")
-        if i == j:
-            return BitVector.from_bitstring("")
-        for x in range(i, j):
-            slicebits.append(self[x])
-        return BitVector(bitlist=slicebits)
+        start = i if i >= 0 else n + i
+        stop = j if j >= 0 else n + j
+        if start < 0 or stop < 0 or start > n or stop > n:
+            raise ValueError("illegal slice index values")
+        return start, stop
+
+    def _get_slice(self, pos: slice) -> BitVector:
+        """Extracts a slice of bits using word-level array and bitwise operations.
+
+        Args:
+            pos: A slice object defining the range of bits to extract.
+
+        Returns:
+            A new BitVector instance containing the extracted slice of bits.
+        """
+        if pos.start is None and pos.stop is None:
+            return copy.deepcopy(self)
+
+        start, stop = self._resolve_slice_range(pos)
+        if start >= stop or self._size == 0:
+            return self.__class__(size=0)
+
+        return self._extract_slice_words(start, stop)
+
+    def _extract_slice_words(self, start: int, stop: int) -> BitVector:
+        """Extracts word data for bit range [start, stop) into a new BitVector.
+
+        Args:
+            start: Start bit index (inclusive).
+            stop: Stop bit index (exclusive).
+
+        Returns:
+            A new BitVector containing the sliced bit words.
+        """
+        slice_len = stop - start
+        w_start = start // 64
+        shift = start & 63
+        num_words = (slice_len + 63) // 64
+
+        res = object.__new__(self.__class__)
+        res._size = slice_len
+
+        if shift == 0:
+            res.vector = self.vector[w_start : w_start + num_words]
+        else:
+            vec = self.vector
+            n_vec = len(vec)
+            mask_shift = (1 << shift) - 1
+            inv_shift = 64 - shift
+            words = [
+                (vec[w_start + i] >> shift)
+                | (
+                    ((vec[w_start + i + 1] & mask_shift) << inv_shift)
+                    if w_start + i + 1 < n_vec
+                    else 0
+                )
+                for i in range(num_words)
+            ]
+            res.vector = array.array(ARRAY_TYPE, words)
+
+        res._mask_unused_bits()
+        return res
 
     def __xor__(self, other: BitVector) -> Self:
         """Performs a bitwise exclusive OR (XOR) with another bit vector.
