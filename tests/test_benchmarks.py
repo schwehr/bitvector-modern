@@ -395,46 +395,6 @@ def test_bench_shift_right_by_one(benchmark, sample_bv1):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_circular_rot_left(benchmark, sample_bv1):
-    def setup():
-        return (copy.deepcopy(sample_bv1),), {}
-
-    def target(bv):
-        bv.circular_rot_left()
-
-    benchmark.pedantic(target, setup=setup, rounds=100)
-
-
-def test_bench_circular_rot_right(benchmark, sample_bv1):
-    def setup():
-        return (copy.deepcopy(sample_bv1),), {}
-
-    def target(bv):
-        bv.circular_rot_right()
-
-    benchmark.pedantic(target, setup=setup, rounds=100)
-
-
-def test_bench_circular_rotate_left_by_one(benchmark, sample_bv1):
-    def setup():
-        return (copy.deepcopy(sample_bv1),), {}
-
-    def target(bv):
-        bv.circular_rotate_left_by_one()
-
-    benchmark.pedantic(target, setup=setup, rounds=100)
-
-
-def test_bench_circular_rotate_right_by_one(benchmark, sample_bv1):
-    def setup():
-        return (copy.deepcopy(sample_bv1),), {}
-
-    def target(bv):
-        bv.circular_rotate_right_by_one()
-
-    benchmark.pedantic(target, setup=setup, rounds=100)
-
-
 # --- Group 7: In-Place Modification & Padding Methods ---
 
 
