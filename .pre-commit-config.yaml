@@ -8,6 +8,13 @@ repos:
       - id: check-toml
       - id: check-added-large-files
 
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.9.10
     hooks:
@@ -63,13 +70,6 @@ repos:
         args: [ "--wrap", "80" ]
         additional_dependencies:
           - mdformat-gfm
-
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
-    hooks:
-      - id: codespell
-        additional_dependencies:
-          - tomli
 
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     rev: v1.26.1
