@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 __version__ = "0.0.6"
-
 import array
 import binascii
 import copy
@@ -322,7 +321,10 @@ class BitVector:
             A new BitVector instance containing the extracted slice of bits.
         """
         if pos.start is None and pos.stop is None:
-            return copy.deepcopy(self)
+            new_bv = object.__new__(self.__class__)
+            new_bv.vector = array.array(ARRAY_TYPE, self.vector)
+            new_bv._size = self._size
+            return new_bv
 
         start, stop = self._resolve_slice_range(pos)
         if start >= stop or self._size == 0:
@@ -570,7 +572,7 @@ class BitVector:
         res._mask_unused_bits()
         return res
 
-    def __add__(self, other: BitVector) -> Self:
+    def __add__(self, other: BitVector) -> Self:  # pylint: disable=too-many-locals
         """Concatenates this bit vector with another bit vector.
 
         Creates a new bit vector containing all bits from this vector followed
@@ -582,16 +584,65 @@ class BitVector:
         Returns:
             A new BitVector instance representing the concatenated bit string.
         """
-        new_bv = self.__class__(size=0)
-        if isinstance(self.vector, array.array) and isinstance(
-            new_bv.vector, array.array
+        if not isinstance(other, type(self)):
+            raise TypeError(f"Can only join two BitVector objects, not {type(other)}")
+
+        if not self._size and not other._size:
+            return self.__class__(size=0)
+        if not self._size:
+            new_bv = object.__new__(self.__class__)
+            new_bv.vector = array.array(ARRAY_TYPE, other.vector)
+            new_bv._size = other._size
+            return new_bv
+        if not other._size:
+            new_bv = object.__new__(self.__class__)
+            new_bv.vector = array.array(ARRAY_TYPE, self.vector)
+            new_bv._size = self._size
+            return new_bv
+
+        if not isinstance(self.vector, array.array) or not isinstance(
+            other.vector, array.array
         ):
-            new_bv.vector.frombytes(self.vector.tobytes())
-        else:
             out_str = str(self) + str(other)
             return self.__class__.from_bitstring(out_str)
-        new_bv._size = self._size
-        new_bv += other
+
+        total_size = self._size + other._size
+        word_size = self.vector.itemsize * 8
+
+        words_needed = (total_size + word_size - 1) // word_size
+        new_bv = object.__new__(self.__class__)
+        new_bv.vector = array.array(self.vector.typecode, [0] * words_needed)
+        new_bv._size = total_size
+
+        # Copy relevant words from self
+        num_self_words = (self._size + word_size - 1) // word_size
+        new_bv.vector[:num_self_words] = self.vector[:num_self_words]
+
+        start_word = self._size // word_size
+        offset = self._size % word_size
+        num_other_words = (other._size + word_size - 1) // word_size
+
+        if offset > 0:
+            new_bv.vector[start_word] &= (1 << offset) - 1
+
+        mask = (1 << word_size) - 1
+
+        if offset == 0:
+            for i in range(num_other_words):
+                new_bv.vector[start_word + i] = other.vector[i]
+        else:
+            shift_right = word_size - offset
+            for i in range(num_other_words):
+                w = other.vector[i]
+                new_bv.vector[start_word + i] |= (w << offset) & mask
+                high_part = w >> shift_right
+                if high_part and (start_word + i + 1 < words_needed):
+                    new_bv.vector[start_word + i + 1] |= high_part
+
+        last_word_bits = total_size % word_size
+        if last_word_bits != 0:
+            new_bv.vector[words_needed - 1] &= (1 << last_word_bits) - 1
+
         return new_bv
 
     def __iadd__(self, other: BitVector) -> Self:
@@ -615,11 +666,12 @@ class BitVector:
         if not other._size:
             return self
 
+        word_size = self.vector.itemsize * 8
         total_size = self._size + other._size
-        start_word = self._size // 64
-        offset = self._size % 64
+        start_word = self._size // word_size
+        offset = self._size % word_size
 
-        words_needed = (total_size + 63) // 64
+        words_needed = (total_size + word_size - 1) // word_size
         if words_needed > len(self.vector):
             self.vector.extend([0] * (words_needed - len(self.vector)))
 
@@ -627,7 +679,8 @@ class BitVector:
         if offset > 0:
             self.vector[start_word] &= (1 << offset) - 1
 
-        num_other_words = (other._size + 63) // 64
+        num_other_words = (other._size + word_size - 1) // word_size
+        mask = (1 << word_size) - 1
 
         if offset == 0:
             for i in range(num_other_words):
@@ -637,15 +690,15 @@ class BitVector:
             for idx in range(start_word + 1, words_needed):
                 self.vector[idx] = 0
 
-            shift_right = 64 - offset
+            shift_right = word_size - offset
             for i in range(num_other_words):
                 w = other.vector[i]
-                self.vector[start_word + i] |= (w << offset) & 0xFFFFFFFFFFFFFFFF
+                self.vector[start_word + i] |= (w << offset) & mask
                 high_part = w >> shift_right
                 if high_part and (start_word + i + 1 < words_needed):
                     self.vector[start_word + i + 1] |= high_part
 
-        last_word_bits = total_size % 64
+        last_word_bits = total_size % word_size
         if last_word_bits != 0:
             self.vector[words_needed - 1] &= (1 << last_word_bits) - 1
 
