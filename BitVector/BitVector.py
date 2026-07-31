@@ -293,9 +293,56 @@ class BitVector:
             raise ValueError("num_bytes must be non-negative")
 
         with open(path, "rb") as f:
+            file_size = os.fstat(f.fileno()).st_size
+            if offset_bytes >= file_size:
+                bytes_to_read = 0
+            else:
+                bytes_to_read = file_size - offset_bytes
+            if num_bytes is not None:
+                bytes_to_read = min(bytes_to_read, num_bytes)
+
+            if bytes_to_read == 0:
+                return cls(size=0)
+
+            target_size_bits = bytes_to_read * 8
+            words_needed = (target_size_bits + 63) // 64
+
+            bv = cls(size=0)
+            bv._size = target_size_bits
+            vec = array.array(ARRAY_TYPE, [0] * words_needed)
+
+            block_size_bytes = 65536
+            word_idx = 0
+            bytes_remaining = bytes_to_read
+
             if offset_bytes > 0:
                 f.seek(offset_bytes)
-            return cls.from_stream(f, num_bytes=num_bytes)
+
+            while bytes_remaining > 0:
+                chunk_len = min(block_size_bytes, bytes_remaining)
+                chunk = f.read(chunk_len)
+                if not chunk:
+                    break
+                n_read = len(chunk)
+                bytes_remaining -= n_read
+                rem = n_read % 8
+                if rem != 0:
+                    chunk = chunk + b"\x00" * (8 - rem)
+                chunk_arr = array.array(ARRAY_TYPE)
+                chunk_arr.frombytes(chunk.translate(_BIT_REV_8))
+                n_words = len(chunk_arr)
+                vec[word_idx : word_idx + n_words] = chunk_arr
+                word_idx += n_words
+
+            if bytes_remaining > 0:
+                actual_bytes = bytes_to_read - bytes_remaining
+                bv._size = actual_bytes * 8
+                words_needed = (bv._size + 63) // 64
+                vec = vec[:words_needed]
+
+            bv.vector = vec
+            bv._mask_unused_bits()
+            return bv
 
     def __getitem__(self, pos: int | slice) -> Any:
         """Retrieves the bit or slice of bits from the designated position.
