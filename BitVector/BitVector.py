@@ -13,6 +13,7 @@ import copy
 import itertools
 import operator
 import os
+import pathlib
 import secrets
 import sys
 from typing import Any, BinaryIO, Iterator, Self, Sequence
@@ -265,6 +266,7 @@ class BitVector:
         return cls.from_bytes(rawbytes)
 
     @classmethod
+    # pylint: disable=too-many-locals
     def from_file_path(
         cls,
         path: str | os.PathLike[str],
@@ -292,29 +294,30 @@ class BitVector:
         if num_bytes is not None and num_bytes < 0:
             raise ValueError("num_bytes must be non-negative")
 
-        with open(path, "rb") as f:
-            file_size = os.fstat(f.fileno()).st_size
-            if offset_bytes >= file_size:
-                bytes_to_read = 0
-            else:
-                bytes_to_read = file_size - offset_bytes
-            if num_bytes is not None:
-                bytes_to_read = min(bytes_to_read, num_bytes)
+        p = pathlib.Path(path)
+        file_size = p.stat().st_size
+        if offset_bytes >= file_size:
+            bytes_to_read = 0
+        else:
+            bytes_to_read = file_size - offset_bytes
+        if num_bytes is not None:
+            bytes_to_read = min(bytes_to_read, num_bytes)
 
-            if bytes_to_read == 0:
-                return cls(size=0)
+        if bytes_to_read == 0:
+            return cls(size=0)
 
-            target_size_bits = bytes_to_read * 8
-            words_needed = (target_size_bits + 63) // 64
+        target_size_bits = bytes_to_read * 8
+        words_needed = (target_size_bits + 63) // 64
 
-            bv = cls(size=0)
-            bv._size = target_size_bits
-            vec = array.array(ARRAY_TYPE, [0] * words_needed)
+        bv = cls(size=0)
+        bv._size = target_size_bits
+        vec = array.array(ARRAY_TYPE, [0] * words_needed)
 
-            block_size_bytes = 65536
-            word_idx = 0
-            bytes_remaining = bytes_to_read
+        block_size_bytes = 65536
+        word_idx = 0
+        bytes_remaining = bytes_to_read
 
+        with p.open("rb") as f:
             if offset_bytes > 0:
                 f.seek(offset_bytes)
 
