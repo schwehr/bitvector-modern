@@ -12,6 +12,7 @@ import binascii
 import copy
 import itertools
 import operator
+import os
 import secrets
 import sys
 from typing import Any, BinaryIO, Iterator, Self, Sequence
@@ -238,6 +239,63 @@ class BitVector:
         """
         hex_str = "".join(f"{ord(c):02x}" for c in textstring)
         return cls.from_hex(hex_str)
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: BinaryIO | Any,
+        *,
+        num_bytes: int | None = None,
+    ) -> Self:
+        """Creates a BitVector instance by reading bytes from an open binary stream.
+
+        Args:
+            stream: An open binary stream supporting read().
+            num_bytes: Maximum number of bytes to read, or None to read until EOF.
+
+        Returns:
+            A new BitVector initialized with the bit representation of the read bytes.
+
+        Raises:
+            ValueError: If num_bytes is negative.
+        """
+        if num_bytes is not None and num_bytes < 0:
+            raise ValueError("num_bytes must be non-negative")
+        rawbytes = stream.read() if num_bytes is None else stream.read(num_bytes)
+        return cls.from_bytes(rawbytes)
+
+    @classmethod
+    def from_file_path(
+        cls,
+        path: str | os.PathLike[str],
+        *,
+        offset_bytes: int = 0,
+        num_bytes: int | None = None,
+    ) -> Self:
+        """Creates a BitVector instance by reading bytes from a file on disk.
+
+        Args:
+            path: A string or PathLike object specifying the file path to read.
+            offset_bytes: Non-negative byte offset from which to start reading.
+            num_bytes: Maximum number of bytes to read, or None to read until EOF.
+
+        Returns:
+            A new BitVector initialized with the bit representation of the read bytes.
+
+        Raises:
+            ValueError: If offset_bytes or num_bytes is negative.
+            FileNotFoundError: If path does not exist.
+            OSError: If an OS error occurs while opening or reading the file.
+        """
+        if offset_bytes < 0:
+            raise ValueError("offset_bytes must be non-negative")
+        if num_bytes is not None and num_bytes < 0:
+            raise ValueError("num_bytes must be non-negative")
+
+        with open(path, "rb") as f:
+            if offset_bytes > 0:
+                f.seek(offset_bytes)
+            return cls.from_stream(f, num_bytes=num_bytes)
 
     def __getitem__(self, pos: int | slice) -> Any:
         """Retrieves the bit or slice of bits from the designated position.

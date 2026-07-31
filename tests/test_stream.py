@@ -1,6 +1,7 @@
 """Tests file and stream I/O methods (read_bits, write_to_file, close)."""
 
 import io
+import pathlib
 
 import pytest
 
@@ -74,3 +75,87 @@ def test_write_bits_to_stream_object_large() -> None:
     fp = io.StringIO()
     bv.write_bits_to_stream_object(fp)
     assert fp.getvalue() == s
+
+
+def test_from_stream() -> None:
+    """Tests reading bytes from an open binary stream."""
+    stream = io.BytesIO(b"ABC")
+    bv = BitVector.BitVector.from_stream(stream)
+    assert bv == BitVector.BitVector.from_bytes(b"ABC")
+
+
+def test_from_stream_partial() -> None:
+    """Tests reading a limited number of bytes from a stream."""
+    stream = io.BytesIO(b"ABCDE")
+    bv = BitVector.BitVector.from_stream(stream, num_bytes=2)
+    assert bv == BitVector.BitVector.from_bytes(b"AB")
+    assert len(bv) == 16
+
+
+def test_from_stream_empty() -> None:
+    """Tests reading from an empty stream."""
+    stream = io.BytesIO(b"")
+    bv = BitVector.BitVector.from_stream(stream)
+    assert len(bv) == 0
+    assert bv == BitVector.BitVector(size=0)
+
+
+def test_from_stream_negative_num_bytes() -> None:
+    """Tests that a negative num_bytes raises a ValueError."""
+    stream = io.BytesIO(b"ABC")
+    with pytest.raises(ValueError, match="num_bytes must be non-negative"):
+        BitVector.BitVector.from_stream(stream, num_bytes=-1)
+
+
+def test_from_file_path(tmp_path: pathlib.Path) -> None:
+    """Tests reading bytes from a filesystem path."""
+    file_path = tmp_path / "test.bin"
+    file_path.write_bytes(b"HELLO")
+    bv = BitVector.BitVector.from_file_path(file_path)
+    assert bv == BitVector.BitVector.from_bytes(b"HELLO")
+
+
+def test_from_file_path_with_offset_and_limit(
+    tmp_path: pathlib.Path,
+) -> None:
+    """Tests reading from a file path with byte offset and byte limit."""
+    file_path = tmp_path / "test_slice.bin"
+    file_path.write_bytes(b"0123456789")
+    bv = BitVector.BitVector.from_file_path(file_path, offset_bytes=2, num_bytes=4)
+    assert bv == BitVector.BitVector.from_bytes(b"2345")
+
+
+def test_from_file_path_negative_offset(
+    tmp_path: pathlib.Path,
+) -> None:
+    """Tests that offset_bytes < 0 raises a ValueError."""
+    file_path = tmp_path / "test.bin"
+    file_path.write_bytes(b"test")
+    with pytest.raises(ValueError, match="offset_bytes must be non-negative"):
+        BitVector.BitVector.from_file_path(file_path, offset_bytes=-5)
+
+
+def test_from_file_path_negative_num_bytes(
+    tmp_path: pathlib.Path,
+) -> None:
+    """Tests that num_bytes < 0 raises a ValueError when calling from_file_path."""
+    file_path = tmp_path / "test.bin"
+    file_path.write_bytes(b"test")
+    with pytest.raises(ValueError, match="num_bytes must be non-negative"):
+        BitVector.BitVector.from_file_path(file_path, num_bytes=-1)
+
+
+def test_from_file_path_not_found() -> None:
+    """Tests that from_file_path raises FileNotFoundError for nonexistent paths."""
+    with pytest.raises(FileNotFoundError):
+        BitVector.BitVector.from_file_path("this_file_does_not_exist_12345.bin")
+
+
+def test_from_file_path_large(tmp_path: pathlib.Path) -> None:
+    """Tests reading a larger binary file from path."""
+    file_path = tmp_path / "large.bin"
+    data = bytes(i % 256 for i in range(1000))
+    file_path.write_bytes(data)
+    bv = BitVector.BitVector.from_file_path(file_path)
+    assert bv == BitVector.BitVector.from_bytes(data)
+    assert len(bv) == 8000
