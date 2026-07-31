@@ -12,6 +12,8 @@ import binascii
 import copy
 import itertools
 import operator
+import os
+import pathlib
 import secrets
 import sys
 from typing import Any, BinaryIO, Iterator, Self, Sequence
@@ -238,6 +240,112 @@ class BitVector:
         """
         hex_str = "".join(f"{ord(c):02x}" for c in textstring)
         return cls.from_hex(hex_str)
+
+    @classmethod
+    def from_stream(
+        cls,
+        stream: BinaryIO | Any,
+        *,
+        num_bytes: int | None = None,
+    ) -> Self:
+        """Creates a BitVector instance by reading bytes from an open binary stream.
+
+        Args:
+            stream: An open binary stream supporting read().
+            num_bytes: Maximum number of bytes to read, or None to read until EOF.
+
+        Returns:
+            A new BitVector initialized with the bit representation of the read bytes.
+
+        Raises:
+            ValueError: If num_bytes is negative.
+        """
+        if num_bytes is not None and num_bytes < 0:
+            raise ValueError("num_bytes must be non-negative")
+        rawbytes = stream.read() if num_bytes is None else stream.read(num_bytes)
+        return cls.from_bytes(rawbytes)
+
+    @classmethod
+    # pylint: disable=too-many-locals
+    def from_file_path(
+        cls,
+        path: str | os.PathLike[str],
+        *,
+        offset_bytes: int = 0,
+        num_bytes: int | None = None,
+    ) -> Self:
+        """Creates a BitVector instance by reading bytes from a file on disk.
+
+        Args:
+            path: A string or PathLike object specifying the file path to read.
+            offset_bytes: Non-negative byte offset from which to start reading.
+            num_bytes: Maximum number of bytes to read, or None to read until EOF.
+
+        Returns:
+            A new BitVector initialized with the bit representation of the read bytes.
+
+        Raises:
+            ValueError: If offset_bytes or num_bytes is negative.
+            FileNotFoundError: If path does not exist.
+            OSError: If an OS error occurs while opening or reading the file.
+        """
+        if offset_bytes < 0:
+            raise ValueError("offset_bytes must be non-negative")
+        if num_bytes is not None and num_bytes < 0:
+            raise ValueError("num_bytes must be non-negative")
+
+        p = pathlib.Path(path)
+        file_size = p.stat().st_size
+        if offset_bytes >= file_size:
+            bytes_to_read = 0
+        else:
+            bytes_to_read = file_size - offset_bytes
+        if num_bytes is not None:
+            bytes_to_read = min(bytes_to_read, num_bytes)
+
+        if bytes_to_read == 0:
+            return cls(size=0)
+
+        target_size_bits = bytes_to_read * 8
+        words_needed = (target_size_bits + 63) // 64
+
+        bv = cls(size=0)
+        bv._size = target_size_bits
+        vec = array.array(ARRAY_TYPE, [0] * words_needed)
+
+        block_size_bytes = 65536
+        word_idx = 0
+        bytes_remaining = bytes_to_read
+
+        with p.open("rb") as f:
+            if offset_bytes > 0:
+                f.seek(offset_bytes)
+
+            while bytes_remaining > 0:
+                chunk_len = min(block_size_bytes, bytes_remaining)
+                chunk = f.read(chunk_len)
+                if not chunk:
+                    break
+                n_read = len(chunk)
+                bytes_remaining -= n_read
+                rem = n_read % 8
+                if rem != 0:
+                    chunk = chunk + b"\x00" * (8 - rem)
+                chunk_arr = array.array(ARRAY_TYPE)
+                chunk_arr.frombytes(chunk.translate(_BIT_REV_8))
+                n_words = len(chunk_arr)
+                vec[word_idx : word_idx + n_words] = chunk_arr
+                word_idx += n_words
+
+            if bytes_remaining > 0:
+                actual_bytes = bytes_to_read - bytes_remaining
+                bv._size = actual_bytes * 8
+                words_needed = (bv._size + 63) // 64
+                vec = vec[:words_needed]
+
+            bv.vector = vec
+            bv._mask_unused_bits()
+            return bv
 
     def __getitem__(self, pos: int | slice) -> Any:
         """Retrieves the bit or slice of bits from the designated position.

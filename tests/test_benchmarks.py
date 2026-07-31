@@ -1,13 +1,14 @@
 """Benchmarking suite for core BitVector operations.
 
 Note:
-    This file strictly avoids testing file I/O operations and avoids
-    invoking the unfinished methods _not_yet_ready__add__ and
+    This file avoids invoking the unfinished methods _not_yet_ready__add__ and
     _not_yet_ready__iadd__.
 """
 
 import copy
+import io
 import operator
+import pathlib
 
 import pytest
 
@@ -73,6 +74,30 @@ def test_bench_init_rawbytes(benchmark):
 def test_bench_init_bitlist(benchmark):
     bitlist = [1, 0, 1, 0] * 250
     benchmark(BitVector.BitVector, bitlist=bitlist)
+
+
+def test_bench_from_stream(benchmark):
+    data = b"\xaa\x55" * 50
+
+    def read_stream() -> BitVector.BitVector:
+        return BitVector.BitVector.from_stream(io.BytesIO(data))
+
+    benchmark(read_stream)
+
+
+@pytest.mark.parametrize(
+    "size_bytes",
+    [1, 64, 1024, 10240, 102400],
+    ids=["1B", "64B", "1KB", "10KB", "100KB"],
+)
+def test_bench_from_file_path(
+    benchmark,
+    tmp_path: pathlib.Path,
+    size_bytes: int,
+):
+    file_path = tmp_path / f"bench_test_{size_bytes}.bin"
+    file_path.write_bytes(b"\xaa" * size_bytes)
+    benchmark(BitVector.BitVector.from_file_path, file_path)
 
 
 # --- Bitwise Operation Benchmarks ---
