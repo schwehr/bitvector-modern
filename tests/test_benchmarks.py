@@ -85,9 +85,18 @@ def test_bench_from_stream(benchmark):
     benchmark(read_stream)
 
 
-def test_bench_from_file_path(benchmark, tmp_path: pathlib.Path):
-    file_path = tmp_path / "bench_test.bin"
-    file_path.write_bytes(b"\xaa\x55" * 50)
+@pytest.mark.parametrize(
+    "size_bytes",
+    [1, 64, 1024, 10240, 102400],
+    ids=["1B", "64B", "1KB", "10KB", "100KB"],
+)
+def test_bench_from_file_path(
+    benchmark,
+    tmp_path: pathlib.Path,
+    size_bytes: int,
+):
+    file_path = tmp_path / f"bench_test_{size_bytes}.bin"
+    file_path.write_bytes(b"\xaa" * size_bytes)
     benchmark(BitVector.BitVector.from_file_path, file_path)
 
 
