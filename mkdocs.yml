@@ -37,3 +37,4 @@ nav:
   - API Reference: api.md
   - Development: development.md
   - Porting Guide: porting.md
+  - Modernization Guide: modernize.md
