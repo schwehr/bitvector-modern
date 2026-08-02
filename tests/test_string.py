@@ -2,7 +2,7 @@
 
 import pytest
 
-import BitVector
+from BitVector import BitVector
 
 
 @pytest.mark.parametrize(
@@ -19,13 +19,13 @@ def test_get_bitvector_in_ascii(bitstring: str, expected: str) -> None:
         bitstring: Input binary string.
         expected: The expected ASCII representation string.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     assert bv.get_bitvector_in_ascii() == expected
 
 
 def test_get_bitvector_in_ascii_from_string() -> None:
     """Tests ASCII string conversion when initialized via from_string."""
-    bv = BitVector.BitVector.from_string("hello")
+    bv = BitVector.from_string("hello")
     assert bv.get_bitvector_in_ascii() == "hello"
 
 
@@ -36,7 +36,7 @@ def test_get_bitvector_in_ascii_invalid_length_raises_error(bitstring: str) -> N
     Args:
         bitstring: A bitstring whose length is not a multiple of 8.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     with pytest.raises(ValueError, match="must be an integral multiple of 8 bits"):
         bv.get_bitvector_in_ascii()
 
@@ -56,13 +56,13 @@ def test_get_bitvector_in_hex(bitstring: str, expected: str) -> None:
         bitstring: Input binary string.
         expected: The expected hexadecimal representation string.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     assert bv.get_bitvector_in_hex() == expected
 
 
 def test_get_bitvector_in_hex_from_hex() -> None:
     """Tests hexadecimal string conversion when initialized via from_hex."""
-    bv = BitVector.BitVector.from_hex("68656c6c6f")
+    bv = BitVector.from_hex("68656c6c6f")
     assert bv.get_bitvector_in_hex() == "68656c6c6f"
 
 
@@ -73,7 +73,7 @@ def test_get_bitvector_in_hex_invalid_length_raises_error(bitstring: str) -> Non
     Args:
         bitstring: A bitstring whose length is not a multiple of 4.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     with pytest.raises(ValueError, match="must be an integral multiple of 4 bits"):
         bv.get_bitvector_in_hex()
 
@@ -92,11 +92,11 @@ def test_str_representation(bitstring: str, expected: str) -> None:
         bitstring: Input binary string.
         expected: The expected binary string representation.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     assert str(bv) == expected
 
 
 def test_str_representation_from_hex() -> None:
     """Tests the string (__str__) representation when initialized via from_hex."""
-    bv = BitVector.BitVector.from_hex("f")
+    bv = BitVector.from_hex("f")
     assert str(bv) == "1111"

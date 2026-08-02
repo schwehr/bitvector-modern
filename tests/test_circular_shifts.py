@@ -4,7 +4,7 @@ from typing import Literal
 
 import pytest
 
-import BitVector
+from BitVector import BitVector
 
 
 @pytest.mark.parametrize(
@@ -31,7 +31,7 @@ def test_circular_shifts(
         op: The shift operator to apply ('>>' or '<<').
         expected: The expected bitstring representation after rotation.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     if op == ">>":
         result = bv >> shift
     elif op == "<<":
@@ -39,7 +39,7 @@ def test_circular_shifts(
     else:
         raise ValueError(f"Unsupported operator: {op}")
 
-    expected_bv = BitVector.BitVector.from_bitstring(expected)
+    expected_bv = BitVector.from_bitstring(expected)
     assert result == expected_bv
     assert str(bv) == bitstring
     assert result is not bv
@@ -62,7 +62,7 @@ def test_inplace_circular_shifts(
     bitstring: str, shift: int, op: Literal[">>=", "<<="], expected: str
 ) -> None:
     """Tests in-place circular shift operators >>= and <<= on BitVector instances."""
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     ref = bv
     if op == ">>=":
         bv >>= shift
@@ -71,7 +71,7 @@ def test_inplace_circular_shifts(
     else:
         raise ValueError(f"Unsupported operator: {op}")
 
-    expected_bv = BitVector.BitVector.from_bitstring(expected)
+    expected_bv = BitVector.from_bitstring(expected)
     assert bv == expected_bv
     assert bv is ref
 
@@ -83,7 +83,7 @@ def test_circular_shift_empty_vector_raises_error(op: str) -> None:
     Args:
         op: The shift operator to apply ('>>', '<<', '>>=', or '<<=').
     """
-    bv = BitVector.BitVector(size=0)
+    bv = BitVector(size=0)
     with pytest.raises(ValueError, match="Circular shift of an empty vector"):
         if op == ">>":
             _ = bv >> 1
