@@ -5,7 +5,7 @@ import copy
 import hypothesis.strategies as st  # type: ignore[import-not-found]
 from hypothesis import given  # type: ignore[import-not-found]
 
-import BitVector
+from BitVector import BitVector
 
 
 @given(
@@ -23,8 +23,8 @@ def test_addition_after_inversion(bits1: str, bits2: str) -> None:
         bits2: Bitstring representation for the second operand.
     """
     expected = "".join("1" if b == "0" else "0" for b in bits1) + bits2
-    bv1 = BitVector.BitVector.from_bitstring(bits1)
-    bv2 = BitVector.BitVector.from_bitstring(bits2)
+    bv1 = BitVector.from_bitstring(bits1)
+    bv2 = BitVector.from_bitstring(bits2)
     result_bv = (~bv1) + bv2
     assert str(result_bv) == expected, f"Failed on inputs: {bits1}, {bits2}"
 
@@ -41,13 +41,13 @@ def test_addition_consistency(bits1: str, bits2: str) -> None:
         bits2: Bitstring representation for the second operand.
     """
     expected = bits1 + bits2
-    bv1 = BitVector.BitVector.from_bitstring(bits1)
-    bv2 = BitVector.BitVector.from_bitstring(bits2)
+    bv1 = BitVector.from_bitstring(bits1)
+    bv2 = BitVector.from_bitstring(bits2)
 
     added_bv = bv1 + bv2
     assert str(added_bv) == expected
 
-    bv1_copy = BitVector.BitVector.from_bitstring(bits1)
+    bv1_copy = BitVector.from_bitstring(bits1)
     bv1_copy += bv2
     assert str(bv1_copy) == expected
 
@@ -59,7 +59,7 @@ def test_invert_involution(bits: str) -> None:
     Args:
         bits: Bitstring representation of the test vector.
     """
-    bv = BitVector.BitVector.from_bitstring(bits)
+    bv = BitVector.from_bitstring(bits)
     double_inv = ~(~bv)
     assert str(double_inv) == bits
     assert double_inv == bv
@@ -77,8 +77,8 @@ def test_bitwise_commutativity(bits1: str, bits2: str) -> None:
         bits2: Bitstring representation for the second operand.
     """
     min_len = min(len(bits1), len(bits2))
-    bv1 = BitVector.BitVector.from_bitstring(bits1[:min_len])
-    bv2 = BitVector.BitVector.from_bitstring(bits2[:min_len])
+    bv1 = BitVector.from_bitstring(bits1[:min_len])
+    bv2 = BitVector.from_bitstring(bits2[:min_len])
 
     assert str(bv1 & bv2) == str(bv2 & bv1)
     assert str(bv1 | bv2) == str(bv2 | bv1)
@@ -96,7 +96,7 @@ def test_circular_rotation_reversibility(bits: str, shift: int) -> None:
         bits: Bitstring representation of the test vector.
         shift: Number of positions to rotate.
     """
-    bv = BitVector.BitVector.from_bitstring(bits)
+    bv = BitVector.from_bitstring(bits)
     rotated = bv << shift
     rotated = rotated >> shift
     assert str(rotated) == bits
@@ -114,7 +114,7 @@ def test_reverse_involution(bits: str) -> None:
     Args:
         bits: Bitstring representation of the test vector.
     """
-    bv = BitVector.BitVector.from_bitstring(bits)
+    bv = BitVector.from_bitstring(bits)
     bv.reverse()
     bv.reverse()
     assert str(bv) == bits
@@ -127,12 +127,12 @@ def test_int_roundtrip(bits: str) -> None:
     Args:
         bits: Bitstring representation of the test vector.
     """
-    bv = BitVector.BitVector.from_bitstring(bits)
+    bv = BitVector.from_bitstring(bits)
     val = int(bv)
     expected_val = int(bits, 2)
     assert val == expected_val
 
-    reconstructed = BitVector.BitVector.from_int(val, size=len(bits))
+    reconstructed = BitVector.from_int(val, size=len(bits))
     assert str(reconstructed) == bits
 
 
@@ -159,11 +159,7 @@ def test_slicing_consistency(bits: str, start: int | None, stop: int | None) -> 
     if start is not None and stop is not None and start > stop:
         start, stop = stop, start
 
-    bv = (
-        BitVector.BitVector.from_bitstring(bits)
-        if bits
-        else BitVector.BitVector(size=0)
-    )
+    bv = BitVector.from_bitstring(bits) if bits else BitVector(size=0)
     sl = slice(start, stop)
     try:
         sliced_bv = bv[sl]

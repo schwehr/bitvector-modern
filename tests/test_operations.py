@@ -4,12 +4,12 @@ import copy
 
 import pytest
 
-import BitVector
+from BitVector import BitVector
 
 
 def test_divide_into_two_raises_error() -> None:
     """Verifies dividing a vector with an odd number of bits raises ValueError."""
-    bv_odd = BitVector.BitVector.from_bitstring("101")
+    bv_odd = BitVector.from_bitstring("101")
     with pytest.raises(ValueError, match="must have even num bits"):
         bv_odd.divide_into_two()
 
@@ -31,11 +31,7 @@ def test_divide_into_two(
         expected_left: Expected bitstring of the left half vector.
         expected_right: Expected bitstring of the right half vector.
     """
-    bv = (
-        BitVector.BitVector.from_bitstring(bitstring)
-        if bitstring
-        else BitVector.BitVector(size=0)
-    )
+    bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     left, right = bv.divide_into_two()
     assert str(left) == expected_left
     assert str(right) == expected_right
@@ -57,7 +53,7 @@ def test_permute_raises_error(
         perm_list: List of target bit indices for permutation.
         err_match: Expected error message pattern.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     with pytest.raises(ValueError, match=err_match):
         bv.permute(perm_list)
 
@@ -77,7 +73,7 @@ def test_permute(bitstring: str, perm_list: list[int], expected: str) -> None:
         perm_list: List of target bit indices for permutation.
         expected: Expected output vector bitstring.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     permuted = bv.permute(perm_list)
     assert str(permuted) == expected
 
@@ -99,14 +95,14 @@ def test_unpermute_raises_error(
         perm_list: List of permutation indices.
         err_match: Expected error message pattern.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     with pytest.raises(ValueError, match=err_match):
         bv.unpermute(perm_list)
 
 
 def test_unpermute() -> None:
     """Tests round-trip permutation and unpermutation."""
-    bv_orig = BitVector.BitVector.from_bitstring("11001010")
+    bv_orig = BitVector.from_bitstring("11001010")
     p_list = [7, 6, 5, 4, 3, 2, 1, 0]
     permuted = bv_orig.permute(p_list)
     unpermuted = permuted.unpermute(p_list)
@@ -132,7 +128,7 @@ def test_one_bit_shifts(method_name: str, bitstring: str, expected: str) -> None
         bitstring: Initial vector bitstring representation.
         expected: Expected output vector bitstring after mutation.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     method = getattr(bv, method_name)
     method()
     assert str(bv) == expected
@@ -155,7 +151,7 @@ def test_shift_left_right(direction: str, shift_amount: int, expected: str) -> N
         shift_amount: Number of bit positions to shift.
         expected: Expected output vector bitstring.
     """
-    bv = BitVector.BitVector.from_bitstring("101101")
+    bv = BitVector.from_bitstring("101101")
     if direction == "left":
         res = bv.shift_left(shift_amount)
     else:
@@ -188,7 +184,7 @@ def test_shift_left_comprehensive(
         shift_amount: Number of positions to shift left.
         expected_bitstring: Expected bitstring representation after shifting.
     """
-    bv = BitVector.BitVector.from_bitstring(initial_bitstring)
+    bv = BitVector.from_bitstring(initial_bitstring)
     res = bv.shift_left(shift_amount)
     assert res is bv
     assert str(bv) == expected_bitstring
@@ -218,7 +214,7 @@ def test_shift_right_comprehensive(
         shift_amount: Number of positions to shift right.
         expected_bitstring: Expected bitstring representation after shifting.
     """
-    bv = BitVector.BitVector.from_bitstring(initial_bitstring)
+    bv = BitVector.from_bitstring(initial_bitstring)
     res = bv.shift_right(shift_amount)
     assert res is bv
     assert str(bv) == expected_bitstring
@@ -226,7 +222,7 @@ def test_shift_right_comprehensive(
 
 def test_shift_right_extended_vector() -> None:
     """Verifies shift_right clears trailing excess words when vector storage is over-allocated."""
-    bv = BitVector.BitVector.from_bitstring("1" * 65)
+    bv = BitVector.from_bitstring("1" * 65)
     bv.vector.append(999)
     res = bv.shift_right(1)
     assert res is bv
@@ -264,11 +260,7 @@ def test_padding(
         input_str: Input bitstring to construct vector.
         expected_str: Expected output vector bitstring.
     """
-    bv = (
-        BitVector.BitVector.from_bitstring(input_str)
-        if input_str
-        else BitVector.BitVector(size=0)
-    )
+    bv = BitVector.from_bitstring(input_str) if input_str else BitVector(size=0)
     if direction == "left":
         resized = bv._resize_pad_from_left(pad_count)
         assert str(resized) == expected_str
@@ -281,7 +273,7 @@ def test_padding(
 
 def test_reset_raises_error() -> None:
     """Verifies calling reset with an invalid bit value raises ValueError."""
-    bv = BitVector.BitVector.from_bitstring("101")
+    bv = BitVector.from_bitstring("101")
     with pytest.raises(ValueError, match="Incorrect reset argument"):
         bv.reset(2)
 
@@ -300,7 +292,7 @@ def test_reset(val: int, expected: str) -> None:
         val: The bit value (0 or 1) to reset all bits to.
         expected: Expected output vector bitstring.
     """
-    bv = BitVector.BitVector.from_bitstring("101")
+    bv = BitVector.from_bitstring("101")
     res = bv.reset(val)
     assert str(bv) == expected
     assert res is bv
@@ -309,12 +301,12 @@ def test_reset(val: int, expected: str) -> None:
 def test_reset_coverage() -> None:
     """Tests reset with vector size multiple of word size and size 0."""
     # rem == 0, len(self.vector) > 0
-    bv_64 = BitVector.BitVector(size=64)
+    bv_64 = BitVector(size=64)
     bv_64.reset(1)
     assert str(bv_64) == "1" * 64
 
     # rem == 0, len(self.vector) == 0
-    bv_0 = BitVector.BitVector(size=0)
+    bv_0 = BitVector(size=0)
     bv_0.reset(1)
     assert str(bv_0) == ""
 
@@ -334,11 +326,7 @@ def test_bit_count(bitstring: str, expected_count: int) -> None:
         bitstring: Initial vector bitstring representation.
         expected_count: Expected number of bits set to 1.
     """
-    bv = (
-        BitVector.BitVector.from_bitstring(bitstring)
-        if bitstring
-        else BitVector.BitVector(size=0)
-    )
+    bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     assert bv.bit_count() == expected_count
 
 
@@ -359,11 +347,7 @@ def test_bit_count_sparse(bitstring: str, expected_count: int) -> None:
         bitstring: Initial vector bitstring representation.
         expected_count: Expected number of bits set to 1.
     """
-    bv = (
-        BitVector.BitVector.from_bitstring(bitstring)
-        if bitstring
-        else BitVector.BitVector(size=0)
-    )
+    bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     assert bv.bit_count_sparse() == expected_count
 
 
@@ -377,7 +361,7 @@ def test_bit_count_unmasked_inversion(size: int) -> None:
     Args:
         size: Vector length in bits.
     """
-    bv = BitVector.BitVector(size=size)
+    bv = BitVector(size=size)
     inv_bv = ~bv
     assert inv_bv.bit_count() == size
     assert inv_bv.bit_count_sparse() == size
@@ -385,7 +369,7 @@ def test_bit_count_unmasked_inversion(size: int) -> None:
 
 def test_set_value() -> None:
     """Tests mutating an existing BitVector via set_value."""
-    bv = BitVector.BitVector.from_int(7, size=16)
+    bv = BitVector.from_int(7, size=16)
     bv.set_value(bitlist=[1, 0, 1, 1, 0, 1])
     assert str(bv) == "101101"
 
@@ -395,14 +379,14 @@ def test_set_value() -> None:
 
 def test_set_value_positional_args_error() -> None:
     """Verifies that passing positional arguments to set_value raises TypeError."""
-    bv = BitVector.BitVector.from_int(7, size=16)
+    bv = BitVector.from_int(7, size=16)
     with pytest.raises(TypeError, match="takes 1 positional argument"):
         bv.set_value(123)  # type: ignore[misc,arg-type]  # ty: ignore[too-many-positional-arguments]
 
 
 def test_set_value_invalid_keyword_error() -> None:
     """Verifies passing unexpected keyword arguments to set_value raises TypeError."""
-    bv = BitVector.BitVector.from_int(7, size=16)
+    bv = BitVector.from_int(7, size=16)
     with pytest.raises(TypeError, match="unexpected keyword argument"):
         # pylint: disable-next=unexpected-keyword-arg
         bv.set_value(invalid_param=123)  # type: ignore[call-arg]  # ty: ignore[unknown-argument]
@@ -428,8 +412,8 @@ def test_distance_metrics_raise_error(
         bv2_str: Bitstring for the second vector.
         err_match: Expected error message substring.
     """
-    bv1 = BitVector.BitVector.from_bitstring(bv1_str)
-    bv2 = BitVector.BitVector.from_bitstring(bv2_str)
+    bv1 = BitVector.from_bitstring(bv1_str)
+    bv2 = BitVector.from_bitstring(bv2_str)
     method = getattr(bv1, method_name)
     with pytest.raises(ValueError, match=err_match):
         method(bv2)
@@ -454,8 +438,8 @@ def test_distance_metrics(
         bv2_str: Bitstring for the second vector.
         expected: Expected distance or similarity numerical result.
     """
-    bv1 = BitVector.BitVector.from_bitstring(bv1_str)
-    bv2 = BitVector.BitVector.from_bitstring(bv2_str)
+    bv1 = BitVector.from_bitstring(bv1_str)
+    bv2 = BitVector.from_bitstring(bv2_str)
     method = getattr(bv1, method_name)
     res = method(bv2)
     if isinstance(expected, float):
@@ -466,7 +450,7 @@ def test_distance_metrics(
 
 def test_next_set_bit_raises_error() -> None:
     """Verifies calling next_set_bit with a negative index raises ValueError."""
-    bv = BitVector.BitVector.from_bitstring("00000000000001")
+    bv = BitVector.from_bitstring("00000000000001")
     with pytest.raises(ValueError, match="from_index must be nonnegative"):
         bv.next_set_bit(-1)
 
@@ -487,19 +471,19 @@ def test_next_set_bit(bitstring: str, start_idx: int, expected_idx: int) -> None
         start_idx: The starting index for scanning.
         expected_idx: Expected index of the next set bit (-1 if none found).
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     assert bv.next_set_bit(start_idx) == expected_idx
 
 
 def test_next_set_bit_out_of_bounds() -> None:
     """Verifies next_set_bit raises IndexError when from_index >= size."""
-    bv_empty = BitVector.BitVector(size=0)
+    bv_empty = BitVector(size=0)
     with pytest.raises(IndexError, match="from_index out of range"):
         bv_empty.next_set_bit(0)
     with pytest.raises(IndexError, match="from_index out of range"):
         bv_empty.next_set_bit(5)
 
-    bv_10 = BitVector.BitVector(size=10)
+    bv_10 = BitVector(size=10)
     with pytest.raises(IndexError, match="from_index out of range"):
         bv_10.next_set_bit(10)
     with pytest.raises(IndexError, match="from_index out of range"):
@@ -510,7 +494,7 @@ def test_next_set_bit_out_of_bounds() -> None:
 
 def test_next_set_bit_ignores_padding() -> None:
     """Verifies next_set_bit ignores non-zero padding bits beyond size."""
-    bv = BitVector.BitVector(size=10)
+    bv = BitVector(size=10)
     # Manually set padding bits in the single word (bits 10..63)
     bv.vector[0] = 0b11111111110000000000
     assert bv.next_set_bit(0) == -1
@@ -518,7 +502,7 @@ def test_next_set_bit_ignores_padding() -> None:
     with pytest.raises(IndexError, match="from_index out of range"):
         bv.next_set_bit(10)
 
-    bv_70 = BitVector.BitVector(size=70)
+    bv_70 = BitVector(size=70)
     # Set padding bit at index 75 (bit 11 in word 1)
     bv_70.vector[1] = 1 << 11
     assert bv_70.next_set_bit(0) == -1
@@ -529,14 +513,14 @@ def test_next_set_bit_ignores_padding() -> None:
 
 def test_rank_of_bit_set_at_index_raises_error() -> None:
     """Verifies rank query on an unset bit raises ValueError."""
-    bv = BitVector.BitVector.from_bitstring("01010101011100")
+    bv = BitVector.from_bitstring("01010101011100")
     with pytest.raises(ValueError, match="the arg bit not set"):
         bv.rank_of_bit_set_at_index(0)
 
 
 def test_rank_of_bit_set_at_index() -> None:
     """Tests calculating the rank (number of preceding 1 bits) of a set bit."""
-    bv = BitVector.BitVector.from_bitstring("01010101011100")
+    bv = BitVector.from_bitstring("01010101011100")
     assert bv.rank_of_bit_set_at_index(10) == 6
 
 
@@ -558,7 +542,7 @@ def test_is_power_of_2(bitstring: str, sparse: bool, expected: bool) -> None:
         sparse: Whether to use is_power_of_2_sparse.
         expected: Expected boolean result.
     """
-    bv = BitVector.BitVector.from_bitstring(bitstring)
+    bv = BitVector.from_bitstring(bitstring)
     res = bv.is_power_of_2_sparse() if sparse else bv.is_power_of_2()
     assert res is expected
 
@@ -577,54 +561,50 @@ def test_reverse(bitstring: str, expected: str) -> None:
         bitstring: Initial vector bitstring representation.
         expected: Expected bitstring representation after reversal.
     """
-    bv = (
-        BitVector.BitVector.from_bitstring(bitstring)
-        if bitstring
-        else BitVector.BitVector(size=0)
-    )
+    bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     assert str(bv.reverse()) == expected
 
 
 def test_gcd() -> None:
     """Tests greatest common divisor calculation between two vectors."""
-    bv1 = BitVector.BitVector.from_bitstring("01100110")  # 102
-    bv2 = BitVector.BitVector.from_bitstring("011010")  # 26
+    bv1 = BitVector.from_bitstring("01100110")  # 102
+    bv2 = BitVector.from_bitstring("011010")  # 26
     assert int(bv1.gcd(bv2)) == 2
     assert int(bv2.gcd(bv1)) == 2
 
 
 def test_multiplicative_inverse() -> None:
     """Tests modular multiplicative inverse existence and calculation."""
-    bv_mod = BitVector.BitVector.from_int(32)
-    bv_has_mi = BitVector.BitVector.from_int(17)
+    bv_mod = BitVector.from_int(32)
+    bv_has_mi = BitVector.from_int(17)
     res = bv_has_mi.multiplicative_inverse(bv_mod)
     assert res is not None
     assert int(res) == 17
 
-    bv_no_mi = BitVector.BitVector.from_int(2)
+    bv_no_mi = BitVector.from_int(2)
     res_none = bv_no_mi.multiplicative_inverse(bv_mod)
     assert res_none is None
 
 
 def test_gf_multiply() -> None:
     """Tests polynomial multiplication over GF(2)."""
-    a = BitVector.BitVector.from_bitstring("0110001")
-    b = BitVector.BitVector.from_bitstring("0110")
+    a = BitVector.from_bitstring("0110001")
+    b = BitVector.from_bitstring("0110")
     c = a.gf_multiply(b)
     assert str(c) == "00010100110"
 
-    b_zero = BitVector.BitVector.from_bitstring("0000")
+    b_zero = BitVector.from_bitstring("0000")
     c_zero = a.gf_multiply(b_zero)
     assert int(c_zero) == 0
 
 
 def test_gf_divide_by_modulus() -> None:
     """Tests polynomial division by modulus over GF(2^n) and error checking."""
-    mod = BitVector.BitVector.from_bitstring("100011011")  # AES modulus
+    mod = BitVector.from_bitstring("100011011")  # AES modulus
     n = 8
-    a = BitVector.BitVector.from_bitstring("11100010110001")
+    a = BitVector.from_bitstring("11100010110001")
 
-    mod_long = BitVector.BitVector.from_bitstring("1" * 15)
+    mod_long = BitVector.from_bitstring("1" * 15)
     with pytest.raises(ValueError, match="Modulus bit pattern too long"):
         a.gf_divide_by_modulus(mod_long, n)
 
@@ -636,32 +616,32 @@ def test_gf_divide_by_modulus() -> None:
     _, r_eq = a_equal.gf_divide_by_modulus(mod, n)
     assert int(r_eq) == 0
 
-    _, r_zero = BitVector.BitVector.from_bitstring("0").gf_divide_by_modulus(
-        BitVector.BitVector.from_bitstring("1"), 1
+    _, r_zero = BitVector.from_bitstring("0").gf_divide_by_modulus(
+        BitVector.from_bitstring("1"), 1
     )
     assert int(r_zero) == 0
 
 
 def test_gf_multiply_modular() -> None:
     """Tests modular polynomial multiplication over GF(2^8)."""
-    mod = BitVector.BitVector.from_bitstring("100011011")  # AES modulus
+    mod = BitVector.from_bitstring("100011011")  # AES modulus
     n = 8
-    a = BitVector.BitVector.from_bitstring("0110001")
-    b = BitVector.BitVector.from_bitstring("0110")
+    a = BitVector.from_bitstring("0110001")
+    b = BitVector.from_bitstring("0110")
     c = a.gf_multiply_modular(b, mod, n)
     assert str(c) == "10100110"
 
 
 def test_gf_mi() -> None:
     """Tests multiplicative inverse over GF(2^n) and non-existent fallback."""
-    mod = BitVector.BitVector.from_bitstring("100011011")
+    mod = BitVector.from_bitstring("100011011")
     n = 8
-    a = BitVector.BitVector.from_bitstring("00110011")
+    a = BitVector.from_bitstring("00110011")
     mi = a.gf_MI(mod, n)
     assert str(mi) == "01101100"
 
-    mod_no_mi = BitVector.BitVector.from_bitstring("1010")
-    a_no_mi = BitVector.BitVector.from_bitstring("0010")
+    mod_no_mi = BitVector.from_bitstring("1010")
+    a_no_mi = BitVector.from_bitstring("0010")
     res_no_mi = a_no_mi.gf_MI(mod_no_mi, 3)
     assert isinstance(res_no_mi, str)
     assert res_no_mi == "NO MI. However, the GCD of 0010 and 1010 is 010"
@@ -687,36 +667,32 @@ def test_runs(
         expected: Expected list of bit run strings.
     """
     if bitstring is not None:
-        bv = (
-            BitVector.BitVector.from_bitstring(bitstring)
-            if bitstring
-            else BitVector.BitVector(size=0)
-        )
+        bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     elif bitlist is not None:
-        bv = BitVector.BitVector(bitlist=list(bitlist))
+        bv = BitVector(bitlist=list(bitlist))
     else:
-        bv = BitVector.BitVector(size=0)
+        bv = BitVector(size=0)
     assert bv.runs() == expected
 
 
 def test_test_for_primality() -> None:
     """Tests Miller-Rabin and small-probe primality verification."""
-    assert BitVector.BitVector.from_int(1, size=8).test_for_primality() == 0
-    assert BitVector.BitVector.from_int(2, size=8).test_for_primality() == 1
-    assert BitVector.BitVector.from_int(17, size=8).test_for_primality() == 1
-    assert BitVector.BitVector.from_int(25, size=8).test_for_primality() == 0
+    assert BitVector.from_int(1, size=8).test_for_primality() == 0
+    assert BitVector.from_int(2, size=8).test_for_primality() == 1
+    assert BitVector.from_int(17, size=8).test_for_primality() == 1
+    assert BitVector.from_int(25, size=8).test_for_primality() == 0
 
-    prob_19 = BitVector.BitVector.from_int(19, size=16).test_for_primality()
+    prob_19 = BitVector.from_int(19, size=16).test_for_primality()
     assert prob_19 > 0.99
-    prob_41 = BitVector.BitVector.from_int(41, size=16).test_for_primality()
+    prob_41 = BitVector.from_int(41, size=16).test_for_primality()
     assert prob_41 > 0.99
 
-    assert BitVector.BitVector.from_int(361, size=16).test_for_primality() == 0
+    assert BitVector.from_int(361, size=16).test_for_primality() == 0
 
 
 def test_gen_random_bits(mocker) -> None:
     """Tests random bit vector generation with forced odd integer result."""
-    bv = BitVector.BitVector(size=0).gen_random_bits(32)
+    bv = BitVector(size=0).gen_random_bits(32)
     assert bv._size == 32
     # Check least significant bit is 1
     assert int(bv) & 1 == 1
@@ -725,17 +701,17 @@ def test_gen_random_bits(mocker) -> None:
     assert bv[1] == 1
 
     # Check that it returns different values on consecutive calls
-    bv2 = BitVector.BitVector(size=0).gen_random_bits(32)
+    bv2 = BitVector(size=0).gen_random_bits(32)
     assert bv != bv2
 
     # Check that secrets.randbits is called
     mock_randbits = mocker.patch("BitVector.BitVector.secrets.randbits", return_value=0)
-    bv_mock = BitVector.BitVector(size=0).gen_random_bits(32)
+    bv_mock = BitVector(size=0).gen_random_bits(32)
     mock_randbits.assert_called_once_with(32)
     assert int(bv_mock) == (1 | (1 << 31) | (2 << 29))
 
 
 def test_min_canonical() -> None:
     """Tests finding the lexicographically smallest circular rotation."""
-    bv = BitVector.BitVector.from_bitstring("1101")
+    bv = BitVector.from_bitstring("1101")
     assert str(bv.min_canonical()) == "0111"

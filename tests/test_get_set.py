@@ -5,12 +5,12 @@ from typing import Any, cast
 
 import pytest
 
-import BitVector
+from BitVector import BitVector
 
 
 def test_setitem_type_error() -> None:
     """Verifies that non-integer bit assignment raises TypeError."""
-    bv = BitVector.BitVector(size=5)
+    bv = BitVector(size=5)
     with pytest.raises(TypeError, match="pos must be an integer"):
         bv[cast(Any, "0")] = 1
 
@@ -32,7 +32,7 @@ def test_getitem_type_error(invalid_pos: Any) -> None:
     Args:
         invalid_pos: An object that is neither an integer nor a slice.
     """
-    bv = BitVector.BitVector(size=5)
+    bv = BitVector(size=5)
     with pytest.raises(TypeError, match="pos must be an integer or slice"):
         _ = bv[invalid_pos]  # type: ignore[index]
 
@@ -53,7 +53,7 @@ def test_setitem_raises_error(index: int, val: int, err_match: str) -> None:
         val: The bit value to assign (should be 0 or 1).
         err_match: The expected error message substring.
     """
-    bv = BitVector.BitVector.from_bitstring("00000")
+    bv = BitVector.from_bitstring("00000")
     with pytest.raises(ValueError, match=err_match):
         bv[index] = val
 
@@ -78,7 +78,7 @@ def test_setitem_valid(
         val: The bit value (0 or 1) to assign.
         expected: The expected vector bitstring after modification.
     """
-    bv = BitVector.BitVector.from_bitstring(initial)
+    bv = BitVector.from_bitstring(initial)
     bv[cast(Any, index)] = val
     assert str(bv) == expected
 
@@ -90,7 +90,7 @@ def test_getitem_int_raises_error(index: int) -> None:
     Args:
         index: The out-of-bounds index to query.
     """
-    bv = BitVector.BitVector.from_bitstring("10110")
+    bv = BitVector.from_bitstring("10110")
     with pytest.raises(ValueError, match="index range error"):
         bv[index]  # pylint: disable=pointless-statement
 
@@ -111,7 +111,7 @@ def test_getitem_int(index: int, expected: int) -> None:
         index: The bit index to query.
         expected: The expected integer bit value (0 or 1).
     """
-    bv = BitVector.BitVector.from_bitstring("10110")
+    bv = BitVector.from_bitstring("10110")
     assert bv[index] == expected
 
 
@@ -138,11 +138,7 @@ def test_getitem_slice(initial: str, sl: slice, expected: str) -> None:
         sl: The slice object defining the range to extract.
         expected: Expected bitstring representation of the extracted slice.
     """
-    bv = (
-        BitVector.BitVector.from_bitstring(initial)
-        if initial
-        else BitVector.BitVector(size=0)
-    )
+    bv = BitVector.from_bitstring(initial) if initial else BitVector(size=0)
     assert str(bv[sl]) == expected
 
 
@@ -150,7 +146,7 @@ def test_getitem_word_aligned_and_unaligned_slicing() -> None:
     """Tests word-aligned and unaligned slicing on multi-word BitVectors."""
     # Construct a 200-bit vector with a repeating bit pattern
     pattern = "11001010" * 25  # 200 bits
-    bv = BitVector.BitVector.from_bitstring(pattern)
+    bv = BitVector.from_bitstring(pattern)
 
     # 1. Word-aligned slice starting at index 0 (64 bits = 1 word)
     assert str(bv[0:64]) == pattern[0:64]
@@ -190,16 +186,16 @@ def test_getitem_slice_raises_error(sl: slice) -> None:
     Args:
         sl: The invalid slice object to test on a 5-bit vector.
     """
-    bv = BitVector.BitVector.from_bitstring("10110")
+    bv = BitVector.from_bitstring("10110")
     with pytest.raises(ValueError, match="illegal slice index values"):
         _ = bv[sl]
 
 
 def test_bitvector_iterator() -> None:
     """Tests sequential iteration over bits in a BitVector."""
-    bv = BitVector.BitVector.from_bitstring("101")
+    bv = BitVector.from_bitstring("101")
     it = iter(bv)
     assert isinstance(it, Iterator)
     assert iter(it) is it
     assert list(it) == [1, 0, 1]
-    assert not list(iter(BitVector.BitVector(size=0)))
+    assert not list(iter(BitVector(size=0)))

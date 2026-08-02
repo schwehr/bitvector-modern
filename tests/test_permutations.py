@@ -4,19 +4,19 @@ from typing import Literal
 
 import pytest
 
-import BitVector
+from BitVector import BitVector
 
 
 @pytest.fixture
-def bv1() -> BitVector.BitVector:
+def bv1() -> BitVector:
     """Returns a 7-bit vector constructed from a bitlist ('1001101')."""
-    return BitVector.BitVector(bitlist=[1, 0, 0, 1, 1, 0, 1])
+    return BitVector(bitlist=[1, 0, 0, 1, 1, 0, 1])
 
 
 @pytest.fixture
-def bv2() -> BitVector.BitVector:
+def bv2() -> BitVector:
     """Returns a 7-bit vector constructed from a bitlist ('1010011')."""
-    return BitVector.BitVector(bitlist=[1, 0, 1, 0, 0, 1, 1])
+    return BitVector(bitlist=[1, 0, 1, 0, 0, 1, 1])
 
 
 @pytest.mark.parametrize(
@@ -46,7 +46,7 @@ def test_permutations(
         perm_list: A sequence of integer indices specifying bit ordering.
         expected: The expected bitstring representation after operation.
     """
-    bv: BitVector.BitVector = request.getfixturevalue(bv_name)
+    bv: BitVector = request.getfixturevalue(bv_name)
     if op == "permute":
         result = bv.permute(perm_list)
     elif op == "unpermute":
@@ -54,12 +54,12 @@ def test_permutations(
     else:
         raise ValueError(f"Unsupported operator: {op}")
 
-    assert result == BitVector.BitVector.from_bitstring(expected)
+    assert result == BitVector.from_bitstring(expected)
 
 
 @pytest.mark.parametrize("op", ["permute", "unpermute"])
 def test_permutation_out_of_bounds_raises_error(
-    bv1: BitVector.BitVector, op: Literal["permute", "unpermute"]
+    bv1: BitVector, op: Literal["permute", "unpermute"]
 ) -> None:
     """Verifies out-of-bounds indices in permutation lists raise ValueError.
 
@@ -74,7 +74,7 @@ def test_permutation_out_of_bounds_raises_error(
             _ = bv1.unpermute([7, 0, 1, 2, 3, 4, 5])
 
 
-def test_unpermute_bad_size_raises_error(bv1: BitVector.BitVector) -> None:
+def test_unpermute_bad_size_raises_error(bv1: BitVector) -> None:
     """Verifies unpermute raises ValueError when list size mismatches.
 
     Args:
