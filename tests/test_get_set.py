@@ -178,6 +178,10 @@ def test_getitem_word_aligned_and_unaligned_slicing() -> None:
         slice(3, 1),
         slice(-1, 2),
         slice(4, -3),
+        slice(2, 10),
+        slice(-10, -2),
+        slice(-2, -10),
+        slice(6, 7),
     ],
 )
 def test_getitem_slice_raises_error(sl: slice) -> None:
@@ -189,6 +193,13 @@ def test_getitem_slice_raises_error(sl: slice) -> None:
     bv = BitVector.from_bitstring("10110")
     with pytest.raises(ValueError, match="illegal slice index values"):
         _ = bv[sl]
+
+
+def test_resolve_slice_range_none_indices() -> None:
+    """Tests _resolve_slice_range when both start and stop are None."""
+    bv = BitVector.from_bitstring("10110")
+    # pylint: disable-next=protected-access
+    assert bv._resolve_slice_range(slice(None, None)) == (0, 5)
 
 
 def test_bitvector_iterator() -> None:

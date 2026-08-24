@@ -40,6 +40,10 @@ def test_invalid_keyword_error() -> None:
             {"size": 10, "bitlist": [1, 0]},
             r"When size is specified",
         ),
+        (
+            {"size": -5, "bitlist": [1, 0]},
+            r"When bits are specified, you cannot give values to any other constructor args",
+        ),
         ({"size": -5}, r"wrong arg\(s\) for constructor"),
         ({}, r"wrong arg\(s\) for constructor"),
     ],
@@ -55,6 +59,26 @@ def test_constructor_conflicting_args_raises_error(
     """
     with pytest.raises(ValueError, match=err_match):
         BitVector(**kwargs)
+
+
+@pytest.mark.parametrize(
+    "invalid_bitlist",
+    [
+        [1, 2],
+        [0, -1],
+        [5],
+    ],
+)
+def test_constructor_invalid_bitlist_values_raises_error(
+    invalid_bitlist: list[Any],
+) -> None:
+    """Verifies that non-binary integer values in bitlist raise ValueError.
+
+    Args:
+        invalid_bitlist: A list containing values other than 0 or 1.
+    """
+    with pytest.raises(ValueError, match="incorrect value for a bit"):
+        BitVector(bitlist=invalid_bitlist)
 
 
 @pytest.mark.parametrize(
