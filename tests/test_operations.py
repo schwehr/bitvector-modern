@@ -461,6 +461,10 @@ def test_next_set_bit_raises_error() -> None:
         ("00000000000001", 5, 13),
         ("0" * 20, 0, -1),
         ("0100000000000000", 2, -1),
+        ("0" * 63 + "1", 0, 63),
+        ("0" * 64, 0, -1),
+        ("0" * 127 + "1", 64, 127),
+        ("0" * 128, 0, -1),
     ],
 )
 def test_next_set_bit(bitstring: str, start_idx: int, expected_idx: int) -> None:

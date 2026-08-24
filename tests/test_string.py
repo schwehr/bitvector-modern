@@ -1,5 +1,7 @@
 """Tests for string output representations (ASCII, hex, and str) of BitVector."""
 
+import sys
+
 import pytest
 
 from BitVector import BitVector
@@ -100,3 +102,30 @@ def test_str_representation_from_hex() -> None:
     """Tests the string (__str__) representation when initialized via from_hex."""
     bv = BitVector.from_hex("f")
     assert str(bv) == "1111"
+
+
+def test_get_bitvector_in_ascii_big_endian(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Tests ASCII string conversion under big-endian byteorder simulation.
+
+    Args:
+        monkeypatch: Pytest fixture for monkeypatching attributes.
+    """
+    monkeypatch.setattr(sys, "byteorder", "big")
+    bv = BitVector(size=8)
+    # On a big-endian system, the first byte is at the MSB of vector[0]
+    # 'A' = 65 = 0b01000001, reversed in 8-bit table is 0x82
+    bv.vector[0] = 0x8200000000000000
+    assert bv.get_bitvector_in_ascii() == "A"
+
+
+def test_get_bitvector_in_hex_big_endian(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Tests hexadecimal string conversion under big-endian byteorder simulation.
+
+    Args:
+        monkeypatch: Pytest fixture for monkeypatching attributes.
+    """
+    monkeypatch.setattr(sys, "byteorder", "big")
+    bv = BitVector(size=8)
+    # 'a0' in hex = 0b10100000, reversed in 8-bit table is 0x05
+    bv.vector[0] = 0x0500000000000000
+    assert bv.get_bitvector_in_hex() == "a0"

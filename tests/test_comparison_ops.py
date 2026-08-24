@@ -177,3 +177,20 @@ def test_eq_empty_vectors() -> None:
     vec1 = BitVector(size=0)
     vec2 = BitVector(size=0)
     assert vec1 == vec2
+
+
+def test_eq_different_vectors_multiple_of_64_bits() -> None:
+    """Tests equality on unequal bit vectors whose sizes are exact multiples of 64."""
+    # Size 64 (1 word)
+    vec1 = BitVector(size=64)
+    vec2 = BitVector(size=64)
+    vec2[0] = 1
+    assert (vec1 == vec2) is False
+    assert (vec1 != vec2) is True
+
+    # Size 128 (2 words)
+    vec3 = BitVector(size=128)
+    vec4 = BitVector(size=128)
+    vec4[100] = 1
+    assert (vec3 == vec4) is False
+    assert (vec3 != vec4) is True
