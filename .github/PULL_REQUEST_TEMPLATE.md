@@ -26,7 +26,7 @@ Before submitting or approving this PR, ensure the following requirements from
 
 ## Checklist
 
-- [ ] My code follows the code style and modern Python (`>=3.13`) standards of
+- [ ] My code follows the code style and modern Python (`>=3.14`) standards of
   this project.
 - [ ] I have written new/refactored tests in the **best modern `pytest` form**
   (using `assert`, fixtures, `@pytest.mark.parametrize`).

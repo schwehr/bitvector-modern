@@ -13,7 +13,7 @@ representation of bit arrays and bit vectors.
 - **Core Design**: Uses standard library `array` (`'H'` / unsigned short integer
   arrays) for compact bitwise storage, manipulation, and boolean logic
   operations.
-- **Python Target**: Requires Python `>=3.13`. Employs modern Python features
+- **Python Target**: Requires Python `>=3.14`. Employs modern Python features
   including type annotations (`Self`, `Sequence`), advanced f-strings, and clean
   modular structures.
 
@@ -159,8 +159,8 @@ All testing is orchestrated via `pytest`, `pytest-cov`, and `pytest-benchmark`.
   ```
 - **Cross-Platform CI**: Automated matrix testing in GitHub Actions executes
   across Linux (`ubuntu-latest`), macOS (`macos-latest`), and Windows
-  (`windows-latest`) for Python 3.14, while Python 3.13 testing is scoped to
-  Linux. Benchmarks and type checks are also scoped to Linux.
+  (`windows-latest`) for Python 3.14. Benchmarks and type checks are also scoped
+  to Linux.
 - **Best Pytest Form**:
   - **CRITICAL RULE**: Write all new and refactored tests in the **best modern
     `pytest` form** using standard Python `assert` statements (e.g.,

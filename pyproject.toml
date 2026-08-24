@@ -9,13 +9,12 @@ authors = [
 maintainers = [
     { name = "Avinash Kak", email = "kak@purdue.edu" },
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 keywords = ["bit array", "bit vector", "bit string", "logical operations on bit fields"]
 license = { file = "LICENSE" }
 classifiers = [
     "Topic :: Utilities",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = []
@@ -107,7 +106,7 @@ include = ["BitVector"]
 
 [tool.pylint.main]
 load-plugins = ["pylint_pytest"]
-py-version = "3.13"
+py-version = "3.14"
 
 [tool.pylint.format]
 max-line-length = 88

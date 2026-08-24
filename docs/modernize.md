@@ -3,7 +3,7 @@
 This guide provides a systematic, repeatable roadmap for modernizing legacy
 pure-Python codebases. Based on real-world modernization experiences, these
 steps transform older Python libraries into idiomatic, well-tested, high-
-performance packages that leverage modern Python (>=3.13) features, tooling, and
+performance packages that leverage modern Python (>=3.14) features, tooling, and
 packaging standards.
 
 ______________________________________________________________________
@@ -61,7 +61,7 @@ and `MANIFEST.in`) with unified declarative configuration.
   package directory or `src/` layout, with dedicated `tests/`, `docs/`, and
   `examples/` directories at the project root.
 - **Set Minimum Python Target**: Drop obsolete Python versions and declare an
-  explicit minimum Python version requirement (e.g., `>=3.13`) in metadata and
+  explicit minimum Python version requirement (e.g., `>=3.14`) in metadata and
   classifiers.
 
 ______________________________________________________________________
