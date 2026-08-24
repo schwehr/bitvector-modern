@@ -1,6 +1,7 @@
 """Tests file and stream I/O methods (read_bits, write_to_file, close)."""
 
 import io
+import os
 import pathlib
 
 import pytest
@@ -159,3 +160,81 @@ def test_from_file_path_large(tmp_path: pathlib.Path) -> None:
     bv = BitVector.from_file_path(file_path)
     assert bv == BitVector.from_bytes(data)
     assert len(bv) == 8000
+
+
+def test_from_file_path_empty_file(tmp_path: pathlib.Path) -> None:
+    """Tests reading an empty file returns an empty BitVector."""
+    file_path = tmp_path / "empty.bin"
+    file_path.write_bytes(b"")
+    bv = BitVector.from_file_path(file_path)
+    assert bv == BitVector(size=0)
+    assert len(bv) == 0
+
+
+@pytest.mark.parametrize("offset", [5, 10])
+def test_from_file_path_offset_at_or_beyond_eof(
+    tmp_path: pathlib.Path, offset: int
+) -> None:
+    """Tests that reading with offset at or beyond EOF returns an empty BitVector.
+
+    Args:
+        tmp_path: Temporary directory fixture.
+        offset: Offset at or beyond file length.
+    """
+    file_path = tmp_path / "sample.bin"
+    file_path.write_bytes(b"HELLO")
+    bv = BitVector.from_file_path(file_path, offset_bytes=offset)
+    assert bv == BitVector(size=0)
+    assert len(bv) == 0
+
+
+def test_from_file_path_num_bytes_zero(tmp_path: pathlib.Path) -> None:
+    """Tests that requesting zero bytes returns an empty BitVector."""
+    file_path = tmp_path / "sample.bin"
+    file_path.write_bytes(b"HELLO")
+    bv = BitVector.from_file_path(file_path, num_bytes=0)
+    assert bv == BitVector(size=0)
+    assert len(bv) == 0
+
+
+def test_from_file_path_short_read_eof(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Tests handling when file reaches EOF before expected file_size bytes.
+
+    Args:
+        tmp_path: Temporary directory fixture.
+        monkeypatch: Pytest monkeypatch fixture.
+    """
+    file_path = tmp_path / "short.bin"
+    file_path.write_bytes(b"ABCD")
+
+    # Mock stat to return a larger st_size so from_file_path detects early EOF
+    orig_stat = pathlib.Path.stat
+
+    def mock_stat(
+        self: pathlib.Path, *, follow_symlinks: bool = True
+    ) -> os.stat_result:
+        st = orig_stat(self, follow_symlinks=follow_symlinks)
+        if self == file_path:
+            return os.stat_result(
+                (
+                    st.st_mode,
+                    st.st_ino,
+                    st.st_dev,
+                    st.st_nlink,
+                    st.st_uid,
+                    st.st_gid,
+                    100,  # st_size reported as 100 instead of 4
+                    st.st_atime,
+                    st.st_mtime,
+                    st.st_ctime,
+                )
+            )
+        return st
+
+    monkeypatch.setattr(pathlib.Path, "stat", mock_stat)
+
+    bv = BitVector.from_file_path(file_path)
+    assert bv == BitVector.from_bytes(b"ABCD")
+    assert len(bv) == 32
