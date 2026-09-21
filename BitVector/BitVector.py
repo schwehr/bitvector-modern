@@ -3,8 +3,6 @@
 
 """A memory-efficient packed representation of bit arrays."""
 
-from __future__ import annotations
-
 
 __version__ = "0.0.7"
 
@@ -434,7 +432,7 @@ class BitVector:
             raise ValueError("illegal slice index values")
         return start, stop
 
-    def _get_slice(self, pos: slice) -> BitVector:
+    def _get_slice(self, pos: slice) -> Self:
         """Extracts a slice of bits using word-level array and bitwise operations.
 
         Args:
@@ -453,7 +451,7 @@ class BitVector:
 
         return self._extract_slice_words(start, stop)
 
-    def _extract_slice_words(self, start: int, stop: int) -> BitVector:
+    def _extract_slice_words(self, start: int, stop: int) -> Self:
         """Extracts word data for bit range [start, stop) into a new BitVector.
 
         Args:
@@ -493,7 +491,7 @@ class BitVector:
         res._mask_unused_bits()
         return res
 
-    def __xor__(self, other: BitVector) -> Self:
+    def __xor__(self, other: Self) -> Self:
         """Performs a bitwise exclusive OR (XOR) with another bit vector.
 
         If the two bit vectors are not of equal length, the shorter vector is
@@ -525,7 +523,7 @@ class BitVector:
         res._mask_unused_bits()
         return res
 
-    def __and__(self, other: BitVector) -> Self:
+    def __and__(self, other: Self) -> Self:
         """Performs a bitwise AND with another bit vector.
 
         If the two bit vectors are not of equal length, the shorter vector is
@@ -557,7 +555,7 @@ class BitVector:
         res._mask_unused_bits()
         return res
 
-    def __or__(self, other: BitVector) -> Self:
+    def __or__(self, other: Self) -> Self:
         """Performs a bitwise inclusive OR with another bit vector.
 
         If the two bit vectors are not of equal length, the shorter vector is
@@ -589,7 +587,7 @@ class BitVector:
         res._mask_unused_bits()
         return res
 
-    def __ixor__(self, other: BitVector) -> Self:
+    def __ixor__(self, other: Self) -> Self:
         """Performs an in-place bitwise XOR with another bit vector.
 
         If the two bit vectors are of unequal length, the shorter vector is
@@ -622,7 +620,7 @@ class BitVector:
         self._mask_unused_bits()
         return self
 
-    def __iand__(self, other: BitVector) -> Self:
+    def __iand__(self, other: Self) -> Self:
         """Performs an in-place bitwise AND with another bit vector.
 
         If the two bit vectors are of unequal length, the shorter vector is
@@ -655,7 +653,7 @@ class BitVector:
         self._mask_unused_bits()
         return self
 
-    def __ior__(self, other: BitVector) -> Self:
+    def __ior__(self, other: Self) -> Self:
         """Performs an in-place bitwise inclusive OR with another bit vector.
 
         If the two bit vectors are of unequal length, the shorter vector is
@@ -705,7 +703,7 @@ class BitVector:
         res._mask_unused_bits()
         return res
 
-    def __add__(self, other: BitVector) -> Self:
+    def __add__(self, other: Self) -> Self:
         """Concatenates this bit vector with another bit vector.
 
         Creates a new bit vector containing all bits from this vector followed
@@ -731,7 +729,7 @@ class BitVector:
         new_bv += other
         return new_bv
 
-    def __iadd__(self, other: BitVector) -> Self:
+    def __iadd__(self, other: Self) -> Self:
         """Appends another bit vector to this vector in-place.
 
         Extends the current bit vector's storage array by appending all bits
@@ -1226,7 +1224,7 @@ class BitVector:
         self.vector = new_vec
         return self
 
-    def __setitem__(self, pos: int | slice, item: int | BitVector) -> None:
+    def __setitem__(self, pos: int | slice, item: int | Self) -> None:
         """Assigns a bit or slice of bits at the specified position.
 
         Supports both index assignment (setting a single bit to 0 or 1) and
@@ -1626,7 +1624,7 @@ class BitVector:
 
         self._size = total_size
 
-    def __contains__(self, otherBitVec: BitVector) -> bool:
+    def __contains__(self, otherBitVec: Self) -> bool:
         """Checks if a sub-vector is contained within this bit vector.
 
         Supports the 'in' and 'not in' operators for subsequence searching.
@@ -1744,7 +1742,7 @@ class BitVector:
             count -= (self.vector[-1] >> remainder).bit_count()
         return count
 
-    def jaccard_similarity(self, other: BitVector) -> float:
+    def jaccard_similarity(self, other: Self) -> float:
         """Calculates the Jaccard similarity coefficient between two vectors.
 
         Args:
@@ -1767,7 +1765,7 @@ class BitVector:
         union = self | other
         return intersect.bit_count_sparse() / float(union.bit_count_sparse())
 
-    def jaccard_distance(self, other: BitVector) -> float:
+    def jaccard_distance(self, other: Self) -> float:
         """Calculates the Jaccard distance coefficient between two vectors.
 
         Args:
@@ -1784,7 +1782,7 @@ class BitVector:
             raise ValueError("vectors of unequal length")
         return 1 - self.jaccard_similarity(other)
 
-    def hamming_distance(self, other: BitVector) -> int:
+    def hamming_distance(self, other: Self) -> int:
         """Calculates the Hamming distance between two vectors of equal length.
 
         Args:
@@ -1898,7 +1896,7 @@ class BitVector:
                 new_bv[i] = 1
         return new_bv
 
-    def gcd(self, other: BitVector) -> Self:
+    def gcd(self, other: Self) -> Self:
         """Calculates the greatest common divisor (GCD) using Euclid's algorithm.
 
         Args:
@@ -1916,7 +1914,7 @@ class BitVector:
             a, b = b, a % b
         return self.__class__.from_int(a)
 
-    def multiplicative_inverse(self, modulus: BitVector) -> Self | None:
+    def multiplicative_inverse(self, modulus: Self) -> Self | None:
         """Calculates the modular multiplicative inverse using integer arithmetic.
 
         Uses the Extended Euclidean Algorithm. For field inverses in GF(2^n),
@@ -1945,7 +1943,7 @@ class BitVector:
         MI = (x_old + MOD) % MOD
         return self.__class__.from_int(MI)
 
-    def gf_multiply(self, b: BitVector) -> Self:
+    def gf_multiply(self, b: Self) -> Self:
         """Multiplies two polynomials in Galois Field GF(2).
 
         Args:
@@ -1968,7 +1966,7 @@ class BitVector:
                 result ^= a_copy
         return result
 
-    def gf_divide_by_modulus(self, mod: BitVector, n: int) -> tuple[Self, Self]:
+    def gf_divide_by_modulus(self, mod: Self, n: int) -> tuple[Self, Self]:
         """Divides this polynomial by a modulus polynomial in GF(2^n).
 
         Args:
@@ -2010,7 +2008,7 @@ class BitVector:
             remainder = remainder[len(remainder) - n :]
         return quotient, remainder
 
-    def gf_multiply_modular(self, b: BitVector | Any, mod: BitVector, n: int) -> Self:
+    def gf_multiply_modular(self, b: Any, mod: Self, n: int) -> Self:
         """Performs modular polynomial multiplication in Galois Field GF(2^n).
 
         Args:
@@ -2029,7 +2027,7 @@ class BitVector:
         _quotient, remainder = product.gf_divide_by_modulus(mod, n)
         return remainder
 
-    def gf_MI(self, mod: BitVector, n: int) -> Self | str:
+    def gf_MI(self, mod: Self, n: int) -> Self | str:
         """Calculates the multiplicative inverse in Galois Field GF(2^n).
 
         Args:
