@@ -42,7 +42,7 @@ _hexdict = {
 # which is used for compact bitwise storage.
 ARRAY_TYPE = "Q"
 
-type BitVectorOperand = BitVector
+type BitVectorOperand = BitVector | Any
 
 # Lookup table for 8-bit bit-reversal used in word/byte integer conversion.
 _BIT_REV_8 = bytes(sum(((b >> i) & 1) << (7 - i) for i in range(8)) for b in range(256))
