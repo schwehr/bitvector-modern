@@ -1,7 +1,8 @@
 """Tests for bitwise boolean logic operators (&, |, ^, ~) on BitVector."""
 
 import operator
-from typing import Any, Callable, Literal
+from collections.abc import Callable
+from typing import Any, Literal
 
 import pytest
 
@@ -72,6 +73,7 @@ def test_binary_logic_operators(
         right_name: The fixture name of the right-hand operand.
         op: The binary logic operator string ('&', '|', '^').
         expected: The expected bitstring representation of the result.
+
     """
     left: BitVector = request.getfixturevalue(left_name)
     right: BitVector = request.getfixturevalue(right_name)
@@ -89,7 +91,9 @@ def test_binary_logic_operators(
     ],
 )
 def test_unary_not_operator(
-    request: pytest.FixtureRequest, bv_name: str, expected: str
+    request: pytest.FixtureRequest,
+    bv_name: str,
+    expected: str,
 ) -> None:
     """Tests the bitwise NOT (~ / __invert__) operator on BitVector instances.
 
@@ -97,6 +101,7 @@ def test_unary_not_operator(
         request: The pytest fixture request object used for dynamic lookup.
         bv_name: The fixture name of the target BitVector instance.
         expected: The expected bitstring representation after bitwise inversion.
+
     """
     bv: BitVector = request.getfixturevalue(bv_name)
     result = ~bv
@@ -138,6 +143,7 @@ def test_inplace_binary_logic_operators(
         right_name: The fixture name of the right-hand operand.
         op: The in-place binary logic operator string ('&=', '|=', '^=').
         expected: The expected bitstring representation of the result.
+
     """
     left: BitVector = request.getfixturevalue(left_name)[:]
     right: BitVector = request.getfixturevalue(right_name)

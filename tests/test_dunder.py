@@ -23,7 +23,10 @@ from BitVector import BitVector
     ],
 )
 def test_bitwise_dunder_operators(
-    left_str: str, right_str: str, op: Literal["^", "&", "|"], expected: str
+    left_str: str,
+    right_str: str,
+    op: Literal["^", "&", "|"],
+    expected: str,
 ) -> None:
     """Tests dunder bitwise operators (__xor__, __and__, __or__) across lengths.
 
@@ -32,6 +35,7 @@ def test_bitwise_dunder_operators(
         right_str: Bitstring representation for the right operand.
         op: The bitwise operator string ('^', '&', or '|').
         expected: Expected output bitstring after applying the operator.
+
     """
     bv_left = BitVector.from_bitstring(left_str)
     bv_right = BitVector.from_bitstring(right_str)
@@ -62,6 +66,7 @@ def test_add(left_str: str, right_str: str, expected: str) -> None:
         left_str: Bitstring for the left operand (empty string creates size=0).
         right_str: Bitstring for the right operand.
         expected: Expected output bitstring after concatenation.
+
     """
     left = BitVector.from_bitstring(left_str) if left_str else BitVector(size=0)
     right = BitVector.from_bitstring(right_str) if right_str else BitVector(size=0)
@@ -145,6 +150,7 @@ def test_invert(bitstring: str, expected: str) -> None:
     Args:
         bitstring: Input bitstring to invert (empty string creates size=0).
         expected: Expected output bitstring after inversion.
+
     """
     bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     assert str(~bv) == expected
@@ -185,6 +191,7 @@ def test_lshift(shift: int, expected: str) -> None:
     Args:
         shift: Number of bit positions to rotate left.
         expected: Expected output bitstring.
+
     """
     bv = BitVector.from_bitstring("1000")
     res = bv << shift
@@ -212,6 +219,7 @@ def test_shift_empty_vector_raises_error(op: str) -> None:
 
     Args:
         op: The shift operator ('<<', '>>', '<<=', or '>>=').
+
     """
     bv_empty = BitVector(size=0)
     with pytest.raises(ValueError, match="Circular shift of an empty vector"):
@@ -240,6 +248,7 @@ def test_rshift(shift: int, expected: str) -> None:
     Args:
         shift: Number of bit positions to rotate right.
         expected: Expected output bitstring.
+
     """
     bv = BitVector.from_bitstring("1000")
     res = bv >> shift
@@ -267,6 +276,7 @@ def test_multibit_circular_shifts_large_vector(shift: int) -> None:
 
     Args:
         shift: Number of bit positions to rotate.
+
     """
     s = "1" + "0" * 999
     bv = BitVector.from_bitstring(s)
@@ -378,6 +388,7 @@ def test_setitem_slice_assignment(
         err_match: The expected error message substring.
         valid_str: A bitstring of valid length for assignment.
         expected: Expected vector bitstring after assignment.
+
     """
     bv = BitVector.from_bitstring(initial)
     with pytest.raises(ValueError, match=err_match):
@@ -403,7 +414,7 @@ def test_setitem_slice_type_error() -> None:
         TypeError,
         match="For slice assignment, the right hand side must be a BitVector",
     ):
-        bv[0:1] = cast(Any, [1])
+        bv[0:1] = cast("Any", [1])
 
 
 def test_setitem_full_slice() -> None:
@@ -426,6 +437,7 @@ def test_str(bitstring: str, expected: str) -> None:
     Args:
         bitstring: Initial bitstring representation.
         expected: Expected string representation.
+
     """
     bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     assert str(bv) == expected
@@ -494,6 +506,7 @@ def test_int(bitstring: str, expected: int) -> None:
     Args:
         bitstring: Initial bitstring representation.
         expected: Expected integer conversion output.
+
     """
     bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     assert int(bv) == expected
@@ -526,6 +539,7 @@ def test_reversed(bitstring: str, expected_bits: list[int]) -> None:
     Args:
         bitstring: Initial bitstring representation.
         expected_bits: Expected list of integer bits yielded in reverse order.
+
     """
     bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     assert list(reversed(bv)) == expected_bits
@@ -534,13 +548,15 @@ def test_reversed(bitstring: str, expected_bits: list[int]) -> None:
 
 
 @pytest.mark.parametrize(
-    "size", [0, 1, 2, 31, 63, 64, 65, 127, 128, 129, 200, 256, 512]
+    "size",
+    [0, 1, 2, 31, 63, 64, 65, 127, 128, 129, 200, 256, 512],
 )
 def test_reversed_block_boundaries(size: int) -> None:
     """Tests __reversed__ across 64-bit block boundaries and arbitrary sizes.
 
     Args:
         size: Vector length in bits to test.
+
     """
     if size == 0:
         bv = BitVector(size=0)
@@ -575,6 +591,7 @@ def test_eq(left_str: str, right_str: str, expected: bool) -> None:
         left_str: Bitstring for the left operand.
         right_str: Bitstring for the right operand.
         expected: Expected boolean equality result.
+
     """
     left = BitVector.from_bitstring(left_str) if left_str else BitVector(size=0)
     right = BitVector.from_bitstring(right_str) if right_str else BitVector(size=0)
@@ -595,6 +612,7 @@ def test_ne(left_str: str, right_str: str, expected: bool) -> None:
         left_str: Bitstring for the left operand.
         right_str: Bitstring for the right operand.
         expected: Expected boolean inequality result.
+
     """
     left = BitVector.from_bitstring(left_str)
     right = BitVector.from_bitstring(right_str)
@@ -619,7 +637,10 @@ def test_ne(left_str: str, right_str: str, expected: bool) -> None:
     ],
 )
 def test_relational_operators(
-    val1: int, val2: int, op: Literal["<", "<=", ">", ">="], expected: bool
+    val1: int,
+    val2: int,
+    op: Literal["<", "<=", ">", ">="],
+    expected: bool,
 ) -> None:
     """Tests relational dunder operators (__lt__, __le__, __gt__, __ge__).
 
@@ -628,6 +649,7 @@ def test_relational_operators(
         val2: Integer value for the right operand.
         op: Relational operator string ('<', '<=', '>', '>=').
         expected: Expected boolean comparison result.
+
     """
     bv1 = BitVector.from_int(val1, size=8)
     bv2 = BitVector.from_int(val2, size=8)
@@ -657,6 +679,7 @@ def test_contains(pattern: str, expected_in: bool) -> None:
     Args:
         pattern: The bitstring pattern to search for.
         expected_in: True if pattern is found in the vector, otherwise False.
+
     """
     bv = BitVector.from_bitstring("110100")
     sub_bv = BitVector.from_bitstring(pattern)
@@ -671,7 +694,9 @@ def test_contains(pattern: str, expected_in: bool) -> None:
     ],
 )
 def test_contains_invalid_args_raises_error(
-    target_str: str, pattern_str: str, err_match: str
+    target_str: str,
+    pattern_str: str,
+    err_match: str,
 ) -> None:
     """Verifies that invalid __contains__ lookups raise ValueError.
 
@@ -679,6 +704,7 @@ def test_contains_invalid_args_raises_error(
         target_str: The bitstring for the container vector.
         pattern_str: The bitstring for the substring pattern vector.
         err_match: The expected error message substring.
+
     """
     target = BitVector.from_bitstring(target_str) if target_str else BitVector(size=0)
     pattern = BitVector.from_bitstring(pattern_str)

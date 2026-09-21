@@ -90,7 +90,7 @@ print(mytext)  # hello
 print("\nConstructing a bit vector from the textstring 'hello\\njello':")
 bv3 = BitVector.from_string("hello\njello")
 print(
-    bv3
+    bv3,
 )  # 0110100001100101011011000110110001101111000010100110101001100101011011000110110001101111
 mytext = bv3.get_bitvector_in_ascii()
 print("Text recovered from the previous bitvector:")
@@ -113,7 +113,7 @@ print(myhexstring)  # 68656c6c6f
 
 # Construct a bit vector from a string of raw bytes:
 print(
-    "\nDemonstrating the raw bytes mode of constructing a bit vector (useful for reading public and private keys):"
+    "\nDemonstrating the raw bytes mode of constructing a bit vector (useful for reading public and private keys):",
 )
 mypubkey = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA5amriY96HQS8Y/nKc8zu3zOylvpOn3vzMmWwrtyDy+aBvns4UC1RXoaD9rDKqNNMCBAQwWDsYwCAFsrBzbxRQONHePX8lRWgM87MseWGlu6WPzWGiJMclTAO9CTknplG9wlNzLQBj3dP1M895iLF6jvJ7GR+V3CRU6UUbMmRvgPcsfv6ec9RRPm/B8ftUuQICL0jt4tKdPG45PBJUylHs71FuE9FJNp01hrj1EMFObNTcsy9zuis0YPyzArTYSOUsGglleExAQYi7iLh17pAa+y6fZrGLsptgqryuftN9Q4NqPuTiFjlqRowCDU7sSxKDgU7bzhshyVx3+pzXO4D2Q== kak@pixie"
 keydata = base64.b64decode(bytes(mypubkey.split(None)[1], "utf-8"))
@@ -226,7 +226,7 @@ print("\nPermuted and contracted form of the previous bit vector:")
 print(bv2)  # 1010
 
 print(
-    "\nExperiment with writing an internally generated bit vector out to a disk file:"
+    "\nExperiment with writing an internally generated bit vector out to a disk file:",
 )
 # bv1 = BitVector( bitstring = '00001010' )
 bv1 = BitVector.from_bitstring("11100111")
@@ -234,7 +234,7 @@ with open("test.txt", "wb") as FILEOUT:
     bv1.write_to_file(FILEOUT)
 
 print(
-    "\nDisplay bit vectors written out to file and read back from the file and their respective lengths:"
+    "\nDisplay bit vectors written out to file and read back from the file and their respective lengths:",
 )
 print(str(bv1) + " " + str(bv3))
 print(str(len(bv1)) + " " + str(len(bv3)))
@@ -244,20 +244,20 @@ print("\nHere are all the bits read from the file:")
 print("\n")
 
 print(
-    "\nExperiment with closing a file object and start extracting bit vectors from the file from the beginning again:"
+    "\nExperiment with closing a file object and start extracting bit vectors from the file from the beginning again:",
 )
 print(
-    "\nHere are all the first 64 bits read from the file again after the file object was closed and opened again:"
+    "\nHere are all the first 64 bits read from the file again after the file object was closed and opened again:",
 )
 print(bv1)
 with open("testinput5.txt", "wb") as FILEOUT:
     bv1.write_to_file(FILEOUT)
 
 print(
-    "\nExperiment in 64-bit permutation and unpermutation of the previous 64-bit bitvector:"
+    "\nExperiment in 64-bit permutation and unpermutation of the previous 64-bit bitvector:",
 )
 print(
-    "The permutation array was generated separately by the Fisher-Yates shuffle algorithm:"
+    "The permutation array was generated separately by the Fisher-Yates shuffle algorithm:",
 )
 bv2 = bv1.permute(
     [
@@ -325,7 +325,7 @@ bv2 = bv1.permute(
         27,
         16,
         46,
-    ]
+    ],
 )
 print("Permuted bit vector:")
 print(bv2)
@@ -396,13 +396,13 @@ bv3 = bv2.unpermute(
         27,
         16,
         46,
-    ]
+    ],
 )
 print("Unpurmute the bit vector:")
 print(bv3)
 
 print(
-    "\nTry circular shifts to the left and to the right for the following bit vector:"
+    "\nTry circular shifts to the left and to the right for the following bit vector:",
 )
 print(bv3)  # 0100000100100000011010000111010101101110011001110111001001111001
 print("\nCircular shift to the left by 7 positions:")
@@ -441,7 +441,7 @@ except ValueError as arg:
     print("Error Message: " + str(arg))
 
 print(
-    "\nTest the size modifier when a bit vector is initialized with the intVal method:"
+    "\nTest the size modifier when a bit vector is initialized with the intVal method:",
 )
 bv = BitVector.from_int(45, size=16)
 print(bv)  # 0000000000101101
@@ -578,7 +578,7 @@ print("gcd bitvec is: " + str(bv) + " of int value: " + str(int(bv)))  # 2
 print("\nTesting multiplicative_inverse:")
 bv_modulus = BitVector.from_int(32)
 print(
-    "modulus is bitvec: " + str(bv_modulus) + " of int value: " + str(int(bv_modulus))
+    "modulus is bitvec: " + str(bv_modulus) + " of int value: " + str(int(bv_modulus)),
 )
 bv = BitVector.from_int(17)
 print("bv: " + str(bv) + " of int value: " + str(int(bv)))
@@ -612,7 +612,7 @@ print(
     + " in GF(2^8) returns the quotient "
     + str(quotient)
     + " and the remainder "
-    + str(remainder)
+    + str(remainder),
 )
 
 print("\nTest modular multiplication in GF(2^n):")
@@ -624,8 +624,7 @@ c = a.gf_multiply_modular(b, modulus, n)
 print("Modular product of a=" + str(a) + " b=" + str(b) + " in GF(2^8) is " + str(c))
 
 print(
-    "\nTest multiplicative inverses in GF(2^3) with "
-    + "modulus polynomial = x^3 + x + 1:"
+    "\nTest multiplicative inverses in GF(2^3) with modulus polynomial = x^3 + x + 1:",
 )
 print("Find multiplicative inverse of a single bit array")
 modulus = BitVector.from_bitstring("100011011")  # AES modulus
@@ -636,9 +635,9 @@ print("Multiplicative inverse of " + str(a) + " in GF(2^8) is " + str(mi))
 
 print(
     "\nIn the following three rows shown, the first row shows the "
-    + "\nbinary code words, the second the multiplicative inverses,"
-    + "\nand the third the product of a binary word with its"
-    + "\nmultiplicative inverse:\n"
+    "\nbinary code words, the second the multiplicative inverses,"
+    "\nand the third the product of a binary word with its"
+    "\nmultiplicative inverse:\n",
 )
 mod = BitVector.from_bitstring("1011")
 n = 3

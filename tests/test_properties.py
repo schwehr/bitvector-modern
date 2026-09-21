@@ -21,6 +21,7 @@ def test_addition_after_inversion(bits1: str, bits2: str) -> None:
     Args:
         bits1: Bitstring representation for the first operand.
         bits2: Bitstring representation for the second operand.
+
     """
     expected = "".join("1" if b == "0" else "0" for b in bits1) + bits2
     bv1 = BitVector.from_bitstring(bits1)
@@ -39,6 +40,7 @@ def test_addition_consistency(bits1: str, bits2: str) -> None:
     Args:
         bits1: Bitstring representation for the first operand.
         bits2: Bitstring representation for the second operand.
+
     """
     expected = bits1 + bits2
     bv1 = BitVector.from_bitstring(bits1)
@@ -58,6 +60,7 @@ def test_invert_involution(bits: str) -> None:
 
     Args:
         bits: Bitstring representation of the test vector.
+
     """
     bv = BitVector.from_bitstring(bits)
     double_inv = ~(~bv)
@@ -75,6 +78,7 @@ def test_bitwise_commutativity(bits1: str, bits2: str) -> None:
     Args:
         bits1: Bitstring representation for the first operand.
         bits2: Bitstring representation for the second operand.
+
     """
     min_len = min(len(bits1), len(bits2))
     bv1 = BitVector.from_bitstring(bits1[:min_len])
@@ -95,6 +99,7 @@ def test_circular_rotation_reversibility(bits: str, shift: int) -> None:
     Args:
         bits: Bitstring representation of the test vector.
         shift: Number of positions to rotate.
+
     """
     bv = BitVector.from_bitstring(bits)
     rotated = bv << shift
@@ -113,6 +118,7 @@ def test_reverse_involution(bits: str) -> None:
 
     Args:
         bits: Bitstring representation of the test vector.
+
     """
     bv = BitVector.from_bitstring(bits)
     bv.reverse()
@@ -126,6 +132,7 @@ def test_int_roundtrip(bits: str) -> None:
 
     Args:
         bits: Bitstring representation of the test vector.
+
     """
     bv = BitVector.from_bitstring(bits)
     val = int(bv)
@@ -151,6 +158,7 @@ def test_slicing_consistency(bits: str, start: int | None, stop: int | None) -> 
         bits: Bitstring representation of the test vector.
         start: Optional start index for the slice.
         stop: Optional stop index for the slice.
+
     """
     if start is not None:
         start = min(start, len(bits))

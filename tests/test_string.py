@@ -20,6 +20,7 @@ def test_get_bitvector_in_ascii(bitstring: str, expected: str) -> None:
     Args:
         bitstring: Input binary string.
         expected: The expected ASCII representation string.
+
     """
     bv = BitVector.from_bitstring(bitstring)
     assert bv.get_bitvector_in_ascii() == expected
@@ -37,6 +38,7 @@ def test_get_bitvector_in_ascii_invalid_length_raises_error(bitstring: str) -> N
 
     Args:
         bitstring: A bitstring whose length is not a multiple of 8.
+
     """
     bv = BitVector.from_bitstring(bitstring)
     with pytest.raises(ValueError, match="must be an integral multiple of 8 bits"):
@@ -57,6 +59,7 @@ def test_get_bitvector_in_hex(bitstring: str, expected: str) -> None:
     Args:
         bitstring: Input binary string.
         expected: The expected hexadecimal representation string.
+
     """
     bv = BitVector.from_bitstring(bitstring)
     assert bv.get_bitvector_in_hex() == expected
@@ -74,6 +77,7 @@ def test_get_bitvector_in_hex_invalid_length_raises_error(bitstring: str) -> Non
 
     Args:
         bitstring: A bitstring whose length is not a multiple of 4.
+
     """
     bv = BitVector.from_bitstring(bitstring)
     with pytest.raises(ValueError, match="must be an integral multiple of 4 bits"):
@@ -93,6 +97,7 @@ def test_str_representation(bitstring: str, expected: str) -> None:
     Args:
         bitstring: Input binary string.
         expected: The expected binary string representation.
+
     """
     bv = BitVector.from_bitstring(bitstring)
     assert str(bv) == expected
@@ -109,6 +114,7 @@ def test_get_bitvector_in_ascii_big_endian(monkeypatch: pytest.MonkeyPatch) -> N
 
     Args:
         monkeypatch: Pytest fixture for monkeypatching attributes.
+
     """
     monkeypatch.setattr(sys, "byteorder", "big")
     bv = BitVector(size=8)
@@ -123,6 +129,7 @@ def test_get_bitvector_in_hex_big_endian(monkeypatch: pytest.MonkeyPatch) -> Non
 
     Args:
         monkeypatch: Pytest fixture for monkeypatching attributes.
+
     """
     monkeypatch.setattr(sys, "byteorder", "big")
     bv = BitVector(size=8)

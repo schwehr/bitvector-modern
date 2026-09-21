@@ -16,7 +16,8 @@ import os
 import pathlib
 import secrets
 import sys
-from typing import Any, BinaryIO, Iterator, Self, Sequence
+from collections.abc import Iterator, Sequence
+from typing import Any, BinaryIO, Self
 
 _hexdict = {
     "0": "0000",
@@ -55,6 +56,7 @@ class BitVector:
 
     Attributes:
         vector: Underlying array storing packed integer words.
+
     """
 
     __slots__ = ("_size", "vector")
@@ -80,12 +82,13 @@ class BitVector:
         Raises:
             ValueError: If no argument is provided, if mutually exclusive
                 arguments are specified together, or if input values are invalid.
+
         """
         self._size = 0
         if size is not None and size >= 0:
             if bitlist is not None:
                 raise ValueError(
-                    "When size is specified, you cannot give values to any other constructor args"
+                    "When size is specified, you cannot give values to any other constructor args",
                 )
             self._size = size
             eight_byte_ints_needed = (size + 63) // 64
@@ -93,7 +96,7 @@ class BitVector:
         elif bitlist is not None:
             if size is not None:
                 raise ValueError(
-                    "When bits are specified, you cannot give values to any other constructor args"
+                    "When bits are specified, you cannot give values to any other constructor args",
                 )
             n_bits = len(bitlist)
             self._size = n_bits
@@ -127,6 +130,7 @@ class BitVector:
         Raises:
             ValueError: If val is negative or if size is less than the minimum
                 required bits for val.
+
         """
         if not isinstance(val, int):
             val = int(val)
@@ -139,7 +143,7 @@ class BitVector:
                 raise ValueError(
                     "The value specified for size must be at least "
                     "as large as for the smallest bit vector possible "
-                    "for intVal"
+                    "for intVal",
                 )
             target_size = size
         else:
@@ -184,6 +188,7 @@ class BitVector:
 
         Returns:
             A new BitVector initialized with the bit representation of rawbytes.
+
         """
         hex_str = binascii.hexlify(rawbytes).decode("ascii")
         bitlist = [int(b) for h in hex_str for b in _hexdict[h]]
@@ -198,6 +203,7 @@ class BitVector:
 
         Returns:
             A new BitVector initialized with the bit representation of bitstring.
+
         """
         if not bitstring:
             return cls(size=0)
@@ -212,6 +218,7 @@ class BitVector:
 
         Returns:
             A new BitVector initialized with the specified bits.
+
         """
         return cls(bitlist=bitlist)
 
@@ -224,6 +231,7 @@ class BitVector:
 
         Returns:
             A new BitVector initialized with the bit representation of the hex string.
+
         """
         bitlist = [int(b) for h in hexstring.lower() for b in _hexdict[h]]
         return cls.from_bitlist(bitlist)
@@ -237,6 +245,7 @@ class BitVector:
 
         Returns:
             A new BitVector initialized with the bit representation of the string.
+
         """
         hex_str = "".join(f"{ord(c):02x}" for c in textstring)
         return cls.from_hex(hex_str)
@@ -259,6 +268,7 @@ class BitVector:
 
         Raises:
             ValueError: If num_bytes is negative.
+
         """
         if num_bytes is not None and num_bytes < 0:
             raise ValueError("num_bytes must be non-negative")
@@ -288,6 +298,7 @@ class BitVector:
             ValueError: If offset_bytes or num_bytes is negative.
             FileNotFoundError: If path does not exist.
             OSError: If an OS error occurs while opening or reading the file.
+
         """
         if offset_bytes < 0:
             raise ValueError("offset_bytes must be non-negative")
@@ -361,6 +372,7 @@ class BitVector:
         Raises:
             ValueError: If pos is out of valid bounds or if slice indices are
                 illegal.
+
         """
         if not isinstance(pos, slice):
             if not isinstance(pos, int):
@@ -383,6 +395,7 @@ class BitVector:
 
         Raises:
             ValueError: If slice indices are out of valid bounds.
+
         """
         i, j = pos.start, pos.stop
         n = self._size
@@ -428,6 +441,7 @@ class BitVector:
 
         Returns:
             A new BitVector instance containing the extracted slice of bits.
+
         """
         if pos.start is None and pos.stop is None:
             return copy.deepcopy(self)
@@ -447,6 +461,7 @@ class BitVector:
 
         Returns:
             A new BitVector containing the sliced bit words.
+
         """
         slice_len = stop - start
         w_start = start // 64
@@ -489,6 +504,7 @@ class BitVector:
 
         Returns:
             A new BitVector instance containing the bitwise XOR result.
+
         """
         if self._size < other._size:
             bv1 = self._resize_pad_from_left(other._size - self._size)
@@ -502,7 +518,8 @@ class BitVector:
         res = object.__new__(self.__class__)
         res._size = bv1._size
         res.vector = type(self.vector)(
-            ARRAY_TYPE, map(operator.xor, bv1.vector, bv2.vector)
+            ARRAY_TYPE,
+            map(operator.xor, bv1.vector, bv2.vector),
         )
         res._mask_unused_bits()
         return res
@@ -519,6 +536,7 @@ class BitVector:
 
         Returns:
             A new BitVector instance containing the bitwise AND result.
+
         """
         if self._size < other._size:
             bv1 = self._resize_pad_from_left(other._size - self._size)
@@ -532,7 +550,8 @@ class BitVector:
         res = object.__new__(self.__class__)
         res._size = bv1._size
         res.vector = type(self.vector)(
-            ARRAY_TYPE, map(operator.and_, bv1.vector, bv2.vector)
+            ARRAY_TYPE,
+            map(operator.and_, bv1.vector, bv2.vector),
         )
         res._mask_unused_bits()
         return res
@@ -549,6 +568,7 @@ class BitVector:
 
         Returns:
             A new BitVector instance containing the bitwise OR result.
+
         """
         if self._size < other._size:
             bv1 = self._resize_pad_from_left(other._size - self._size)
@@ -562,7 +582,8 @@ class BitVector:
         res = object.__new__(self.__class__)
         res._size = bv1._size
         res.vector = type(self.vector)(
-            ARRAY_TYPE, map(operator.or_, bv1.vector, bv2.vector)
+            ARRAY_TYPE,
+            map(operator.or_, bv1.vector, bv2.vector),
         )
         res._mask_unused_bits()
         return res
@@ -582,10 +603,11 @@ class BitVector:
 
         Raises:
             TypeError: If the operand is not a BitVector instance.
+
         """
         if not isinstance(other, BitVector):
             raise TypeError(
-                f"Can only perform bitwise XOR with a BitVector, not {type(other)}"
+                f"Can only perform bitwise XOR with a BitVector, not {type(other)}",
             )
         if self._size < other._size:
             self.pad_from_left(other._size - self._size)
@@ -614,10 +636,11 @@ class BitVector:
 
         Raises:
             TypeError: If the operand is not a BitVector instance.
+
         """
         if not isinstance(other, BitVector):
             raise TypeError(
-                f"Can only perform bitwise AND with a BitVector, not {type(other)}"
+                f"Can only perform bitwise AND with a BitVector, not {type(other)}",
             )
         if self._size < other._size:
             self.pad_from_left(other._size - self._size)
@@ -646,10 +669,11 @@ class BitVector:
 
         Raises:
             TypeError: If the operand is not a BitVector instance.
+
         """
         if not isinstance(other, BitVector):
             raise TypeError(
-                f"Can only perform bitwise OR with a BitVector, not {type(other)}"
+                f"Can only perform bitwise OR with a BitVector, not {type(other)}",
             )
         if self._size < other._size:
             self.pad_from_left(other._size - self._size)
@@ -669,11 +693,13 @@ class BitVector:
         Returns:
             A new BitVector instance where each 0 bit is replaced by 1 and
             each 1 bit is replaced by 0.
+
         """
         res = self.__class__(size=self._size)
         mask = (1 << (self.vector.itemsize * 8)) - 1
         res.vector = array.array(
-            ARRAY_TYPE, map(operator.xor, self.vector, itertools.repeat(mask))
+            ARRAY_TYPE,
+            map(operator.xor, self.vector, itertools.repeat(mask)),
         )
         res._mask_unused_bits()
         return res
@@ -689,10 +715,12 @@ class BitVector:
 
         Returns:
             A new BitVector instance representing the concatenated bit string.
+
         """
         new_bv = self.__class__(size=0)
         if isinstance(self.vector, array.array) and isinstance(
-            new_bv.vector, array.array
+            new_bv.vector,
+            array.array,
         ):
             new_bv.vector.frombytes(self.vector.tobytes())
         else:
@@ -716,6 +744,7 @@ class BitVector:
 
         Raises:
             TypeError: If the operand is not a BitVector instance.
+
         """
         if not isinstance(other, type(self)):
             raise TypeError(f"Can only join two BitVector objects, not {type(other)}")
@@ -765,6 +794,7 @@ class BitVector:
 
         Returns:
             The integer number of valid bits in the vector.
+
         """
         return self._size
 
@@ -777,6 +807,7 @@ class BitVector:
 
         Args:
             fp: An open text stream or file-like object supporting write().
+
         """
         if self._size == 0:
             return
@@ -790,6 +821,7 @@ class BitVector:
 
         Raises:
             ValueError: If the vector length is not even.
+
         """
         if self._size % 2 != 0:
             raise ValueError("must have even num bits")
@@ -809,6 +841,7 @@ class BitVector:
 
         Raises:
             ValueError: If any index in permute_list exceeds vector bounds.
+
         """
         if max(permute_list) > self._size - 1:
             raise ValueError("Bad permutation index")
@@ -830,6 +863,7 @@ class BitVector:
 
         Raises:
             ValueError: If indices are out of bounds or list size does not match.
+
         """
         if max(permute_list) > self._size - 1:
             raise ValueError("Bad permutation index")
@@ -853,6 +887,7 @@ class BitVector:
 
         Raises:
             ValueError: If the vector length is not a multiple of 8.
+
         """
         err_str = (
             "Only a bit vector whose length is a multiple of 8 can "
@@ -872,6 +907,7 @@ class BitVector:
 
         Returns:
             The integer represented by the binary bits in big-endian order.
+
         """
         if self._size == 0:
             return 0
@@ -893,11 +929,12 @@ class BitVector:
 
         Raises:
             ValueError: If the vector size is not an integral multiple of 8.
+
         """
         if self._size % 8:
             raise ValueError(
                 "The bitvector for get_bitvector_in_ascii() "
-                "must be an integral multiple of 8 bits"
+                "must be an integral multiple of 8 bits",
             )
         if self._size == 0:
             return ""
@@ -922,11 +959,12 @@ class BitVector:
 
         Raises:
             ValueError: If the vector size is not an integral multiple of 4.
+
         """
         if self._size % 4:
             raise ValueError(
                 "The bitvector for get_bitvector_in_hex() "
-                "must be an integral multiple of 4 bits"
+                "must be an integral multiple of 4 bits",
             )
         if self._size == 0:
             return ""
@@ -968,6 +1006,7 @@ class BitVector:
 
         Raises:
             ValueError: If attempting to rotate an empty bit vector.
+
         """
         res = copy.deepcopy(self)
         res <<= n
@@ -987,6 +1026,7 @@ class BitVector:
 
         Raises:
             ValueError: If attempting to rotate an empty bit vector.
+
         """
         if self._size == 0:
             raise ValueError("Circular shift of an empty vector makes no sense")
@@ -1015,6 +1055,7 @@ class BitVector:
 
         Raises:
             ValueError: If attempting to rotate an empty bit vector.
+
         """
         res = copy.deepcopy(self)
         res >>= n
@@ -1034,6 +1075,7 @@ class BitVector:
 
         Raises:
             ValueError: If attempting to rotate an empty bit vector.
+
         """
         if self._size == 0:
             raise ValueError("Circular shift of an empty vector makes no sense")
@@ -1054,7 +1096,8 @@ class BitVector:
         left_most_bits.append(left_most_bits[0])
         del left_most_bits[0]
         self.vector = array.array(
-            ARRAY_TYPE, map(operator.__rshift__, self.vector, [1] * size)
+            ARRAY_TYPE,
+            map(operator.__rshift__, self.vector, [1] * size),
         )
         self.vector = array.array(
             ARRAY_TYPE,
@@ -1070,15 +1113,17 @@ class BitVector:
         """Performs a one-bit in-place logical right shift (zero-filling left)."""
         size = len(self.vector)
         right_most_bits = list(
-            map(operator.__and__, self.vector, [0x8000000000000000] * size)
+            map(operator.__and__, self.vector, [0x8000000000000000] * size),
         )
         self.vector = array.array(
-            ARRAY_TYPE, map(operator.__and__, self.vector, [~0x8000000000000000] * size)
+            ARRAY_TYPE,
+            map(operator.__and__, self.vector, [~0x8000000000000000] * size),
         )
         right_most_bits.insert(0, 0)
         right_most_bits.pop()
         self.vector = array.array(
-            ARRAY_TYPE, map(operator.__lshift__, self.vector, [1] * size)
+            ARRAY_TYPE,
+            map(operator.__lshift__, self.vector, [1] * size),
         )
         self.vector = array.array(
             ARRAY_TYPE,
@@ -1098,6 +1143,7 @@ class BitVector:
 
         Returns:
             This BitVector instance (self) after in-place shifting.
+
         """
         if n <= 0:
             return self
@@ -1139,6 +1185,7 @@ class BitVector:
 
         Returns:
             This BitVector instance (self) after in-place shifting.
+
         """
         if n <= 0:
             return self
@@ -1192,12 +1239,13 @@ class BitVector:
         Raises:
             TypeError: If the assigned item has an incompatible type.
             ValueError: If slice lengths are incompatible or index is out of range.
+
         """
         # The following section is for slice assignment:
         if isinstance(pos, slice):
             if not isinstance(item, BitVector):
                 raise TypeError(
-                    "For slice assignment, the right hand side must be a BitVector"
+                    "For slice assignment, the right hand side must be a BitVector",
                 )
             if pos.start is None and pos.stop is None:
                 return
@@ -1266,6 +1314,7 @@ class BitVector:
 
         Yields:
             The integer bit value (0 or 1) at each position from left to right.
+
         """
         size = self._size
         for word_idx, word in enumerate(self.vector):
@@ -1278,6 +1327,7 @@ class BitVector:
 
         Yields:
             The integer bit value (0 or 1) at each position from right to left.
+
         """
         size = self._size
         if size == 0:
@@ -1297,6 +1347,7 @@ class BitVector:
 
         Returns:
             A string of '0' and '1' characters matching the stored bits.
+
         """
         if self._size == 0:
             return ""
@@ -1314,6 +1365,7 @@ class BitVector:
 
         Returns:
             The formatted string.
+
         """
         try:
             return format(str(self), format_spec)
@@ -1330,6 +1382,7 @@ class BitVector:
             True if other is a BitVector of identical size and bit values,
             or if other is an int/float equal to the integer value of this
             vector. Otherwise False.
+
         """
         if isinstance(other, BitVector):
             if self._size != other._size:
@@ -1363,6 +1416,7 @@ class BitVector:
 
         Returns:
             True if the objects are not equal, otherwise False.
+
         """
         return not self == other
 
@@ -1379,6 +1433,7 @@ class BitVector:
 
         Raises:
             TypeError: If other is not a BitVector, int, or float.
+
         """
         if isinstance(other, BitVector):
             return int(self) < int(other)
@@ -1387,7 +1442,7 @@ class BitVector:
             return int(self) < other
 
         raise TypeError(
-            f"'<' not supported between instances of 'BitVector' and '{type(other).__name__}'"
+            f"'<' not supported between instances of 'BitVector' and '{type(other).__name__}'",
         )
 
     def __le__(self, other: object) -> bool:
@@ -1403,6 +1458,7 @@ class BitVector:
 
         Raises:
             TypeError: If other is not a BitVector, int, or float.
+
         """
         if isinstance(other, BitVector):
             return int(self) <= int(other)
@@ -1411,7 +1467,7 @@ class BitVector:
             return int(self) <= other
 
         raise TypeError(
-            f"'<=' not supported between instances of 'BitVector' and '{type(other).__name__}'"
+            f"'<=' not supported between instances of 'BitVector' and '{type(other).__name__}'",
         )
 
     def __gt__(self, other: object) -> bool:
@@ -1427,6 +1483,7 @@ class BitVector:
 
         Raises:
             TypeError: If other is not a BitVector, int, or float.
+
         """
         if isinstance(other, BitVector):
             return int(self) > int(other)
@@ -1435,7 +1492,7 @@ class BitVector:
             return int(self) > other
 
         raise TypeError(
-            f"'>' not supported between instances of 'BitVector' and '{type(other).__name__}'"
+            f"'>' not supported between instances of 'BitVector' and '{type(other).__name__}'",
         )
 
     def __ge__(self, other: object) -> bool:
@@ -1451,6 +1508,7 @@ class BitVector:
 
         Raises:
             TypeError: If other is not a BitVector, int, or float.
+
         """
         if isinstance(other, BitVector):
             return int(self) >= int(other)
@@ -1459,7 +1517,7 @@ class BitVector:
             return int(self) >= other
 
         raise TypeError(
-            f"'>=' not supported between instances of 'BitVector' and '{type(other).__name__}'"
+            f"'>=' not supported between instances of 'BitVector' and '{type(other).__name__}'",
         )
 
     def __deepcopy__(self, memo: dict[int, Any] | None = None) -> Self:
@@ -1471,6 +1529,7 @@ class BitVector:
 
         Returns:
             A new BitVector instance identical to this vector.
+
         """
         if memo is None:
             memo = {}
@@ -1499,6 +1558,7 @@ class BitVector:
 
         Returns:
             A new BitVector instance containing the left-padded bits.
+
         """
         new_bv = copy.deepcopy(self)
         new_bv.pad_from_left(n)
@@ -1509,6 +1569,7 @@ class BitVector:
 
         Args:
             n: The integer number of zero bits to prepend to the vector.
+
         """
         if n <= 0:
             return
@@ -1552,6 +1613,7 @@ class BitVector:
 
         Args:
             n: The integer number of zero bits to append to the vector.
+
         """
         if n <= 0:
             return
@@ -1576,6 +1638,7 @@ class BitVector:
 
         Raises:
             ValueError: If this vector is empty or shorter than otherBitVec.
+
         """
         if self._size == 0:
             raise ValueError("First arg bitvec has no bits")
@@ -1600,6 +1663,7 @@ class BitVector:
 
         Raises:
             ValueError: If val is not 0 or 1.
+
         """
         if val not in (0, 1):
             raise ValueError("Incorrect reset argument")
@@ -1622,6 +1686,7 @@ class BitVector:
 
         Returns:
             The integer count of bits set to 1.
+
         """
         if not self._size:
             return 0
@@ -1650,6 +1715,7 @@ class BitVector:
         Raises:
             ValueError: If no argument is provided, if mutually exclusive
                 arguments are specified together, or if input values are invalid.
+
         """
         BitVector.__init__(
             self,
@@ -1666,6 +1732,7 @@ class BitVector:
 
         Returns:
             The integer count of bits set to 1.
+
         """
         if not self._size:
             return 0
@@ -1687,12 +1754,13 @@ class BitVector:
 
         Raises:
             ValueError: If vectors are of unequal length or both zero.
+
         """
         if int(self) == 0 and int(other) == 0:
             raise ValueError("Jaccard called on two zero vectors --- NOT ALLOWED")
         if self._size != other._size:
             raise ValueError(
-                "bitvectors for comparing with Jaccard must be of equal length"
+                "bitvectors for comparing with Jaccard must be of equal length",
             )
         intersect = self & other
         union = self | other
@@ -1709,6 +1777,7 @@ class BitVector:
 
         Raises:
             ValueError: If vectors are of unequal length.
+
         """
         if self._size != other._size:
             raise ValueError("vectors of unequal length")
@@ -1725,6 +1794,7 @@ class BitVector:
 
         Raises:
             ValueError: If vectors are of unequal length.
+
         """
         if self._size != other._size:
             raise ValueError("vectors of unequal length")
@@ -1743,6 +1813,7 @@ class BitVector:
         Raises:
             ValueError: If from_index is negative.
             IndexError: If from_index is greater than or equal to the vector size.
+
         """
         if from_index < 0:
             raise ValueError("from_index must be nonnegative")
@@ -1781,6 +1852,7 @@ class BitVector:
 
         Raises:
             ValueError: If the bit at position is not set to 1.
+
         """
         if self[position] != 1:
             raise ValueError("the arg bit not set")
@@ -1792,6 +1864,7 @@ class BitVector:
 
         Returns:
             True if the integer representation is a power of two, else False.
+
         """
         if int(self) == 0:
             return False
@@ -1807,6 +1880,7 @@ class BitVector:
 
         Returns:
             True if exactly one bit is set to 1, else False.
+
         """
         return self.bit_count_sparse() == 1
 
@@ -1815,6 +1889,7 @@ class BitVector:
 
         Returns:
             A new BitVector instance with bits in reversed order.
+
         """
         new_bv = self.__class__(size=self._size)
         for i in range(self._size):
@@ -1830,6 +1905,7 @@ class BitVector:
 
         Returns:
             A new BitVector instance containing the GCD of the two integer values.
+
         """
         a = int(self)
         b = int(other)
@@ -1851,6 +1927,7 @@ class BitVector:
         Returns:
             A new BitVector with the multiplicative inverse modulo modulus,
             or None if no inverse exists.
+
         """
         MOD = mod = int(modulus)
         num = int(self)
@@ -1875,6 +1952,7 @@ class BitVector:
 
         Returns:
             A new BitVector containing the GF(2) product of the two polynomials.
+
         """
         a = copy.deepcopy(self)
         b_copy = copy.deepcopy(b)
@@ -1901,6 +1979,7 @@ class BitVector:
 
         Raises:
             ValueError: If the modulus polynomial is too long for GF(2^n).
+
         """
         num = self
         if len(mod) > n + 1:
@@ -1940,6 +2019,7 @@ class BitVector:
 
         Returns:
             A new BitVector containing the product modulo mod in GF(2^n).
+
         """
         a = self
         a_copy = copy.deepcopy(a)
@@ -1958,6 +2038,7 @@ class BitVector:
         Returns:
             A new BitVector with the multiplicative inverse in GF(2^n), or a
             string indicating that no inverse exists.
+
         """
         num: BitVector = self
         NUM = copy.deepcopy(num)
@@ -1984,6 +2065,7 @@ class BitVector:
         Returns:
             A list of binary strings, each representing a contiguous run of 0s
             or 1s.
+
         """
         allruns: list[str] = []
         if self._size == 0:
@@ -2015,6 +2097,7 @@ class BitVector:
         Returns:
             A float probability close to 1.0 for prime numbers, or 0.0 for
             composites.
+
         """
         p = int(self)
         if p == 1:
@@ -2056,6 +2139,7 @@ class BitVector:
 
         Returns:
             A new BitVector instance containing the generated random bits.
+
         """
         candidate = secrets.randbits(width)
         candidate |= 1
@@ -2071,6 +2155,7 @@ class BitVector:
 
         Returns:
             A new BitVector instance representing the minimum canonical rotation.
+
         """
         intvals_for_circular_shifts = [int(self << i) for i in range(len(self))]
         return self.__class__.from_int(min(intvals_for_circular_shifts), size=len(self))

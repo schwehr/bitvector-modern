@@ -22,7 +22,9 @@ def test_divide_into_two_raises_error() -> None:
     ],
 )
 def test_divide_into_two(
-    bitstring: str, expected_left: str, expected_right: str
+    bitstring: str,
+    expected_left: str,
+    expected_right: str,
 ) -> None:
     """Tests divide_into_two on even-length and empty vectors.
 
@@ -30,6 +32,7 @@ def test_divide_into_two(
         bitstring: Input vector bitstring representation.
         expected_left: Expected bitstring of the left half vector.
         expected_right: Expected bitstring of the right half vector.
+
     """
     bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     left, right = bv.divide_into_two()
@@ -44,7 +47,9 @@ def test_divide_into_two(
     ],
 )
 def test_permute_raises_error(
-    bitstring: str, perm_list: list[int], err_match: str
+    bitstring: str,
+    perm_list: list[int],
+    err_match: str,
 ) -> None:
     """Verifies invalid permutation indices raise ValueError.
 
@@ -52,6 +57,7 @@ def test_permute_raises_error(
         bitstring: Input vector bitstring representation.
         perm_list: List of target bit indices for permutation.
         err_match: Expected error message pattern.
+
     """
     bv = BitVector.from_bitstring(bitstring)
     with pytest.raises(ValueError, match=err_match):
@@ -72,6 +78,7 @@ def test_permute(bitstring: str, perm_list: list[int], expected: str) -> None:
         bitstring: Input vector bitstring representation.
         perm_list: List of target bit indices for permutation.
         expected: Expected output vector bitstring.
+
     """
     bv = BitVector.from_bitstring(bitstring)
     permuted = bv.permute(perm_list)
@@ -86,7 +93,9 @@ def test_permute(bitstring: str, perm_list: list[int], expected: str) -> None:
     ],
 )
 def test_unpermute_raises_error(
-    bitstring: str, perm_list: list[int], err_match: str
+    bitstring: str,
+    perm_list: list[int],
+    err_match: str,
 ) -> None:
     """Verifies invalid unpermute indices or lengths raise ValueError.
 
@@ -94,6 +103,7 @@ def test_unpermute_raises_error(
         bitstring: Input vector bitstring representation.
         perm_list: List of permutation indices.
         err_match: Expected error message pattern.
+
     """
     bv = BitVector.from_bitstring(bitstring)
     with pytest.raises(ValueError, match=err_match):
@@ -127,6 +137,7 @@ def test_one_bit_shifts(method_name: str, bitstring: str, expected: str) -> None
         method_name: Name of the BitVector rotation or shift method.
         bitstring: Initial vector bitstring representation.
         expected: Expected output vector bitstring after mutation.
+
     """
     bv = BitVector.from_bitstring(bitstring)
     method = getattr(bv, method_name)
@@ -150,6 +161,7 @@ def test_shift_left_right(direction: str, shift_amount: int, expected: str) -> N
         direction: Shift direction ('left' or 'right').
         shift_amount: Number of bit positions to shift.
         expected: Expected output vector bitstring.
+
     """
     bv = BitVector.from_bitstring("101101")
     if direction == "left":
@@ -175,7 +187,9 @@ def test_shift_left_right(direction: str, shift_amount: int, expected: str) -> N
     ],
 )
 def test_shift_left_comprehensive(
-    initial_bitstring: str, shift_amount: int, expected_bitstring: str
+    initial_bitstring: str,
+    shift_amount: int,
+    expected_bitstring: str,
 ) -> None:
     """Tests shift_left across single-word, multi-word, multiple-of-64, and boundary conditions.
 
@@ -183,6 +197,7 @@ def test_shift_left_comprehensive(
         initial_bitstring: Initial bitstring representation of the vector.
         shift_amount: Number of positions to shift left.
         expected_bitstring: Expected bitstring representation after shifting.
+
     """
     bv = BitVector.from_bitstring(initial_bitstring)
     res = bv.shift_left(shift_amount)
@@ -205,7 +220,9 @@ def test_shift_left_comprehensive(
     ],
 )
 def test_shift_right_comprehensive(
-    initial_bitstring: str, shift_amount: int, expected_bitstring: str
+    initial_bitstring: str,
+    shift_amount: int,
+    expected_bitstring: str,
 ) -> None:
     """Tests shift_right across single-word, multi-word, multiple-of-64, and boundary conditions.
 
@@ -213,6 +230,7 @@ def test_shift_right_comprehensive(
         initial_bitstring: Initial bitstring representation of the vector.
         shift_amount: Number of positions to shift right.
         expected_bitstring: Expected bitstring representation after shifting.
+
     """
     bv = BitVector.from_bitstring(initial_bitstring)
     res = bv.shift_right(shift_amount)
@@ -250,7 +268,10 @@ def test_shift_right_extended_vector() -> None:
     ],
 )
 def test_padding(
-    direction: str, pad_count: int, input_str: str, expected_str: str
+    direction: str,
+    pad_count: int,
+    input_str: str,
+    expected_str: str,
 ) -> None:
     """Tests pad_from_left and pad_from_right across positive, negative, and zero pads across word boundaries.
 
@@ -259,6 +280,7 @@ def test_padding(
         pad_count: Number of zero bits to prepend or append.
         input_str: Input bitstring to construct vector.
         expected_str: Expected output vector bitstring.
+
     """
     bv = BitVector.from_bitstring(input_str) if input_str else BitVector(size=0)
     if direction == "left":
@@ -291,6 +313,7 @@ def test_reset(val: int, expected: str) -> None:
     Args:
         val: The bit value (0 or 1) to reset all bits to.
         expected: Expected output vector bitstring.
+
     """
     bv = BitVector.from_bitstring("101")
     res = bv.reset(val)
@@ -325,6 +348,7 @@ def test_bit_count(bitstring: str, expected_count: int) -> None:
     Args:
         bitstring: Initial vector bitstring representation.
         expected_count: Expected number of bits set to 1.
+
     """
     bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     assert bv.bit_count() == expected_count
@@ -346,6 +370,7 @@ def test_bit_count_sparse(bitstring: str, expected_count: int) -> None:
     Args:
         bitstring: Initial vector bitstring representation.
         expected_count: Expected number of bits set to 1.
+
     """
     bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     assert bv.bit_count_sparse() == expected_count
@@ -360,6 +385,7 @@ def test_bit_count_unmasked_inversion(size: int) -> None:
 
     Args:
         size: Vector length in bits.
+
     """
     bv = BitVector(size=size)
     inv_bv = ~bv
@@ -402,7 +428,10 @@ def test_set_value_invalid_keyword_error() -> None:
     ],
 )
 def test_distance_metrics_raise_error(
-    method_name: str, bv1_str: str, bv2_str: str, err_match: str
+    method_name: str,
+    bv1_str: str,
+    bv2_str: str,
+    err_match: str,
 ) -> None:
     """Verifies distance metrics raise ValueError on invalid inputs.
 
@@ -411,6 +440,7 @@ def test_distance_metrics_raise_error(
         bv1_str: Bitstring for the first vector.
         bv2_str: Bitstring for the second vector.
         err_match: Expected error message substring.
+
     """
     bv1 = BitVector.from_bitstring(bv1_str)
     bv2 = BitVector.from_bitstring(bv2_str)
@@ -428,7 +458,10 @@ def test_distance_metrics_raise_error(
     ],
 )
 def test_distance_metrics(
-    method_name: str, bv1_str: str, bv2_str: str, expected: float | int
+    method_name: str,
+    bv1_str: str,
+    bv2_str: str,
+    expected: float,
 ) -> None:
     """Tests similarity and distance metrics on equal-length vectors.
 
@@ -437,6 +470,7 @@ def test_distance_metrics(
         bv1_str: Bitstring for the first vector.
         bv2_str: Bitstring for the second vector.
         expected: Expected distance or similarity numerical result.
+
     """
     bv1 = BitVector.from_bitstring(bv1_str)
     bv2 = BitVector.from_bitstring(bv2_str)
@@ -474,6 +508,7 @@ def test_next_set_bit(bitstring: str, start_idx: int, expected_idx: int) -> None
         bitstring: Initial vector bitstring representation.
         start_idx: The starting index for scanning.
         expected_idx: Expected index of the next set bit (-1 if none found).
+
     """
     bv = BitVector.from_bitstring(bitstring)
     assert bv.next_set_bit(start_idx) == expected_idx
@@ -545,6 +580,7 @@ def test_is_power_of_2(bitstring: str, sparse: bool, expected: bool) -> None:
         bitstring: Initial vector bitstring representation.
         sparse: Whether to use is_power_of_2_sparse.
         expected: Expected boolean result.
+
     """
     bv = BitVector.from_bitstring(bitstring)
     res = bv.is_power_of_2_sparse() if sparse else bv.is_power_of_2()
@@ -564,6 +600,7 @@ def test_reverse(bitstring: str, expected: str) -> None:
     Args:
         bitstring: Initial vector bitstring representation.
         expected: Expected bitstring representation after reversal.
+
     """
     bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)
     assert str(bv.reverse()) == expected
@@ -621,7 +658,8 @@ def test_gf_divide_by_modulus() -> None:
     assert int(r_eq) == 0
 
     _, r_zero = BitVector.from_bitstring("0").gf_divide_by_modulus(
-        BitVector.from_bitstring("1"), 1
+        BitVector.from_bitstring("1"),
+        1,
     )
     assert int(r_zero) == 0
 
@@ -661,7 +699,9 @@ def test_gf_mi() -> None:
     ],
 )
 def test_runs(
-    bitstring: str | None, bitlist: tuple[int, ...] | None, expected: list[str]
+    bitstring: str | None,
+    bitlist: tuple[int, ...] | None,
+    expected: list[str],
 ) -> None:
     """Tests extracting consecutive bit runs from vectors.
 
@@ -669,6 +709,7 @@ def test_runs(
         bitstring: Optional vector bitstring representation.
         bitlist: Optional vector bitlist representation.
         expected: Expected list of bit run strings.
+
     """
     if bitstring is not None:
         bv = BitVector.from_bitstring(bitstring) if bitstring else BitVector(size=0)

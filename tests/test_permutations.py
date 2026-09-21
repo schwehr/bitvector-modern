@@ -45,6 +45,7 @@ def test_permutations(
         op: The permutation operation string ('permute' or 'unpermute').
         perm_list: A sequence of integer indices specifying bit ordering.
         expected: The expected bitstring representation after operation.
+
     """
     bv: BitVector = request.getfixturevalue(bv_name)
     if op == "permute":
@@ -59,13 +60,15 @@ def test_permutations(
 
 @pytest.mark.parametrize("op", ["permute", "unpermute"])
 def test_permutation_out_of_bounds_raises_error(
-    bv1: BitVector, op: Literal["permute", "unpermute"]
+    bv1: BitVector,
+    op: Literal["permute", "unpermute"],
 ) -> None:
     """Verifies out-of-bounds indices in permutation lists raise ValueError.
 
     Args:
         bv1: A fixture providing a 7-bit BitVector instance.
         op: The permutation operation ('permute' or 'unpermute').
+
     """
     with pytest.raises(ValueError, match="Bad permutation index"):
         if op == "permute":
@@ -79,6 +82,7 @@ def test_unpermute_bad_size_raises_error(bv1: BitVector) -> None:
 
     Args:
         bv1: A fixture providing a 7-bit BitVector instance.
+
     """
     with pytest.raises(ValueError, match="Bad size for permute list"):
         _ = bv1.unpermute([0, 1, 2])
