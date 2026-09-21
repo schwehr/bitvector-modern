@@ -64,7 +64,7 @@ repos:
           - pytest-cov
 
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.21
+    rev: 1.0.0
     hooks:
       - id: mdformat
         args: [ "--wrap", "80" ]
