@@ -22,12 +22,22 @@ This project uses [`uv`](https://docs.astral.sh/uv/) for dependency management
 and [`pre-commit`](https://pre-commit.com/) to enforce code quality and
 conventional commit messages.
 
+`pyupgrade` runs as part of the pre-commit checks, so syntax modernization is
+applied automatically for developers and enforced in CI on every pull request
+and push.
+
 After cloning the repository, set up the development environment and register
 both pre-commit and commit-msg git hooks:
 
 ```bash
 uv sync
 uv run pre-commit install --hook-type pre-commit --hook-type commit-msg
+```
+
+You can also run the hook on demand:
+
+```bash
+uv run pre-commit run pyupgrade --all-files
 ```
 
 To execute the automated test suite and check code coverage:

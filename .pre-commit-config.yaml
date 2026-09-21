@@ -22,6 +22,12 @@ repos:
         args: [ --fix ]
       - id: ruff-format
 
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.21.2
+    hooks:
+      - id: pyupgrade
+        args: [ --py313-plus ]
+
   - repo: https://github.com/astral-sh/ty-pre-commit
     rev: v0.0.80
     hooks:
