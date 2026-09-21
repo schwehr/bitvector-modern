@@ -49,13 +49,15 @@ def test_invalid_keyword_error() -> None:
     ],
 )
 def test_constructor_conflicting_args_raises_error(
-    kwargs: dict[str, Any], err_match: str
+    kwargs: dict[str, Any],
+    err_match: str,
 ) -> None:
     """Verifies conflicting or invalid constructor arguments raise ValueError.
 
     Args:
         kwargs: Keyword arguments containing invalid or conflicting inputs.
         err_match: The expected regex error message pattern.
+
     """
     with pytest.raises(ValueError, match=err_match):
         BitVector(**kwargs)
@@ -76,6 +78,7 @@ def test_constructor_invalid_bitlist_values_raises_error(
 
     Args:
         invalid_bitlist: A list containing values other than 0 or 1.
+
     """
     with pytest.raises(ValueError, match="incorrect value for a bit"):
         BitVector(bitlist=invalid_bitlist)
@@ -90,13 +93,15 @@ def test_constructor_invalid_bitlist_values_raises_error(
     ],
 )
 def test_constructor_legacy_kwargs_raise_type_error(
-    kwargs: dict[str, Any], err_match: str
+    kwargs: dict[str, Any],
+    err_match: str,
 ) -> None:
     """Verifies that removed legacy constructor arguments raise TypeError.
 
     Args:
         kwargs: Legacy keyword arguments.
         err_match: The expected regex error message pattern.
+
     """
     with pytest.raises(TypeError, match=err_match):
         BitVector(**kwargs)
@@ -112,7 +117,9 @@ def test_constructor_legacy_kwargs_raise_type_error(
     ],
 )
 def test_constructor_valid_kwargs(
-    kwargs: dict[str, Any], expected_str: str, expected_size: int
+    kwargs: dict[str, Any],
+    expected_str: str,
+    expected_size: int,
 ) -> None:
     """Tests initializing BitVector from valid keyword arguments.
 
@@ -120,6 +127,7 @@ def test_constructor_valid_kwargs(
         kwargs: Constructor keyword argument dictionary.
         expected_str: Expected bitstring representation.
         expected_size: Expected integer bit vector size.
+
     """
     bv = BitVector(**kwargs)
     assert str(bv) == expected_str
@@ -182,7 +190,8 @@ def test_from_int() -> None:
     assert bv_zero_padded._size == 4
 
     with pytest.raises(
-        ValueError, match="The value specified for size must be at least"
+        ValueError,
+        match="The value specified for size must be at least",
     ):
         BitVector.from_int(255, size=2)
 

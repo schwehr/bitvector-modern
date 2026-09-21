@@ -74,8 +74,52 @@ line-length = 88
 target-version = "py313"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "W"]
-ignore = ["E501"]
+select = ["ALL"]
+ignore = [
+    "ANN001",  # missing-type-function-argument
+    "ANN201",  # missing-return-type-undocumented-public-function
+    "ANN202",  # missing-return-type-private-function
+    "ANN401",  # any-type
+    "B007",  # unused-loop-control-variable
+    "B905",  # zip-without-explicit-strict
+    "C901",  # complex-structure
+    "COM812",  # missing-trailing-comma
+    "CPY001",  # missing-copyright-notice
+    "D102",  # undocumented-public-method
+    "D103",  # undocumented-public-function
+    "D105",  # undocumented-magic-method
+    "D203",  # incorrect-blank-line-before-class
+    "D213",  # multi-line-summary-second-line
+    "D401",  # non-imperative-mood
+    "E501",  # line-too-long
+    "EM101",  # raw-string-in-exception
+    "EM102",  # f-string-in-exception
+    "ERA001",  # commented-out-code
+    "FBT001",  # boolean-type-hint-positional-argument
+    "FURB116",  # f-string-number-format
+    "INP001",  # implicit-namespace-package
+    "N802",  # invalid-function-name
+    "N803",  # invalid-argument-name
+    "N806",  # non-lowercase-variable-in-function
+    "N999",  # invalid-module-name
+    "PLR0911",  # too-many-return-statements
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-arguments
+    "PLR0917",  # too-many-positional-arguments
+    "PLR2004",  # magic-value-comparison
+    "PLW1641",  # eq-without-hash
+    "PT012",  # pytest-raises-with-multiple-statements
+    "PTH123",  # builtin-open
+    "RET504",  # unnecessary-assign
+    "S101",  # assert
+    "SIM103",  # needless-bool
+    "SIM108",  # if-else-block-instead-of-if-exp
+    "SLF001",  # private-member-access
+    "T201",  # print
+    "TC003",  # typing-only-standard-library-import
+    "TC006",  # cast-type-without-quote
+    "TRY003",  # raise-vanilla-args
+]
 
 [tool.coverage.run]
 source = ["BitVector"]

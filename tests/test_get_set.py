@@ -12,7 +12,7 @@ def test_setitem_type_error() -> None:
     """Verifies that non-integer bit assignment raises TypeError."""
     bv = BitVector(size=5)
     with pytest.raises(TypeError, match="pos must be an integer"):
-        bv[cast(Any, "0")] = 1
+        bv[cast("Any", "0")] = 1
 
 
 @pytest.mark.parametrize(
@@ -31,6 +31,7 @@ def test_getitem_type_error(invalid_pos: Any) -> None:
 
     Args:
         invalid_pos: An object that is neither an integer nor a slice.
+
     """
     bv = BitVector(size=5)
     with pytest.raises(TypeError, match="pos must be an integer or slice"):
@@ -52,6 +53,7 @@ def test_setitem_raises_error(index: int, val: int, err_match: str) -> None:
         index: The bit position index to modify.
         val: The bit value to assign (should be 0 or 1).
         err_match: The expected error message substring.
+
     """
     bv = BitVector.from_bitstring("00000")
     with pytest.raises(ValueError, match=err_match):
@@ -68,7 +70,10 @@ def test_setitem_raises_error(index: int, val: int, err_match: str) -> None:
     ],
 )
 def test_setitem_valid(
-    initial: str, index: int | tuple[int], val: int, expected: str
+    initial: str,
+    index: int | tuple[int],
+    val: int,
+    expected: str,
 ) -> None:
     """Tests __setitem__ with integer indices, tuple indices, and redundant values.
 
@@ -77,9 +82,10 @@ def test_setitem_valid(
         index: The target bit index (integer or 1-tuple).
         val: The bit value (0 or 1) to assign.
         expected: The expected vector bitstring after modification.
+
     """
     bv = BitVector.from_bitstring(initial)
-    bv[cast(Any, index)] = val
+    bv[cast("Any", index)] = val
     assert str(bv) == expected
 
 
@@ -89,6 +95,7 @@ def test_getitem_int_raises_error(index: int) -> None:
 
     Args:
         index: The out-of-bounds index to query.
+
     """
     bv = BitVector.from_bitstring("10110")
     with pytest.raises(ValueError, match="index range error"):
@@ -110,6 +117,7 @@ def test_getitem_int(index: int, expected: int) -> None:
     Args:
         index: The bit index to query.
         expected: The expected integer bit value (0 or 1).
+
     """
     bv = BitVector.from_bitstring("10110")
     assert bv[index] == expected
@@ -137,6 +145,7 @@ def test_getitem_slice(initial: str, sl: slice, expected: str) -> None:
         initial: Initial bitstring representation for the vector.
         sl: The slice object defining the range to extract.
         expected: Expected bitstring representation of the extracted slice.
+
     """
     bv = BitVector.from_bitstring(initial) if initial else BitVector(size=0)
     assert str(bv[sl]) == expected
@@ -189,6 +198,7 @@ def test_getitem_slice_raises_error(sl: slice) -> None:
 
     Args:
         sl: The invalid slice object to test on a 5-bit vector.
+
     """
     bv = BitVector.from_bitstring("10110")
     with pytest.raises(ValueError, match="illegal slice index values"):

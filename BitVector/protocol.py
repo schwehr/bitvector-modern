@@ -4,7 +4,8 @@ This module defines the typing protocol for BitVector operations,
 ensuring type safety and consistent interfaces.
 """
 
-from typing import Any, Iterator, Protocol, Self
+from collections.abc import Iterator
+from typing import Any, Protocol, Self
 
 
 class BitVectorProtocol(Protocol):
@@ -12,6 +13,7 @@ class BitVectorProtocol(Protocol):
 
     Attributes:
         size: Total number of bits in the vector.
+
     """
 
     size: int

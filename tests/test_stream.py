@@ -21,7 +21,8 @@ def test_write_to_file_raises_error() -> None:
     """Verifies writing a vector not a multiple of 8 bits raises ValueError."""
     bv = BitVector.from_bitstring("10101")
     with pytest.raises(
-        ValueError, match="Only a bit vector whose length is a multiple of 8"
+        ValueError,
+        match="Only a bit vector whose length is a multiple of 8",
     ):
         bv.write_to_file(io.BytesIO())
 
@@ -173,13 +174,15 @@ def test_from_file_path_empty_file(tmp_path: pathlib.Path) -> None:
 
 @pytest.mark.parametrize("offset", [5, 10])
 def test_from_file_path_offset_at_or_beyond_eof(
-    tmp_path: pathlib.Path, offset: int
+    tmp_path: pathlib.Path,
+    offset: int,
 ) -> None:
     """Tests that reading with offset at or beyond EOF returns an empty BitVector.
 
     Args:
         tmp_path: Temporary directory fixture.
         offset: Offset at or beyond file length.
+
     """
     file_path = tmp_path / "sample.bin"
     file_path.write_bytes(b"HELLO")
@@ -198,13 +201,15 @@ def test_from_file_path_num_bytes_zero(tmp_path: pathlib.Path) -> None:
 
 
 def test_from_file_path_short_read_eof(
-    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Tests handling when file reaches EOF before expected file_size bytes.
 
     Args:
         tmp_path: Temporary directory fixture.
         monkeypatch: Pytest monkeypatch fixture.
+
     """
     file_path = tmp_path / "short.bin"
     file_path.write_bytes(b"ABCD")
@@ -213,7 +218,9 @@ def test_from_file_path_short_read_eof(
     orig_stat = pathlib.Path.stat
 
     def mock_stat(
-        self: pathlib.Path, *, follow_symlinks: bool = True
+        self: pathlib.Path,
+        *,
+        follow_symlinks: bool = True,
     ) -> os.stat_result:
         st = orig_stat(self, follow_symlinks=follow_symlinks)
         if self == file_path:
@@ -229,7 +236,7 @@ def test_from_file_path_short_read_eof(
                     st.st_atime,
                     st.st_mtime,
                     st.st_ctime,
-                )
+                ),
             )
         return st
 

@@ -1,7 +1,8 @@
 """Tests for rich comparison operators (==, !=, <, <=, >, >=) on BitVector."""
 
 import operator
-from typing import Any, Callable, Literal
+from collections.abc import Callable
+from typing import Any, Literal
 
 import pytest
 
@@ -75,6 +76,7 @@ def test_comparison_operators(
         right_name: The fixture name of the right-hand operand.
         op: The comparison operator string ('==', '!=', '<', '<=', '>', '>=').
         expected: The expected boolean result of the comparison.
+
     """
     left: BitVector = request.getfixturevalue(left_name)
     right: BitVector = request.getfixturevalue(right_name)
@@ -105,7 +107,10 @@ def test_comparison_operators(
     ],
 )
 def test_comparison_with_numeric_types(
-    bv_val: int, other: int | float, op: ComparisonOp, expected: bool
+    bv_val: int,
+    other: float,
+    op: ComparisonOp,
+    expected: bool,
 ) -> None:
     """Tests comparisons between BitVector and int/float."""
     bv = BitVector.from_int(bv_val)
