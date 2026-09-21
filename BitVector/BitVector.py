@@ -2007,7 +2007,7 @@ class BitVector:
             remainder = remainder[len(remainder) - n :]
         return quotient, remainder
 
-    def gf_multiply_modular(self, b: Any, mod: Self, n: int) -> Self:
+    def gf_multiply_modular(self, b: Self, mod: Self, n: int) -> Self:
         """Performs modular polynomial multiplication in Galois Field GF(2^n).
 
         Args:
