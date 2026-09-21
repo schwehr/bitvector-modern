@@ -17,67 +17,67 @@ from BitVector import BitVector
 
 
 @pytest.fixture
-def sample_bv1():
+def sample_bv1() -> BitVector:
     return BitVector.from_bitstring("01" * 500)
 
 
 @pytest.fixture
-def sample_bv2():
+def sample_bv2() -> BitVector:
     return BitVector.from_bitstring("001" * 333 + "0")
 
 
 @pytest.fixture
-def sample_bv_small():
+def sample_bv_small() -> BitVector:
     return BitVector.from_bitstring("01010111" * 8)
 
 
 @pytest.fixture
-def gf_a():
+def gf_a() -> BitVector:
     return BitVector.from_bitstring("0110001")
 
 
 @pytest.fixture
-def gf_b():
+def gf_b() -> BitVector:
     return BitVector.from_bitstring("0110")
 
 
 @pytest.fixture
-def gf_mod():
+def gf_mod() -> BitVector:
     return BitVector.from_bitstring("100011011")  # AES modulus
 
 
 # --- Constructor Benchmarks ---
 
 
-def test_bench_init_zeros(benchmark):
+def test_bench_init_zeros(benchmark) -> None:
     benchmark(BitVector, size=1000)
 
 
-def test_bench_init_int(benchmark):
+def test_bench_init_int(benchmark) -> None:
     benchmark(BitVector.from_int, 0x123456789ABCDEF0, size=64)
 
 
-def test_bench_init_int_large(benchmark):
+def test_bench_init_int_large(benchmark) -> None:
     val = (1 << 1000) - 123456789
     benchmark(BitVector.from_int, val, size=1000)
 
 
-def test_bench_init_bitstring(benchmark):
+def test_bench_init_bitstring(benchmark) -> None:
     bitstr = "1010" * 250
     benchmark(BitVector.from_bitstring, bitstr)
 
 
-def test_bench_init_rawbytes(benchmark):
+def test_bench_init_rawbytes(benchmark) -> None:
     data = b"\xaa\x55" * 50
     benchmark(BitVector.from_bytes, data)
 
 
-def test_bench_init_bitlist(benchmark):
+def test_bench_init_bitlist(benchmark) -> None:
     bitlist = [1, 0, 1, 0] * 250
     benchmark(BitVector, bitlist=bitlist)
 
 
-def test_bench_from_stream(benchmark):
+def test_bench_from_stream(benchmark) -> None:
     data = b"\xaa\x55" * 50
 
     def read_stream() -> BitVector:
@@ -95,7 +95,7 @@ def test_bench_from_file_path(
     benchmark,
     tmp_path: pathlib.Path,
     size_bytes: int,
-):
+) -> None:
     file_path = tmp_path / f"bench_test_{size_bytes}.bin"
     file_path.write_bytes(b"\xaa" * size_bytes)
     benchmark(BitVector.from_file_path, file_path)
@@ -104,23 +104,23 @@ def test_bench_from_file_path(
 # --- Bitwise Operation Benchmarks ---
 
 
-def test_bench_bitwise_and(benchmark, sample_bv1, sample_bv2):
+def test_bench_bitwise_and(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(operator.and_, sample_bv1, sample_bv2)
 
 
-def test_bench_bitwise_or(benchmark, sample_bv1, sample_bv2):
+def test_bench_bitwise_or(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(operator.or_, sample_bv1, sample_bv2)
 
 
-def test_bench_bitwise_xor(benchmark, sample_bv1, sample_bv2):
+def test_bench_bitwise_xor(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(operator.xor, sample_bv1, sample_bv2)
 
 
-def test_bench_invert(benchmark, sample_bv1):
+def test_bench_invert(benchmark, sample_bv1) -> None:
     benchmark(operator.invert, sample_bv1)
 
 
-def test_bench_iand(benchmark, sample_bv1, sample_bv2):
+def test_bench_iand(benchmark, sample_bv1, sample_bv2) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1), sample_bv2), {}
 
@@ -130,7 +130,7 @@ def test_bench_iand(benchmark, sample_bv1, sample_bv2):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_ior(benchmark, sample_bv1, sample_bv2):
+def test_bench_ior(benchmark, sample_bv1, sample_bv2) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1), sample_bv2), {}
 
@@ -140,7 +140,7 @@ def test_bench_ior(benchmark, sample_bv1, sample_bv2):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_ixor(benchmark, sample_bv1, sample_bv2):
+def test_bench_ixor(benchmark, sample_bv1, sample_bv2) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1), sample_bv2), {}
 
@@ -153,12 +153,12 @@ def test_bench_ixor(benchmark, sample_bv1, sample_bv2):
 # --- Arithmetic and Concatenation Benchmarks ---
 
 
-def test_bench_add(benchmark, sample_bv1, sample_bv2):
+def test_bench_add(benchmark, sample_bv1, sample_bv2) -> None:
     # Tests __add__, avoiding _not_yet_ready__add__
     benchmark(operator.add, sample_bv1, sample_bv2)
 
 
-def test_bench_iadd(benchmark, sample_bv1, sample_bv2):
+def test_bench_iadd(benchmark, sample_bv1, sample_bv2) -> None:
     # Tests __iadd__, avoiding _not_yet_ready__iadd__.
     # Uses pedantic with a setup function so self is not mutated across rounds.
     def setup():
@@ -173,15 +173,15 @@ def test_bench_iadd(benchmark, sample_bv1, sample_bv2):
 # --- Shifting and Permutation Benchmarks ---
 
 
-def test_bench_shift_left(benchmark, sample_bv1):
+def test_bench_shift_left(benchmark, sample_bv1) -> None:
     benchmark(operator.lshift, sample_bv1, 10)
 
 
-def test_bench_shift_right(benchmark, sample_bv1):
+def test_bench_shift_right(benchmark, sample_bv1) -> None:
     benchmark(operator.rshift, sample_bv1, 10)
 
 
-def test_bench_ilshift(benchmark, sample_bv1):
+def test_bench_ilshift(benchmark, sample_bv1) -> None:
     def _run():
         bv = sample_bv1[:]
         bv <<= 10
@@ -189,7 +189,7 @@ def test_bench_ilshift(benchmark, sample_bv1):
     benchmark(_run)
 
 
-def test_bench_irshift(benchmark, sample_bv1):
+def test_bench_irshift(benchmark, sample_bv1) -> None:
     def _run():
         bv = sample_bv1[:]
         bv >>= 10
@@ -197,7 +197,7 @@ def test_bench_irshift(benchmark, sample_bv1):
     benchmark(_run)
 
 
-def test_bench_ilshift_multibit(benchmark, sample_bv1):
+def test_bench_ilshift_multibit(benchmark, sample_bv1) -> None:
     def _run():
         bv = sample_bv1[:]
         bv <<= 500
@@ -205,7 +205,7 @@ def test_bench_ilshift_multibit(benchmark, sample_bv1):
     benchmark(_run)
 
 
-def test_bench_irshift_multibit(benchmark, sample_bv1):
+def test_bench_irshift_multibit(benchmark, sample_bv1) -> None:
     def _run():
         bv = sample_bv1[:]
         bv >>= 500
@@ -213,7 +213,7 @@ def test_bench_irshift_multibit(benchmark, sample_bv1):
     benchmark(_run)
 
 
-def test_bench_permute(benchmark, sample_bv1):
+def test_bench_permute(benchmark, sample_bv1) -> None:
     perm = list(reversed(range(1000)))
     benchmark(sample_bv1.permute, perm)
 
@@ -221,76 +221,76 @@ def test_bench_permute(benchmark, sample_bv1):
 # --- Slicing, Indexing, and Conversion Benchmarks ---
 
 
-def test_bench_slice(benchmark, sample_bv1):
+def test_bench_slice(benchmark, sample_bv1) -> None:
     benchmark(operator.getitem, sample_bv1, slice(100, 900))
 
 
-def test_bench_slice_aligned(benchmark, sample_bv1):
+def test_bench_slice_aligned(benchmark, sample_bv1) -> None:
     benchmark(operator.getitem, sample_bv1, slice(64, 896))
 
 
-def test_bench_slice_large(benchmark):
+def test_bench_slice_large(benchmark) -> None:
     bv = BitVector.from_bitstring("10" * 5000)  # 10,000 bits
     benchmark(operator.getitem, bv, slice(1000, 9000))
 
 
-def test_bench_getitem(benchmark, sample_bv1):
+def test_bench_getitem(benchmark, sample_bv1) -> None:
     benchmark(operator.getitem, sample_bv1, 500)
 
 
-def test_bench_bit_count(benchmark, sample_bv1):
+def test_bench_bit_count(benchmark, sample_bv1) -> None:
     benchmark(sample_bv1.bit_count)
 
 
-def test_bench_int(benchmark, sample_bv1):
+def test_bench_int(benchmark, sample_bv1) -> None:
     benchmark(int, sample_bv1)
 
 
-def test_bench_get_hex_string(benchmark, sample_bv1):
+def test_bench_get_hex_string(benchmark, sample_bv1) -> None:
     benchmark(sample_bv1.get_bitvector_in_hex)
 
 
 # --- Group 3: Distance, Similarity & Sparse Bit Searching ---
 
 
-def test_bench_hamming_distance(benchmark, sample_bv1, sample_bv2):
+def test_bench_hamming_distance(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(sample_bv1.hamming_distance, sample_bv2)
 
 
-def test_bench_jaccard_distance(benchmark, sample_bv1, sample_bv2):
+def test_bench_jaccard_distance(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(sample_bv1.jaccard_distance, sample_bv2)
 
 
-def test_bench_jaccard_similarity(benchmark, sample_bv1, sample_bv2):
+def test_bench_jaccard_similarity(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(sample_bv1.jaccard_similarity, sample_bv2)
 
 
-def test_bench_bit_count_sparse(benchmark, sample_bv1):
+def test_bench_bit_count_sparse(benchmark, sample_bv1) -> None:
     benchmark(sample_bv1.bit_count_sparse)
 
 
-def test_bench_is_power_of_2(benchmark, sample_bv1):
+def test_bench_is_power_of_2(benchmark, sample_bv1) -> None:
     benchmark(sample_bv1.is_power_of_2)
 
 
-def test_bench_is_power_of_2_sparse(benchmark, sample_bv1):
+def test_bench_is_power_of_2_sparse(benchmark, sample_bv1) -> None:
     benchmark(sample_bv1.is_power_of_2_sparse)
 
 
-def test_bench_next_set_bit(benchmark, sample_bv1):
+def test_bench_next_set_bit(benchmark, sample_bv1) -> None:
     benchmark(sample_bv1.next_set_bit, 10)
 
 
-def test_bench_rank_of_bit_set_at_index(benchmark, sample_bv1):
+def test_bench_rank_of_bit_set_at_index(benchmark, sample_bv1) -> None:
     # Index 101 is 1 in "01" * 500
     benchmark(sample_bv1.rank_of_bit_set_at_index, 101)
 
 
-def test_bench_runs(benchmark, sample_bv1):
+def test_bench_runs(benchmark, sample_bv1) -> None:
     benchmark(sample_bv1.runs)
 
 
-def test_bench_min_canonical(benchmark, sample_bv_small):
+def test_bench_min_canonical(benchmark, sample_bv_small) -> None:
     def setup():
         return (), {}
 
@@ -301,41 +301,41 @@ def test_bench_min_canonical(benchmark, sample_bv_small):
     benchmark.pedantic(target, setup=setup, rounds=50)
 
 
-def test_bench_divide_into_two(benchmark, sample_bv1):
+def test_bench_divide_into_two(benchmark, sample_bv1) -> None:
     benchmark(sample_bv1.divide_into_two)
 
 
 # --- Group 4: Comparison & Equality Magic Methods ---
 
 
-def test_bench_eq(benchmark, sample_bv1, sample_bv2):
+def test_bench_eq(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(operator.eq, sample_bv1, sample_bv2)
 
 
-def test_bench_ne(benchmark, sample_bv1, sample_bv2):
+def test_bench_ne(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(operator.ne, sample_bv1, sample_bv2)
 
 
-def test_bench_lt(benchmark, sample_bv1, sample_bv2):
+def test_bench_lt(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(operator.lt, sample_bv1, sample_bv2)
 
 
-def test_bench_le(benchmark, sample_bv1, sample_bv2):
+def test_bench_le(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(operator.le, sample_bv1, sample_bv2)
 
 
-def test_bench_gt(benchmark, sample_bv1, sample_bv2):
+def test_bench_gt(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(operator.gt, sample_bv1, sample_bv2)
 
 
-def test_bench_ge(benchmark, sample_bv1, sample_bv2):
+def test_bench_ge(benchmark, sample_bv1, sample_bv2) -> None:
     benchmark(operator.ge, sample_bv1, sample_bv2)
 
 
 # --- Group 5: Container, Slicing & Mutation Methods ---
 
 
-def test_bench_setitem_index(benchmark, sample_bv1):
+def test_bench_setitem_index(benchmark, sample_bv1) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -345,7 +345,7 @@ def test_bench_setitem_index(benchmark, sample_bv1):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_setitem_slice(benchmark, sample_bv1, sample_bv_small):
+def test_bench_setitem_slice(benchmark, sample_bv1, sample_bv_small) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -355,42 +355,42 @@ def test_bench_setitem_slice(benchmark, sample_bv1, sample_bv_small):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_contains(benchmark, sample_bv1, sample_bv_small):
+def test_bench_contains(benchmark, sample_bv1, sample_bv_small) -> None:
     benchmark(operator.contains, sample_bv1, sample_bv_small)
 
 
-def test_bench_iter(benchmark, sample_bv1):
+def test_bench_iter(benchmark, sample_bv1) -> None:
     benchmark(lambda: list(iter(sample_bv1)))
 
 
-def test_bench_reversed(benchmark, sample_bv1):
+def test_bench_reversed(benchmark, sample_bv1) -> None:
     benchmark(lambda: list(reversed(sample_bv1)))
 
 
-def test_bench_len(benchmark, sample_bv1):
+def test_bench_len(benchmark, sample_bv1) -> None:
     benchmark(len, sample_bv1)
 
 
-def test_bench_length(benchmark, sample_bv1):
+def test_bench_length(benchmark, sample_bv1) -> None:
     benchmark(len, sample_bv1)
 
 
-def test_bench_str(benchmark, sample_bv1):
+def test_bench_str(benchmark, sample_bv1) -> None:
     benchmark(str, sample_bv1)
 
 
-def test_bench_get_bitvector_in_ascii(benchmark, sample_bv1):
+def test_bench_get_bitvector_in_ascii(benchmark, sample_bv1) -> None:
     benchmark(sample_bv1.get_bitvector_in_ascii)
 
 
-def test_bench_deepcopy(benchmark, sample_bv1):
+def test_bench_deepcopy(benchmark, sample_bv1) -> None:
     benchmark(copy.deepcopy, sample_bv1)
 
 
 # --- Group 6: Alternative Shifting & Rotation Methods ---
 
 
-def test_bench_shift_left_method(benchmark, sample_bv1):
+def test_bench_shift_left_method(benchmark, sample_bv1) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -400,7 +400,7 @@ def test_bench_shift_left_method(benchmark, sample_bv1):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_shift_right_method(benchmark, sample_bv1):
+def test_bench_shift_right_method(benchmark, sample_bv1) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -410,7 +410,7 @@ def test_bench_shift_right_method(benchmark, sample_bv1):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_shift_left_by_one(benchmark, sample_bv1):
+def test_bench_shift_left_by_one(benchmark, sample_bv1) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -420,7 +420,7 @@ def test_bench_shift_left_by_one(benchmark, sample_bv1):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_shift_right_by_one(benchmark, sample_bv1):
+def test_bench_shift_right_by_one(benchmark, sample_bv1) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -433,7 +433,7 @@ def test_bench_shift_right_by_one(benchmark, sample_bv1):
 # --- Group 7: In-Place Modification & Padding Methods ---
 
 
-def test_bench_pad_from_left(benchmark, sample_bv1):
+def test_bench_pad_from_left(benchmark, sample_bv1) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -443,7 +443,7 @@ def test_bench_pad_from_left(benchmark, sample_bv1):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_pad_from_right(benchmark, sample_bv1):
+def test_bench_pad_from_right(benchmark, sample_bv1) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -453,7 +453,7 @@ def test_bench_pad_from_right(benchmark, sample_bv1):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_reset(benchmark, sample_bv1):
+def test_bench_reset(benchmark, sample_bv1) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -463,7 +463,7 @@ def test_bench_reset(benchmark, sample_bv1):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_reverse(benchmark, sample_bv1):
+def test_bench_reverse(benchmark, sample_bv1) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -473,7 +473,7 @@ def test_bench_reverse(benchmark, sample_bv1):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_set_value(benchmark, sample_bv1):
+def test_bench_set_value(benchmark, sample_bv1) -> None:
     def setup():
         return (copy.deepcopy(sample_bv1),), {}
 
@@ -483,7 +483,7 @@ def test_bench_set_value(benchmark, sample_bv1):
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
-def test_bench_unpermute(benchmark, sample_bv1):
+def test_bench_unpermute(benchmark, sample_bv1) -> None:
     perm = list(reversed(range(1000)))
     benchmark(sample_bv1.unpermute, perm)
 
@@ -491,41 +491,41 @@ def test_bench_unpermute(benchmark, sample_bv1):
 # --- Group 2: Galois Field (GF) & Advanced Cryptographic Math ---
 
 
-def test_bench_gf_multiply(benchmark, gf_a, gf_b):
+def test_bench_gf_multiply(benchmark, gf_a, gf_b) -> None:
     benchmark(gf_a.gf_multiply, gf_b)
 
 
-def test_bench_gf_divide_by_modulus(benchmark, gf_mod):
+def test_bench_gf_divide_by_modulus(benchmark, gf_mod) -> None:
     a = BitVector.from_bitstring("11100010110001")
     benchmark(a.gf_divide_by_modulus, gf_mod, 8)
 
 
-def test_bench_gf_multiply_modular(benchmark, gf_a, gf_b, gf_mod):
+def test_bench_gf_multiply_modular(benchmark, gf_a, gf_b, gf_mod) -> None:
     benchmark(gf_a.gf_multiply_modular, gf_b, gf_mod, 8)
 
 
-def test_bench_gf_mi(benchmark, gf_mod):
+def test_bench_gf_mi(benchmark, gf_mod) -> None:
     a = BitVector.from_bitstring("00110011")
     benchmark(a.gf_MI, gf_mod, 8)
 
 
-def test_bench_multiplicative_inverse(benchmark):
+def test_bench_multiplicative_inverse(benchmark) -> None:
     bv_mod = BitVector.from_int(32)
     bv_has_mi = BitVector.from_int(17)
     benchmark(bv_has_mi.multiplicative_inverse, bv_mod)
 
 
-def test_bench_gcd(benchmark):
+def test_bench_gcd(benchmark) -> None:
     bv1 = BitVector.from_bitstring("01100110")
     bv2 = BitVector.from_bitstring("011010")
     benchmark(bv1.gcd, bv2)
 
 
-def test_bench_test_for_primality(benchmark):
+def test_bench_test_for_primality(benchmark) -> None:
     prob_19 = BitVector.from_int(19, size=16)
     benchmark(prob_19.test_for_primality)
 
 
-def test_bench_gen_random_bits(benchmark):
+def test_bench_gen_random_bits(benchmark) -> None:
     bv = BitVector(size=0)
     benchmark(bv.gen_random_bits, 64)
