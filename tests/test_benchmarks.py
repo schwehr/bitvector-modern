@@ -121,30 +121,30 @@ def test_bench_invert(benchmark, sample_bv1) -> None:
 
 
 def test_bench_iand(benchmark, sample_bv1, sample_bv2) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector, BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1), sample_bv2), {}
 
-    def target(a, b):
+    def target(a, b) -> None:
         a &= b
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
 def test_bench_ior(benchmark, sample_bv1, sample_bv2) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector, BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1), sample_bv2), {}
 
-    def target(a, b):
+    def target(a, b) -> None:
         a |= b
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
 def test_bench_ixor(benchmark, sample_bv1, sample_bv2) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector, BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1), sample_bv2), {}
 
-    def target(a, b):
+    def target(a, b) -> None:
         a ^= b
 
     benchmark.pedantic(target, setup=setup, rounds=100)
@@ -161,10 +161,10 @@ def test_bench_add(benchmark, sample_bv1, sample_bv2) -> None:
 def test_bench_iadd(benchmark, sample_bv1, sample_bv2) -> None:
     # Tests __iadd__, avoiding _not_yet_ready__iadd__.
     # Uses pedantic with a setup function so self is not mutated across rounds.
-    def setup():
+    def setup() -> tuple[tuple[BitVector, BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1), sample_bv2), {}
 
-    def target(a, b):
+    def target(a, b) -> None:
         a += b
 
     benchmark.pedantic(target, setup=setup, rounds=100)
@@ -182,7 +182,7 @@ def test_bench_shift_right(benchmark, sample_bv1) -> None:
 
 
 def test_bench_ilshift(benchmark, sample_bv1) -> None:
-    def _run():
+    def _run() -> None:
         bv = sample_bv1[:]
         bv <<= 10
 
@@ -190,7 +190,7 @@ def test_bench_ilshift(benchmark, sample_bv1) -> None:
 
 
 def test_bench_irshift(benchmark, sample_bv1) -> None:
-    def _run():
+    def _run() -> None:
         bv = sample_bv1[:]
         bv >>= 10
 
@@ -198,7 +198,7 @@ def test_bench_irshift(benchmark, sample_bv1) -> None:
 
 
 def test_bench_ilshift_multibit(benchmark, sample_bv1) -> None:
-    def _run():
+    def _run() -> None:
         bv = sample_bv1[:]
         bv <<= 500
 
@@ -206,7 +206,7 @@ def test_bench_ilshift_multibit(benchmark, sample_bv1) -> None:
 
 
 def test_bench_irshift_multibit(benchmark, sample_bv1) -> None:
-    def _run():
+    def _run() -> None:
         bv = sample_bv1[:]
         bv >>= 500
 
@@ -291,10 +291,10 @@ def test_bench_runs(benchmark, sample_bv1) -> None:
 
 
 def test_bench_min_canonical(benchmark, sample_bv_small) -> None:
-    def setup():
+    def setup() -> tuple[tuple[()], dict[str, object]]:
         return (), {}
 
-    def target():
+    def target() -> BitVector:
         bv = copy.deepcopy(sample_bv_small)
         return bv.min_canonical()
 
@@ -336,20 +336,20 @@ def test_bench_ge(benchmark, sample_bv1, sample_bv2) -> None:
 
 
 def test_bench_setitem_index(benchmark, sample_bv1) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv[50] = 1
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
 def test_bench_setitem_slice(benchmark, sample_bv1, sample_bv_small) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv[10:74] = sample_bv_small
 
     benchmark.pedantic(target, setup=setup, rounds=100)
@@ -391,40 +391,40 @@ def test_bench_deepcopy(benchmark, sample_bv1) -> None:
 
 
 def test_bench_shift_left_method(benchmark, sample_bv1) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv.shift_left(10)
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
 def test_bench_shift_right_method(benchmark, sample_bv1) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv.shift_right(10)
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
 def test_bench_shift_left_by_one(benchmark, sample_bv1) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv.shift_left_by_one()
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
 def test_bench_shift_right_by_one(benchmark, sample_bv1) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv.shift_right_by_one()
 
     benchmark.pedantic(target, setup=setup, rounds=100)
@@ -434,50 +434,50 @@ def test_bench_shift_right_by_one(benchmark, sample_bv1) -> None:
 
 
 def test_bench_pad_from_left(benchmark, sample_bv1) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv.pad_from_left(10)
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
 def test_bench_pad_from_right(benchmark, sample_bv1) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv.pad_from_right(10)
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
 def test_bench_reset(benchmark, sample_bv1) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv.reset(0)
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
 def test_bench_reverse(benchmark, sample_bv1) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv.reverse()
 
     benchmark.pedantic(target, setup=setup, rounds=100)
 
 
 def test_bench_set_value(benchmark, sample_bv1) -> None:
-    def setup():
+    def setup() -> tuple[tuple[BitVector], dict[str, object]]:
         return (copy.deepcopy(sample_bv1),), {}
 
-    def target(bv):
+    def target(bv) -> None:
         bv.set_value(bitlist=[1, 0, 1, 0, 1, 1, 0, 0] * 8)
 
     benchmark.pedantic(target, setup=setup, rounds=100)
