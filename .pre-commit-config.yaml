@@ -45,7 +45,7 @@ repos:
           - pytest-benchmark
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.411
+    rev: v1.1.414
     hooks:
       - id: pyright
         additional_dependencies:
