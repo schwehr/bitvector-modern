@@ -26,7 +26,7 @@ repos:
     rev: v3.21.2
     hooks:
       - id: pyupgrade
-        args: [ --py313-plus ]
+        args: [ --py314-plus ]
 
   - repo: https://github.com/astral-sh/ty-pre-commit
     rev: v0.0.80
