@@ -2110,7 +2110,7 @@ class BitVector:
                 continue
             a_raised_to_jq = a_raised_to_q
             primeflag = 0
-            for unused_j in range(k - 1):
+            for _unused_j in range(k - 1):
                 a_raised_to_jq = pow(a_raised_to_jq, 2, p)
                 if a_raised_to_jq == p - 1:
                     primeflag = 1
