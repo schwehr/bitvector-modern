@@ -109,7 +109,6 @@ ignore = [
     "PLW1641",  # eq-without-hash
     "PT012",  # pytest-raises-with-multiple-statements
     "PTH123",  # builtin-open
-    "RET504",  # unnecessary-assign
     "S101",  # assert
     "SIM103",  # needless-bool
     "SIM108",  # if-else-block-instead-of-if-exp
