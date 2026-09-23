@@ -2123,8 +2123,7 @@ class BitVector:
                     break
             if not primeflag:
                 return 0
-        probability_of_prime = 1 - 1.0 / (4 ** len(probes))
-        return probability_of_prime
+        return 1 - 1.0 / (4 ** len(probes))
 
     def gen_random_bits(self, width: int) -> Self:
         """Generates a random odd integer bit vector of specified bit width.
