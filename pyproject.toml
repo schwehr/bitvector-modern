@@ -111,7 +111,6 @@ ignore = [
     "PTH123",  # builtin-open
     "S101",  # assert
     "SIM103",  # needless-bool
-    "SIM108",  # if-else-block-instead-of-if-exp
     "SLF001",  # private-member-access
     "T201",  # print
     "TC003",  # typing-only-standard-library-import
