@@ -305,10 +305,7 @@ class BitVector:
 
         p = pathlib.Path(path)
         file_size = p.stat().st_size
-        if offset_bytes >= file_size:
-            bytes_to_read = 0
-        else:
-            bytes_to_read = file_size - offset_bytes
+        bytes_to_read = 0 if offset_bytes >= file_size else file_size - offset_bytes
         if num_bytes is not None:
             bytes_to_read = min(bytes_to_read, num_bytes)
 
@@ -2070,10 +2067,7 @@ class BitVector:
             return allruns
         run = ""
         previous_bit = self[0]
-        if previous_bit == 0:
-            run = "0"
-        else:
-            run = "1"
+        run = "0" if previous_bit == 0 else "1"
         for bit in itertools.islice(self, 1, None):
             if bit == 0 and previous_bit == 0:
                 run += "0"
