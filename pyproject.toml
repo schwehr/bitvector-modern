@@ -78,7 +78,6 @@ select = ["ALL"]
 ignore = [
     "ANN001",  # missing-type-function-argument
     "ANN401",  # any-type
-    "B912",  # map-without-explicit-strict
     "B905",  # zip-without-explicit-strict
     "C901",  # complex-structure
     "COM812",  # missing-trailing-comma

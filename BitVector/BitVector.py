@@ -514,7 +514,7 @@ class BitVector:
         res._size = bv1._size
         res.vector = type(self.vector)(
             ARRAY_TYPE,
-            map(operator.xor, bv1.vector, bv2.vector),
+            map(operator.xor, bv1.vector, bv2.vector, strict=False),
         )
         res._mask_unused_bits()
         return res
@@ -546,7 +546,7 @@ class BitVector:
         res._size = bv1._size
         res.vector = type(self.vector)(
             ARRAY_TYPE,
-            map(operator.and_, bv1.vector, bv2.vector),
+            map(operator.and_, bv1.vector, bv2.vector, strict=False),
         )
         res._mask_unused_bits()
         return res
@@ -578,7 +578,7 @@ class BitVector:
         res._size = bv1._size
         res.vector = type(self.vector)(
             ARRAY_TYPE,
-            map(operator.or_, bv1.vector, bv2.vector),
+            map(operator.or_, bv1.vector, bv2.vector, strict=False),
         )
         res._mask_unused_bits()
         return res
@@ -611,7 +611,7 @@ class BitVector:
             bv2 = other._resize_pad_from_left(self._size - other._size)
         else:
             bv2 = other
-        lpb = map(operator.__xor__, self.vector, bv2.vector)
+        lpb = map(operator.__xor__, self.vector, bv2.vector, strict=False)
         self.vector = array.array(ARRAY_TYPE, lpb)
         self._mask_unused_bits()
         return self
@@ -644,7 +644,7 @@ class BitVector:
             bv2 = other._resize_pad_from_left(self._size - other._size)
         else:
             bv2 = other
-        lpb = map(operator.__and__, self.vector, bv2.vector)
+        lpb = map(operator.__and__, self.vector, bv2.vector, strict=False)
         self.vector = array.array(ARRAY_TYPE, lpb)
         self._mask_unused_bits()
         return self
@@ -677,7 +677,7 @@ class BitVector:
             bv2 = other._resize_pad_from_left(self._size - other._size)
         else:
             bv2 = other
-        lpb = map(operator.__or__, self.vector, bv2.vector)
+        lpb = map(operator.__or__, self.vector, bv2.vector, strict=False)
         self.vector = array.array(ARRAY_TYPE, lpb)
         self._mask_unused_bits()
         return self
@@ -1087,19 +1087,24 @@ class BitVector:
     def shift_left_by_one(self) -> None:
         """Performs a one-bit in-place logical left shift (zero-filling right)."""
         size = len(self.vector)
-        left_most_bits = list(map(operator.__and__, self.vector, [1] * size))
+        left_most_bits = list(
+            map(operator.__and__, self.vector, [1] * size, strict=False)
+        )
         left_most_bits.append(left_most_bits[0])
         del left_most_bits[0]
         self.vector = array.array(
             ARRAY_TYPE,
-            map(operator.__rshift__, self.vector, [1] * size),
+            map(operator.__rshift__, self.vector, [1] * size, strict=False),
         )
         self.vector = array.array(
             ARRAY_TYPE,
             map(
                 operator.__or__,
                 self.vector,
-                list(map(operator.__lshift__, left_most_bits, [63] * size)),
+                list(
+                    map(operator.__lshift__, left_most_bits, [63] * size, strict=False)
+                ),
+                strict=False,
             ),
         )
         self[self._size - 1] = 0
@@ -1108,24 +1113,34 @@ class BitVector:
         """Performs a one-bit in-place logical right shift (zero-filling left)."""
         size = len(self.vector)
         right_most_bits = list(
-            map(operator.__and__, self.vector, [0x8000000000000000] * size),
+            map(
+                operator.__and__, self.vector, [0x8000000000000000] * size, strict=False
+            ),
         )
         self.vector = array.array(
             ARRAY_TYPE,
-            map(operator.__and__, self.vector, [~0x8000000000000000] * size),
+            map(
+                operator.__and__,
+                self.vector,
+                [~0x8000000000000000] * size,
+                strict=False,
+            ),
         )
         right_most_bits.insert(0, 0)
         right_most_bits.pop()
         self.vector = array.array(
             ARRAY_TYPE,
-            map(operator.__lshift__, self.vector, [1] * size),
+            map(operator.__lshift__, self.vector, [1] * size, strict=False),
         )
         self.vector = array.array(
             ARRAY_TYPE,
             map(
                 operator.__or__,
                 self.vector,
-                list(map(operator.__rshift__, right_most_bits, [63] * size)),
+                list(
+                    map(operator.__rshift__, right_most_bits, [63] * size, strict=False)
+                ),
+                strict=False,
             ),
         )
         self[0] = 0
