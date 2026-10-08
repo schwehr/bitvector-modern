@@ -59,7 +59,7 @@ repos:
           - pytest-benchmark
 
   - repo: https://github.com/PyCQA/pylint
-    rev: v4.0.8
+    rev: v4.1.1
     hooks:
       - id: pylint
         additional_dependencies:
