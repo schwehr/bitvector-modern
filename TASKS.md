@@ -33,14 +33,14 @@ Fix P0 bugs on the *current* API so a safe release exists before any renames.
 
 ### Slicing and indexing
 
-- [ ] P1-1 `__getitem__`: honour `slice.step` (including negative) or raise
+- [x] P1-1 `__getitem__`: honour `slice.step` (including negative) or raise
   `ValueError("step is not supported")` as an interim measure; add tests for
   `[::2]`, `[::-1]`, `[1:4:2]`, `[::64]`, `[::-64]`. [B1]
-- [ ] P1-2 `__setitem__`: make `bv[:] = other` replace all bits; honour or
+- [x] P1-2 `__setitem__`: make `bv[:] = other` replace all bits; honour or
   reject `step`; fix `test_setitem_full_slice` which asserts the bug. [B2]
-- [ ] P1-3 `__setitem__`: reject non-`int` values for index assignment before
+- [x] P1-3 `__setitem__`: reject non-`int` values for index assignment before
   the `in (0, 1)` check (`bool` stays allowed). [B10]
-- [ ] P1-4 `rank_of_bit_set_at_index`: normalise negative positions once, then
+- [x] P1-4 `rank_of_bit_set_at_index`: normalise negative positions once, then
   count words directly instead of slicing. [B7]
 
 ### Copy semantics

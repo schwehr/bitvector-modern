@@ -1,6 +1,7 @@
 """Tests BitVector operations (math, shifts, distance, GF arithmetic)."""
 
 import copy
+from typing import Any, cast
 
 import pytest
 
@@ -561,6 +562,45 @@ def test_rank_of_bit_set_at_index() -> None:
     """Tests calculating the rank (number of preceding 1 bits) of a set bit."""
     bv = BitVector.from_bitstring("01010101011100")
     assert bv.rank_of_bit_set_at_index(10) == 6
+
+
+def test_rank_of_bit_set_at_index_negative_position() -> None:
+    """Tests rank_of_bit_set_at_index with negative positions [B7]."""
+    bv = BitVector.from_bitstring("01010101011100")
+    # Position 10 corresponds to -4 in a 14-bit vector
+    assert bv.rank_of_bit_set_at_index(-4) == 6
+
+    # Position 11 corresponds to -3
+    assert bv.rank_of_bit_set_at_index(-3) == 7
+
+    # Last bit set
+    bv_end = BitVector.from_bitstring("0001")
+    assert bv_end.rank_of_bit_set_at_index(-1) == 1
+
+
+def test_rank_of_bit_set_at_index_multiword() -> None:
+    """Tests rank_of_bit_set_at_index across 64-bit word boundaries [B7]."""
+    # 130 bits: word 0 (64 bits, all 1s), word 1 (bit 64 is 1, rest 0)
+    bv = BitVector(bitlist=[1] * 64 + [1] + [0] * 65)
+    assert bv.rank_of_bit_set_at_index(63) == 64
+    assert bv.rank_of_bit_set_at_index(64) == 65
+    assert bv.rank_of_bit_set_at_index(-66) == 65
+
+
+def test_rank_of_bit_set_at_index_invalid_position_raises_error() -> None:
+    """Tests rank_of_bit_set_at_index raises ValueError on out of bounds [B7]."""
+    bv = BitVector.from_bitstring("101")
+    with pytest.raises(ValueError, match="index range error"):
+        bv.rank_of_bit_set_at_index(3)
+    with pytest.raises(ValueError, match="index range error"):
+        bv.rank_of_bit_set_at_index(-4)
+
+
+def test_rank_of_bit_set_at_index_type_error() -> None:
+    """Tests rank_of_bit_set_at_index raises TypeError on non-int."""
+    bv = BitVector.from_bitstring("101")
+    with pytest.raises(TypeError, match="integer"):
+        bv.rank_of_bit_set_at_index(cast(Any, "0"))
 
 
 @pytest.mark.parametrize(

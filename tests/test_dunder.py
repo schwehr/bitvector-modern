@@ -421,7 +421,7 @@ def test_setitem_full_slice() -> None:
     """Tests __setitem__ when replacing the entire slice ([:])."""
     bv = BitVector.from_bitstring("1010")
     bv[:] = BitVector.from_bitstring("0101")
-    assert str(bv) == "1010"
+    assert str(bv) == "0101"
 
 
 @pytest.mark.parametrize(

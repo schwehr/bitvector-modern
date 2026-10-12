@@ -220,3 +220,134 @@ def test_bitvector_iterator() -> None:
     assert iter(it) is it
     assert list(it) == [1, 0, 1]
     assert not list(iter(BitVector(size=0)))
+
+
+@pytest.mark.parametrize(
+    ("initial", "sl", "expected"),
+    [
+        ("10110", slice(None, None, 2), "110"),
+        ("10110", slice(None, None, -1), "01101"),
+        ("10110", slice(1, 4, 2), "01"),
+        ("10110", slice(3, 1, -1), "11"),
+        ("10110", slice(None, None, 1), "10110"),
+        ("", slice(None, None, 2), ""),
+        ("", slice(None, None, -1), ""),
+    ],
+)
+def test_getitem_slice_step(initial: str, sl: slice, expected: str) -> None:
+    """Tests __getitem__ with positive and negative slice steps [B1]."""
+    bv = BitVector.from_bitstring(initial) if initial else BitVector(size=0)
+    assert str(bv[sl]) == expected
+
+
+def test_getitem_slice_step_multiword() -> None:
+    """Tests multi-word slicing with large positive and negative steps [B1]."""
+    pattern = "11001010" * 25  # 200 bits
+    bv = BitVector.from_bitstring(pattern)
+    assert str(bv[::64]) == pattern[::64]
+    assert str(bv[::-64]) == pattern[::-64]
+
+
+def test_getitem_slice_zero_step_raises_error() -> None:
+    """Tests that a slice step of zero raises ValueError."""
+    bv = BitVector.from_bitstring("10110")
+    with pytest.raises(ValueError, match="slice step cannot be zero"):
+        _ = bv[::0]
+
+
+def test_setitem_slice_full_replacement() -> None:
+    """Tests __setitem__ full slice assignment replacing all bits [B2]."""
+    bv = BitVector.from_bitstring("1010")
+    bv[:] = BitVector.from_bitstring("0101")
+    assert str(bv) == "0101"
+
+
+def test_setitem_slice_full_replacement_length_mismatch() -> None:
+    """Tests __setitem__ full slice assignment raises on length mismatch [B2]."""
+    bv = BitVector.from_bitstring("1010")
+    with pytest.raises(ValueError, match="incompatible lengths"):
+        bv[:] = BitVector.from_bitstring("01")
+
+
+def test_setitem_slice_step() -> None:
+    """Tests __setitem__ slice assignment with positive and negative steps [B2]."""
+    bv = BitVector.from_bitstring("00000")
+    bv[::2] = BitVector.from_bitstring("111")
+    assert str(bv) == "10101"
+
+    bv[::-1] = BitVector.from_bitstring("01010")
+    assert str(bv) == "01010"
+
+
+def test_setitem_slice_step_length_mismatch() -> None:
+    """Tests __setitem__ slice assignment with step raises on length mismatch."""
+    bv = BitVector.from_bitstring("00000")
+    with pytest.raises(ValueError, match="incompatible lengths"):
+        bv[::2] = BitVector.from_bitstring("11")
+
+
+def test_setitem_slice_step_zero_raises_error() -> None:
+    """Tests __setitem__ with step=0 raises ValueError."""
+    bv = BitVector.from_bitstring("1010")
+    with pytest.raises(ValueError, match="slice step cannot be zero"):
+        bv[::0] = BitVector.from_bitstring("1010")
+
+
+@pytest.mark.parametrize(
+    "invalid_val",
+    [
+        BitVector.from_int(0),
+        BitVector.from_int(1),
+        "0",
+        "1",
+        [1],
+        (1,),
+        None,
+        3.14,
+    ],
+)
+def test_setitem_non_int_raises_type_error(invalid_val: Any) -> None:
+    """Tests __setitem__ rejects non-int values, including BitVector [B10]."""
+    bv = BitVector.from_bitstring("0000")
+    with pytest.raises(TypeError, match="integer"):
+        bv[0] = invalid_val
+
+
+def test_setitem_bool_allowed() -> None:
+    """Tests __setitem__ accepts boolean values True and False [B10]."""
+    bv = BitVector.from_bitstring("0000")
+    bv[0] = True
+    bv[1] = False
+    assert str(bv) == "1000"
+
+
+@pytest.mark.parametrize(
+    "sl",
+    [
+        slice(10, 1, 2),
+        slice(-10, 1, 2),
+        slice(1, 10, 2),
+        slice(1, -10, 2),
+    ],
+)
+def test_getitem_slice_step_out_of_bounds_raises_error(sl: slice) -> None:
+    """Tests __getitem__ with step raises ValueError when indices are out of bounds."""
+    bv = BitVector.from_bitstring("1010")
+    with pytest.raises(ValueError, match="illegal slice index values"):
+        _ = bv[sl]
+
+
+@pytest.mark.parametrize(
+    "sl",
+    [
+        slice(10, 1, 2),
+        slice(-10, 1, 2),
+        slice(1, 10, 2),
+        slice(1, -10, 2),
+    ],
+)
+def test_setitem_slice_step_out_of_bounds_raises_error(sl: slice) -> None:
+    """Tests __setitem__ with step raises ValueError when indices are out of bounds."""
+    bv = BitVector.from_bitstring("1010")
+    with pytest.raises(ValueError, match="illegal slice index values"):
+        bv[sl] = BitVector(size=0)
