@@ -437,15 +437,47 @@ class BitVector:
         Returns:
             A new BitVector instance containing the extracted slice of bits.
 
-        """
-        if pos.start is None and pos.stop is None:
-            return copy.deepcopy(self)
+        Raises:
+            ValueError: If slice step is zero or slice indices are illegal.
 
-        start, stop = self._resolve_slice_range(pos)
-        if start >= stop or self._size == 0:
+        """
+        step = pos.step
+        if step == 0:
+            raise ValueError("slice step cannot be zero")
+
+        if step is None or step == 1:
+            if pos.start is None and pos.stop is None:
+                return copy.deepcopy(self)
+
+            start, stop = self._resolve_slice_range(pos)
+            if start >= stop or self._size == 0:
+                return self.__class__(size=0)
+
+            return self._extract_slice_words(start, stop)
+
+        # Non-unit step handling:
+        n = self._size
+        if pos.start is not None and (pos.start > n or pos.start < -n):
+            raise ValueError("illegal slice index values")
+        if pos.stop is not None and (pos.stop > n or pos.stop < -n):
+            raise ValueError("illegal slice index values")
+
+        indices = range(*pos.indices(n))
+        k = len(indices)
+        if k == 0:
             return self.__class__(size=0)
 
-        return self._extract_slice_words(start, stop)
+        num_words = (k + 63) // 64
+        words = [0] * num_words
+        vec = self.vector
+        for out_idx, in_idx in enumerate(indices):
+            if (vec[in_idx // 64] >> (in_idx & 63)) & 1:
+                words[out_idx // 64] |= 1 << (out_idx & 63)
+
+        res = object.__new__(self.__class__)
+        res._size = k
+        res.vector = array.array(ARRAY_TYPE, words)
+        return res
 
     def _extract_slice_words(self, start: int, stop: int) -> BitVector:
         """Extracts word data for bit range [start, stop) into a new BitVector.
@@ -1235,6 +1267,87 @@ class BitVector:
         self.vector = new_vec
         return self
 
+    def _set_slice(self, pos: slice, item: object) -> None:
+        """Assigns a slice of bits from another BitVector.
+
+        Args:
+            pos: A slice object specifying destination bit positions.
+            item: A BitVector of matching length to assign.
+
+        Raises:
+            TypeError: If item is not a BitVector.
+            ValueError: If slice step is zero, indices are illegal, or lengths
+                are incompatible.
+
+        """
+        if not isinstance(item, BitVector):
+            raise TypeError(
+                "For slice assignment, the right hand side must be a BitVector",
+            )
+        step = pos.step
+        if step == 0:
+            raise ValueError("slice step cannot be zero")
+
+        if step is not None and step != 1:
+            n = len(self)
+            if pos.start is not None and (pos.start > n or pos.start < -n):
+                raise ValueError("illegal slice index values")
+            if pos.stop is not None and (pos.stop > n or pos.stop < -n):
+                raise ValueError("illegal slice index values")
+            indices = range(*pos.indices(n))
+            if len(indices) != len(item):
+                raise ValueError("incompatible lengths for slice assignment")
+            item_bits = list(item)
+            for target_idx, bit in zip(indices, item_bits):
+                self[target_idx] = bit
+            return
+
+        if pos.start is None and pos.stop is None:
+            if len(self) != len(item):
+                raise ValueError("incompatible lengths for slice assignment")
+            self.vector = copy.copy(item.vector)
+            return
+        if pos.start is None:
+            if pos.stop >= 0:
+                if pos.stop != len(item):
+                    raise ValueError("incompatible lengths for slice assignment 1")
+                for i in range(pos.stop):
+                    self[i] = item[i]
+            else:
+                if len(self) - abs(pos.stop) != len(item):
+                    raise ValueError("incompatible lengths for slice assignment 2")
+                for i in range(len(self) + pos.stop):
+                    self[i] = item[i]
+            return
+        if pos.stop is None:
+            if pos.start >= 0:
+                if (len(self) - pos.start) != len(item):
+                    raise ValueError("incompatible lengths for slice assignment 3")
+                for i, val in enumerate(item):
+                    self[pos.start + i] = val
+            else:
+                if abs(pos.start) != len(item):
+                    raise ValueError("incompatible lengths for slice assignment 4")
+                for i, val in enumerate(item):
+                    self[len(self) + pos.start + i] = val
+            return
+        if pos.stop < 0 <= pos.start:
+            if (len(self) + pos.stop - pos.start) != len(item):
+                raise ValueError("incompatible lengths for slice assignment 5")
+            for i in range(pos.start, len(self) + pos.stop):
+                self[i] = item[i - pos.start]
+            return
+        if pos.start < 0 <= pos.stop:
+            if (pos.stop - len(self) - pos.start) != len(item):
+                raise ValueError("incompatible lengths for slice assignment 6")
+            for i in range(len(self) + pos.start, pos.stop):
+                self[i] = item[i - len(self) - pos.start]
+            return
+        if (pos.stop - pos.start) != len(item):
+            raise ValueError("incompatible lengths for slice assignment 7")
+        for i in range(pos.start, pos.stop):
+            self[i] = item[i - pos.start]
+
     def __setitem__(self, pos: int | slice, item: int | BitVector) -> None:
         """Assigns a bit or slice of bits at the specified position.
 
@@ -1251,62 +1364,18 @@ class BitVector:
             ValueError: If slice lengths are incompatible or index is out of range.
 
         """
-        # The following section is for slice assignment:
         if isinstance(pos, slice):
-            if not isinstance(item, BitVector):
-                raise TypeError(
-                    "For slice assignment, the right hand side must be a BitVector",
-                )
-            if pos.start is None and pos.stop is None:
-                return
-            if pos.start is None:
-                if pos.stop >= 0:
-                    if pos.stop != len(item):
-                        raise ValueError("incompatible lengths for slice assignment 1")
-                    for i in range(pos.stop):
-                        self[i] = item[i]
-                else:
-                    if len(self) - abs(pos.stop) != len(item):
-                        raise ValueError("incompatible lengths for slice assignment 2")
-                    for i in range(len(self) + pos.stop):
-                        self[i] = item[i]
-                return
-            if pos.stop is None:
-                if pos.start >= 0:
-                    if (len(self) - pos.start) != len(item):
-                        raise ValueError("incompatible lengths for slice assignment 3")
-                    for i, val in enumerate(item):
-                        self[pos.start + i] = val
-                else:
-                    if abs(pos.start) != len(item):
-                        raise ValueError("incompatible lengths for slice assignment 4")
-                    for i, val in enumerate(item):
-                        self[len(self) + pos.start + i] = val
-                return
-            if pos.stop < 0 <= pos.start:
-                if (len(self) + pos.stop - pos.start) != len(item):
-                    raise ValueError("incompatible lengths for slice assignment 5")
-                for i in range(pos.start, len(self) + pos.stop):
-                    self[i] = item[i - pos.start]
-                return
-            if pos.start < 0 <= pos.stop:
-                if (pos.stop - len(self) - pos.start) != len(item):
-                    raise ValueError("incompatible lengths for slice assignment 6")
-                for i in range(len(self) + pos.start, pos.stop):
-                    self[i] = item[i - len(self) - pos.start]
-                return
-            if (pos.stop - pos.start) != len(item):
-                raise ValueError("incompatible lengths for slice assignment 7")
-            for i in range(pos.start, pos.stop):
-                self[i] = item[i - pos.start]
+            self._set_slice(pos, item)
             return
         # Index assignment:
-        if item not in (0, 1):
-            raise ValueError("incorrect value for a bit")
         if isinstance(pos, tuple):
             pos = pos[0]
         if not isinstance(pos, int):
             raise TypeError("pos must be an integer")
+        if not isinstance(item, int):
+            raise TypeError("bit value must be an integer (0 or 1)")
+        if item not in (0, 1):
+            raise ValueError("incorrect value for a bit")
         if pos >= self._size or pos < -self._size:
             raise ValueError("index range error")
         if pos < 0:
@@ -1861,13 +1930,29 @@ class BitVector:
             The total number of set bits from index 0 up to position (inclusive).
 
         Raises:
-            ValueError: If the bit at position is not set to 1.
+            TypeError: If position is not an integer.
+            ValueError: If position is out of range or if the bit at position
+                is not set to 1.
 
         """
-        if self[position] != 1:
+        if not isinstance(position, int):
+            raise TypeError("position must be an integer")
+        if position >= self._size or position < -self._size:
+            raise ValueError("index range error")
+        if position < 0:
+            position += self._size
+
+        word_idx = position // 64
+        bit_offset = position & 63
+        if (self.vector[word_idx] >> bit_offset) & 1 != 1:
             raise ValueError("the arg bit not set")
-        bv = self[0 : position + 1]
-        return bv.bit_count()
+
+        rank = sum(self.vector[w].bit_count() for w in range(word_idx))
+        if bit_offset == 63:
+            rank += self.vector[word_idx].bit_count()
+        else:
+            rank += (self.vector[word_idx] & ((1 << (bit_offset + 1)) - 1)).bit_count()
+        return rank
 
     def is_power_of_2(self) -> bool:
         """Checks whether the integer value of the vector is a power of two.
