@@ -1267,7 +1267,7 @@ class BitVector:
         self.vector = new_vec
         return self
 
-    def _set_slice(self, pos: slice, item: Any) -> None:
+    def _set_slice(self, pos: slice, item: object) -> None:
         """Assigns a slice of bits from another BitVector.
 
         Args:
