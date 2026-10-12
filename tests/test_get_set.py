@@ -306,11 +306,11 @@ def test_setitem_slice_step_zero_raises_error() -> None:
         3.14,
     ],
 )
-def test_setitem_non_int_raises_type_error(invalid_val: Any) -> None:
+def test_setitem_non_int_raises_type_error(invalid_val: object) -> None:
     """Tests __setitem__ rejects non-int values, including BitVector [B10]."""
     bv = BitVector.from_bitstring("0000")
     with pytest.raises(TypeError, match="integer"):
-        bv[0] = invalid_val
+        bv[0] = cast("int | BitVector", invalid_val)
 
 
 def test_setitem_bool_allowed() -> None:
