@@ -89,7 +89,7 @@ repos:
         exclude: ^tests/
 
   - repo: https://github.com/semgrep/pre-commit
-    rev: v1.181.0
+    rev: v1.182.1
     hooks:
       - id: semgrep
         args: [ --config, p/default ]
