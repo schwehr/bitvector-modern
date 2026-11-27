@@ -65,7 +65,7 @@ repos:
         additional_dependencies:
           - hypothesis
           - pylint-pytest
-          - pytest
+          - pytest<9  # pylint-pytest 1.1.8 needs pytest 8 internals
           - pytest-benchmark
           - pytest-cov
 
